@@ -1,0 +1,16 @@
+{
+    "name": "TODO extension name",
+    "description": "TODO extension description.",
+    "version": "0.0.1",
+    "manifest_version": 1,
+    "author": "desain",
+    "icon": "/logo.svg",
+    "homepage_url": "https://github.com/desain/TODO-repo-name",
+    "action": {
+        "title": "TODO extension name",
+        "icon": "/logo.svg",
+        "popover": "/action.html",
+        "height": 300,
+        "width": 300
+    }
+}
