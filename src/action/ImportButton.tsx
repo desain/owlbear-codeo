@@ -1,24 +1,38 @@
+import { Link } from "@mui/icons-material";
+import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
-import { isCodeoScript } from "../CodeoScript";
+import { CodeoScript, isCodeoScript } from "../CodeoScript";
 import { PlayerLocalStorage } from "../state/usePlayerStorage";
-import { Tooltip, IconButton, Link } from '@mui/material';
 
-async function importFromUrl() {
+async function importFromUrl(): Promise<Omit<
+    CodeoScript,
+    "createdAt" | "updatedAt"
+> | null> {
     const url = window.prompt("Enter URL of the script JSON:");
     if (!url) {
-        return undefined;
+        return null;
     }
 
     try {
         const response = await fetch(url);
-        const data: unknown = await response.json();
+        const text = await response.text();
 
-        if (!isCodeoScript(data)) {
-            throw new Error("Invalid script format");
+        try {
+            const json: unknown = JSON.parse(text);
+            if (!isCodeoScript(json)) {
+                throw new Error("Invalid script format");
+            }
+            return json;
+        } catch (SyntaxError) {
+            console.log("Not json, trying to parse as code");
         }
 
-        const { id, createdAt, updatedAt, ...scriptData } = data;
-        return scriptData;
+        return {
+            id: crypto.randomUUID(),
+            name: "Imported Script",
+            description: response.url,
+            code: text,
+        };
     } catch (error) {
         const message = "Failed to import script:" + error;
         console.error(message);
