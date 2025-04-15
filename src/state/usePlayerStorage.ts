@@ -36,11 +36,11 @@ export interface PlayerLocalStorage {
     updateScript(
         this: void,
         id: string,
-        updates: Partial<Omit<CodeoScript, "id" | "createdAt">>,
+        updates: Partial<Omit<CodeoScript, "id" | "createdAt" | "updatedAt">>,
     ): void;
 }
 
-export const usePlayerSettings = create<PlayerLocalStorage>()(
+export const usePlayerStorage = create<PlayerLocalStorage>()(
     persist(
         (set) => ({
             hasSensibleValues: false,

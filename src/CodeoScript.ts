@@ -7,7 +7,6 @@ export interface CodeoScript {
     code: string;
     createdAt: number;
     updatedAt: number;
-    enabled: boolean;
 }
 
 export function isCodeoScript(script: unknown): script is CodeoScript {
