@@ -78,7 +78,10 @@ export function Action() {
                                     <Typography variant="h6" component="h2">
                                         {script.name}
                                     </Typography>
-                                    <Typography color="text.secondary">
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ wordBreak: "break-word" }}
+                                    >
                                         {script.description}
                                     </Typography>
                                 </CardContent>
