@@ -18,6 +18,7 @@ import { MODAL_ID, SCRIPT_ID_PARAM } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
+import { ImportButton } from "./ImportButton";
 import { RunScriptButton } from "./RunScriptButton";
 import { ScriptUploadButton } from "./ScriptUploadButton";
 
@@ -59,6 +60,7 @@ export function Action() {
                             <Add />
                         </IconButton>
                     </Tooltip>
+                    <ImportButton addScript={addScript} />
                     <ScriptUploadButton
                         onReceiveScript={(script) => {
                             const { id, createdAt, updatedAt, ...scriptData } =
