@@ -14,6 +14,7 @@ export default defineConfig({
             input: {
                 // must have a 'main' entry point
                 action: resolve(__dirname, "/action.html"),
+                modal: resolve(__dirname, "/modal.html"),
             },
         },
     },
