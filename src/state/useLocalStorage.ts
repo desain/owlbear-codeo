@@ -1,6 +1,7 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { CodeoScript } from "../CodeoScript";
 import { LOCAL_STORAGE_STORE_NAME } from "../constants";
 
 const ObrSceneReady = new Promise<void>((resolve) => {
@@ -18,22 +19,60 @@ const ObrSceneReady = new Promise<void>((resolve) => {
     });
 });
 
-async function fetchDefaults(): Promise<null> {
+async function fetchDefaults(): Promise<CodeoScript[]> {
     await ObrSceneReady;
-    return null;
+    return [];
 }
 
-export interface PlayerSettingsStore {
+export interface PlayerLocalStorage {
     hasSensibleValues: boolean;
+    scripts: CodeoScript[];
     _markSensible(this: void): void;
+    addScript(
+        this: void,
+        script: Omit<CodeoScript, "id" | "createdAt" | "updatedAt">,
+    ): void;
+    removeScript(this: void, id: string): void;
+    updateScript(
+        this: void,
+        id: string,
+        updates: Partial<Omit<CodeoScript, "id" | "createdAt">>,
+    ): void;
 }
 
-export const usePlayerSettings = create<PlayerSettingsStore>()(
+export const usePlayerSettings = create<PlayerLocalStorage>()(
     persist(
         (set) => ({
             hasSensibleValues: false,
+            scripts: [],
             _markSensible() {
                 set({ hasSensibleValues: true });
+            },
+            addScript(scriptData) {
+                const now = Date.now();
+                const newScript: CodeoScript = {
+                    ...scriptData,
+                    id: crypto.randomUUID(),
+                    createdAt: now,
+                    updatedAt: now,
+                };
+                set((state) => ({
+                    scripts: [...state.scripts, newScript],
+                }));
+            },
+            removeScript(id) {
+                set((state) => ({
+                    scripts: state.scripts.filter((script) => script.id !== id),
+                }));
+            },
+            updateScript(id, updates) {
+                set((state) => ({
+                    scripts: state.scripts.map((script) =>
+                        script.id === id
+                            ? { ...script, ...updates, updatedAt: Date.now() }
+                            : script,
+                    ),
+                }));
             },
         }),
         {
@@ -42,7 +81,8 @@ export const usePlayerSettings = create<PlayerSettingsStore>()(
                 return (state, error) => {
                     if (state) {
                         if (!state.hasSensibleValues) {
-                            void fetchDefaults().then(() => {
+                            void fetchDefaults().then((defaultScripts) => {
+                                state.scripts = defaultScripts;
                                 state._markSensible();
                             });
                         }

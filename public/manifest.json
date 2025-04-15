@@ -1,13 +1,13 @@
 {
-    "name": "TODO extension name",
-    "description": "TODO extension description.",
+    "name": "Owlbear Codeo",
+    "description": "Manage and run code snippets and user scripts in Owlbear Rodeo.",
     "version": "0.0.1",
     "manifest_version": 1,
     "author": "desain",
     "icon": "/logo.svg",
-    "homepage_url": "https://github.com/desain/TODO-repo-name",
+    "homepage_url": "https://github.com/desain/owlbear-codeo",
     "action": {
-        "title": "TODO extension name",
+        "title": "Owlbear Codeo",
         "icon": "/logo.svg",
         "popover": "/action.html",
         "height": 300,
