@@ -8,6 +8,7 @@ import {
     TextField,
 } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
+import CodeEditor from "@uiw/react-textarea-code-editor";
 import { useCallback, useEffect, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_ID } from "../constants";
@@ -110,20 +111,24 @@ export function Modal({ scriptId }: ModalProps) {
                         fullWidth
                         multiline
                         rows={2}
+                        variant="standard"
                     />
-                    <TextField
-                        label="Code"
+                    <CodeEditor
+                        language="js"
+                        placeholder="Enter your script here"
                         value={formData.code ?? ""}
+                        padding={30}
+                        style={{
+                            fontFamily:
+                                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                            fontSize: 16,
+                        }}
                         onChange={(e) =>
                             setFormData((prev) => ({
                                 ...prev,
                                 code: e.target.value,
                             }))
                         }
-                        fullWidth
-                        multiline
-                        rows={10}
-                        sx={{ fontFamily: "monospace" }}
                     />
                 </Stack>
             </DialogContent>

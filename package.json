@@ -29,6 +29,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@owlbear-rodeo/sdk": "^3.1.0",
+    "@uiw/react-textarea-code-editor": "^3.1.0",
     "globals": "^16.0.0",
     "owlbear-utils": "git+https://github.com/desain/owlbear-utils.git",
     "react": "^19.1.0",
