@@ -1,4 +1,4 @@
-# TODO extension name
+# Owlbear Codeo
 
 TODO
 
@@ -12,7 +12,7 @@ TODO
 
 ## Support
 
-If you need support for this extension you can message me in the [Owlbear Rodeo Discord](https://discord.com/invite/u5RYMkV98s) @Nick or open an issue on [GitHub](https://github.com/desain/TODO repo name/issues).
+If you need support for this extension you can message me in the [Owlbear Rodeo Discord](https://discord.com/invite/u5RYMkV98s) @Nick or open an issue on [GitHub](https://github.com/desain/owlbear-codeo/issues).
 
 ## Development
 

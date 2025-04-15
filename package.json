@@ -1,7 +1,7 @@
 {
   "name": "owlbear-template",
   "version": "0.0.1",
-  "description": "TODO extension description",
+  "description": "Manage and run code snippets and user scripts in Owlbear Rodeo",
   "scripts": {
     "dev": "vite",
     "build": "{ test \"$CF_PAGES\" '!=' 1 || test \"$SKIP_DEPENDENCY_INSTALL\" = 1; } || { echo 'SKIP_DEPENDENCY_INSTALL=1 must be set on Cloudflare Pages'; exit 1; } && tsc --build && vite build",

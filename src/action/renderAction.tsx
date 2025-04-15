@@ -31,14 +31,14 @@ function installBroadcastListener() {
 }
 
 async function installExtension(): Promise<VoidFunction> {
-    console.log(`TODO extension name version ${version}`);
+    console.log(`Owlbear Codeo version ${version}`);
 
     const [storeInitialized, stopSyncing] = startSyncing();
     await storeInitialized;
     const uninstallBroadcastListener = installBroadcastListener();
 
     return deferCallAll(
-        () => console.log("Uninstalling TODO extension name"),
+        () => console.log("Uninstalling Owlbear Codeo"),
         stopSyncing,
         uninstallBroadcastListener,
     );
