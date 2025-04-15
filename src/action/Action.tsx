@@ -11,29 +11,38 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
+import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
 import { useRef } from "react";
-import { usePlayerSettings } from "../state/useLocalStorage";
+import { MODAL_ID, SCRIPT_ID_PARAM } from "../constants";
+import { usePlayerStorage } from "../state/usePlayerStorage";
+import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { RunScriptButton } from "./RunScriptButton";
 import { ScriptUploadButton } from "./ScriptUploadButton";
 
+const BASE_HEIGHT = 100;
+const MAX_HEIGHT = 700;
+
+async function openEditModal(scriptId?: string) {
+    const queryString = scriptId ? `${SCRIPT_ID_PARAM}=${scriptId}` : "";
+    await OBR.modal.open({
+        id: MODAL_ID,
+        url: `/modal.html?${queryString}`,
+        fullScreen: true,
+        hideBackdrop: true,
+        hidePaper: true,
+    });
+}
+
 export function Action() {
     const box: React.RefObject<HTMLElement | null> = useRef(null);
-    const { scripts, addScript, removeScript } = usePlayerSettings();
+    const scripts = usePlayerStorage((store) => store.scripts);
+    const addScript = usePlayerStorage((store) => store.addScript);
+    const removeScript = usePlayerStorage((store) => store.removeScript);
 
-    const BASE_HEIGHT = 100;
-    const MAX_HEIGHT = 700;
+    useRehydrate();
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
-
-    const handleAddScript = () => {
-        addScript({
-            name: "New Script",
-            description: "A new custom script",
-            code: "// Write your script here",
-            enabled: true,
-        });
-    };
 
     return (
         <Box ref={box}>
@@ -43,7 +52,10 @@ export function Action() {
                         Owlbear Codeo
                     </Typography>
                     <Tooltip title="Create new script">
-                        <IconButton color="primary" onClick={handleAddScript}>
+                        <IconButton
+                            color="primary"
+                            onClick={() => openEditModal()}
+                        >
                             <Add />
                         </IconButton>
                     </Tooltip>
@@ -71,7 +83,12 @@ export function Action() {
                                 <CardActions>
                                     <RunScriptButton script={script} />
                                     <Tooltip title="Edit script">
-                                        <IconButton color="primary">
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() =>
+                                                void openEditModal(script.id)
+                                            }
+                                        >
                                             <Edit />
                                         </IconButton>
                                     </Tooltip>

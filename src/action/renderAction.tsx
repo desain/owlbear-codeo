@@ -14,13 +14,13 @@ let root: ReactDOM.Root | null = null;
 
 if (import.meta.hot) {
     import.meta.hot.accept();
-    // import.meta.hot.dispose(() = > {
-    //     console.log("Disposing"),
-    //     uninstall();
-    //     root?.unmount();
-    //     root = null;
-    //     return;
-    // });
+    import.meta.hot.dispose(() => {
+        console.log("Disposing");
+        uninstall();
+        root?.unmount();
+        root = null;
+        return;
+    });
 }
 
 function installBroadcastListener() {
