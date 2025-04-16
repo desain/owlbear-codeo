@@ -3,7 +3,7 @@ import { PluginGate, PluginThemeProvider } from "owlbear-utils";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { SCRIPT_ID_PARAM } from "../constants";
-import { Modal } from "./Modal";
+import { EditScript } from "./EditScript";
 
 if (import.meta.hot) {
     import.meta.hot.accept();
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <PluginGate>
                 <PluginThemeProvider>
                     <CssBaseline />
-                    <Modal scriptId={scriptId} />
+                    <EditScript scriptId={scriptId} />
                 </PluginThemeProvider>
             </PluginGate>
         </React.StrictMode>,

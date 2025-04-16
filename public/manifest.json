@@ -9,8 +9,8 @@
     "action": {
         "title": "Owlbear Codeo",
         "icon": "/logo.svg",
-        "popover": "/action.html",
+        "popover": "/src/action/action.html",
         "height": 300,
-        "width": 500
+        "width": 300
     }
 }

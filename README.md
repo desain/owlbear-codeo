@@ -51,8 +51,6 @@ To make a production build run:
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
--   Buttons that run scripts (right click on nothing -> modal to create a script button there)
-    -   Buttons have a label and a handle to drag them around by; label is attached to handle
 -   Script 'running' mode - scripts can return a 'stop' function, and if so they are considered running until the 'stop' button is clicked, which calls that function.
     -   Multiple instances of scripts running - scripts can return an 'execution name' and stop function
 -   Maybe? Live updating scripts (instead of storing code, they store a url, and fetch the latest code on run)
