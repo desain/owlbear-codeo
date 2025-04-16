@@ -38,6 +38,7 @@ export default tseslint.config(
                     checksVoidReturn: false,
                 },
             ],
+            curly: "error",
         },
     },
 );
