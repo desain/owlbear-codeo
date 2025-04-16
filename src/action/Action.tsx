@@ -1,4 +1,14 @@
-import { Add, Delete, Edit, Search, Stop } from "@mui/icons-material";
+import {
+    Add,
+    Delete,
+    Edit,
+    PlayCircleOutlineTwoTone,
+    Public,
+    Search,
+    Stop,
+    Update,
+    Visibility,
+} from "@mui/icons-material";
 import {
     Box,
     Card,
@@ -23,11 +33,12 @@ import { useActionResizer } from "owlbear-utils";
 import { useRef, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
+import { importScript } from "../importScript";
+import { runScript } from "../runScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
-import { RunScriptButton } from "./RunScriptButton";
 import { ScriptUploadButton } from "./ScriptUploadButton";
 
 const BASE_HEIGHT = 100;
@@ -54,9 +65,12 @@ function ScriptCard({
     descriptionRanges: HighlightRanges | null;
 }) {
     const removeScript = usePlayerStorage((store) => store.removeScript);
+    const updateScript = usePlayerStorage((store) => store.updateScript);
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
     const stopExecution = usePlayerStorage((store) => store.stopExecution);
+
+    const isImported = script.url !== undefined;
 
     return (
         <Card sx={{ width: "100%" }}>
@@ -67,7 +81,7 @@ function ScriptCard({
                         variant: "h6",
                     },
                 }}
-                action={<RunScriptButton script={script} />}
+                // action={}
             />
             <CardContent>
                 <Typography
@@ -75,7 +89,7 @@ function ScriptCard({
                     sx={{ wordBreak: "break-word" }}
                 >
                     <Highlight
-                        text={script.description}
+                        text={script.description || "[no description]"}
                         ranges={descriptionRanges}
                     />
                 </Typography>
@@ -137,15 +151,48 @@ function ScriptCard({
                 )}
             </CardContent>
             <CardActions>
-                <Tooltip title="Edit script">
-                    <IconButton
-                        color="primary"
-                        onClick={() => void openEditModal(script.id)}
-                    >
-                        <Edit />
+                <Tooltip title="Run script">
+                    <IconButton onClick={() => runScript(script)}>
+                        <PlayCircleOutlineTwoTone />
+                    </IconButton>
+                </Tooltip>{" "}
+                <Tooltip title={isImported ? "View" : "Edit script"}>
+                    <IconButton onClick={() => void openEditModal(script.id)}>
+                        {isImported ? <Visibility /> : <Edit />}
                     </IconButton>
                 </Tooltip>
                 <DownloadScriptButton script={script} />
+                {script.url && (
+                    <>
+                        <Tooltip title="Fetch latest script">
+                            <IconButton
+                                onClick={async () => {
+                                    if (!script.url) {
+                                        return;
+                                    }
+                                    const updated = await importScript(
+                                        script.url,
+                                    );
+                                    if (!updated) {
+                                        return;
+                                    }
+                                    updateScript(script.id, updated);
+                                    OBR.notification.show(
+                                        "Updated script",
+                                        "SUCCESS",
+                                    );
+                                }}
+                            >
+                                <Update />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Open source URL">
+                            <IconButton href={script.url} target="_blank">
+                                <Public />
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                )}
                 <Tooltip title="Delete script">
                     <IconButton
                         color="error"

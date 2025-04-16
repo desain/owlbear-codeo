@@ -15,6 +15,7 @@ TODO
 Some scripts to get you started:
 
 -   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
+-   [Live Line](https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44) - select two tokens and a line, and the line will move to connect the tokens even if you move them.
 
 ## Support
 
@@ -58,6 +59,8 @@ To make a production build run:
 -   Maybe? Live updating scripts (instead of storing code, they store a url, and fetch the latest code on run)
 -   Script arguments that can be specified before running like in unity.
     -   Ability to duplicate scripts with arguments to allow for multiple arguments lists
+-   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
+-   Favorites system
 
 ## License
 

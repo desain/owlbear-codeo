@@ -3,6 +3,11 @@ import { isObject } from "owlbear-utils";
 export interface CodeoScript {
     id: string;
     name: string;
+    author?: string;
+    /**
+     * URL the script was imported from. Used to dynamically reload scripts.
+     */
+    url?: string;
     description: string;
     code: string;
     createdAt: number;
@@ -16,6 +21,8 @@ export function isCodeoScript(script: unknown): script is CodeoScript {
         typeof script.id === "string" &&
         "name" in script &&
         typeof script.name === "string" &&
+        (!("author" in script) || typeof script.author === "string") &&
+        (!("url" in script) || typeof script.url === "string") &&
         "description" in script &&
         typeof script.description === "string" &&
         "code" in script &&

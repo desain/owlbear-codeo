@@ -18,7 +18,7 @@ function handleDownload(script: CodeoScript) {
 export function DownloadScriptButton({ script }: { script: CodeoScript }) {
     return (
         <Tooltip title="Download script">
-            <IconButton color="primary" onClick={() => handleDownload(script)}>
+            <IconButton onClick={() => handleDownload(script)}>
                 <Download />
             </IconButton>
         </Tooltip>
