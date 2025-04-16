@@ -13,11 +13,22 @@ function guessName(url: string) {
     return "Imported Script";
 }
 
+function getRaw(url: string | null): string | null {
+    if (url === null) {
+        return null;
+    }
+    const match = url.match(/^https?:\/\/gist\.github\.com\/[^/]+\/\w+\/?$/);
+    if (match) {
+        return url + "/raw";
+    }
+    return url;
+}
+
 async function importFromUrl(): Promise<Omit<
     CodeoScript,
     "createdAt" | "updatedAt"
 > | null> {
-    const url = window.prompt("Enter URL of the script JSON:");
+    const url = getRaw(window.prompt("Enter URL of the script JSON:"));
     if (!url) {
         return null;
     }
