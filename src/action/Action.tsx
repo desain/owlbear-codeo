@@ -1,11 +1,18 @@
 import {
+    AccessTime,
     Add,
+    ArrowDownward,
+    ArrowUpward,
     Delete,
     Edit,
     MoreVert,
+    Person,
     PlayCircleOutlineTwoTone,
     Search,
+    Sort,
+    SortByAlpha,
     Stop,
+    Update,
     Visibility,
 } from "@mui/icons-material";
 import {
@@ -23,16 +30,16 @@ import {
     Menu,
     MenuItem,
     Stack,
+    TextField,
     Tooltip,
     Typography,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
 import { Execution } from "../Execution";
@@ -208,6 +215,59 @@ function ScriptCard({
     );
 }
 
+type SortOption =
+    | "name-asc"
+    | "name-desc"
+    | "created-desc"
+    | "created-asc"
+    | "updated-desc"
+    | "updated-asc"
+    | "author-asc"
+    | "author-desc";
+
+function getComparator(
+    sortOption: SortOption,
+): (a: { script: CodeoScript }, b: { script: CodeoScript }) => number {
+    switch (sortOption) {
+        case "name-asc":
+            return (a, b) =>
+                a.script.name.localeCompare(b.script.name, undefined, {
+                    sensitivity: "base",
+                });
+        case "name-desc":
+            return (a, b) =>
+                b.script.name.localeCompare(a.script.name, undefined, {
+                    sensitivity: "base",
+                });
+        case "created-asc":
+            return (a, b) => a.script.createdAt - b.script.createdAt;
+        case "created-desc":
+            return (a, b) => b.script.createdAt - a.script.createdAt;
+        case "updated-asc":
+            return (a, b) => a.script.updatedAt - b.script.updatedAt;
+        case "updated-desc":
+            return (a, b) => b.script.updatedAt - a.script.updatedAt;
+        case "author-asc":
+            return (a, b) =>
+                (a.script.author ?? "").localeCompare(
+                    b.script.author ?? "",
+                    undefined,
+                    {
+                        sensitivity: "base",
+                    },
+                );
+        case "author-desc":
+            return (a, b) =>
+                (b.script.author ?? "").localeCompare(
+                    a.script.author ?? "",
+                    undefined,
+                    {
+                        sensitivity: "base",
+                    },
+                );
+    }
+}
+
 export function Action() {
     const box: React.RefObject<HTMLElement | null> = useRef(null);
     const scripts = usePlayerStorage((store) => store.scripts);
@@ -216,9 +276,14 @@ export function Action() {
     useRehydrate();
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
 
+    // Search state
     const [search, setSearch] = useState("");
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Sorting state
+    const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
+    const [sortOption, setSortOption] = useState<SortOption>("updated-desc");
 
     // Fuzzy search on name, description, and code
     const filteredScripts = useFuzzySearchList({
@@ -236,35 +301,16 @@ export function Action() {
         }),
     });
 
+    const sortedScripts = useMemo(
+        () => [...filteredScripts].sort(getComparator(sortOption)),
+        [sortOption, filteredScripts],
+    );
+
     // Focus input when search bar opens
     useEffect(() => {
         if (searchOpen && searchInputRef.current) {
             searchInputRef.current.focus();
         }
-    }, [searchOpen]);
-
-    // Collapse search bar on outside click or Escape
-    useEffect(() => {
-        if (!searchOpen) return;
-        function handleClick(e: MouseEvent) {
-            if (
-                searchInputRef.current &&
-                !searchInputRef.current.contains(e.target as Node)
-            ) {
-                setSearchOpen(false);
-            }
-        }
-        function handleKey(e: KeyboardEvent) {
-            if (e.key === "Escape") {
-                setSearchOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClick);
-        document.addEventListener("keydown", handleKey);
-        return () => {
-            document.removeEventListener("mousedown", handleClick);
-            document.removeEventListener("keydown", handleKey);
-        };
     }, [searchOpen]);
 
     return (
@@ -302,43 +348,167 @@ export function Action() {
                 </Stack>
                 {/* Search and filter row */}
                 <Stack direction="row" alignItems="center" spacing={1} px={2}>
-                    <Box sx={{ position: "relative" }}>
-                        {searchOpen ? (
-                            <OutlinedInput
-                                inputRef={searchInputRef}
-                                fullWidth
-                                size="small"
-                                placeholder="Search scripts..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <Search />
-                                    </InputAdornment>
+                    {searchOpen ? (
+                        <TextField
+                            inputRef={searchInputRef}
+                            fullWidth
+                            size="small"
+                            placeholder="Search scripts..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search />
+                                        </InputAdornment>
+                                    ),
+                                    type: "search",
+                                },
+                            }}
+                            onBlur={() => {
+                                if (search === "") {
+                                    setSearchOpen(false);
                                 }
-                                onBlur={() => setSearchOpen(false)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Escape") {
-                                        e.preventDefault();
-                                        setSearchOpen(false);
-                                    }
-                                }}
-                            />
-                        ) : (
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === "Escape") {
+                                    e.preventDefault();
+                                    setSearchOpen(false);
+                                }
+                            }}
+                        />
+                    ) : (
+                        <>
                             <Tooltip title="Search scripts">
-                                <IconButton
-                                    onClick={() => setSearchOpen(true)}
-                                    size="medium"
-                                >
+                                <IconButton onClick={() => setSearchOpen(true)}>
                                     <Search />
                                 </IconButton>
                             </Tooltip>
-                        )}
-                    </Box>
-                    {/* Future: filter/sort controls go here */}
+                            <Tooltip title="Sort scripts">
+                                <IconButton
+                                    onClick={(e) =>
+                                        setSortAnchorEl(e.currentTarget)
+                                    }
+                                >
+                                    <Sort />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                anchorEl={sortAnchorEl}
+                                open={Boolean(sortAnchorEl)}
+                                onClose={() => setSortAnchorEl(null)}
+                            >
+                                <MenuItem
+                                    selected={sortOption === "name-asc"}
+                                    onClick={() => {
+                                        setSortOption("name-asc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <SortByAlpha />
+                                        <ArrowUpward fontSize="small" />
+                                    </ListItemIcon>
+                                    Name (A-Z)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "name-desc"}
+                                    onClick={() => {
+                                        setSortOption("name-desc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <SortByAlpha />
+                                        <ArrowDownward fontSize="small" />
+                                    </ListItemIcon>
+                                    Name (Z-A)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "created-desc"}
+                                    onClick={() => {
+                                        setSortOption("created-desc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <AccessTime />
+                                        <ArrowUpward fontSize="small" />
+                                    </ListItemIcon>
+                                    Created Time (new to old)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "created-asc"}
+                                    onClick={() => {
+                                        setSortOption("created-asc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <AccessTime />
+                                        <ArrowDownward fontSize="small" />
+                                    </ListItemIcon>
+                                    Created Time (old to new)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "updated-desc"}
+                                    onClick={() => {
+                                        setSortOption("updated-desc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Update />
+                                        <ArrowUpward fontSize="small" />
+                                    </ListItemIcon>
+                                    Updated Time (new to old)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "updated-asc"}
+                                    onClick={() => {
+                                        setSortOption("updated-asc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Update />
+                                        <ArrowDownward fontSize="small" />
+                                    </ListItemIcon>
+                                    Updated Time (old to new)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "author-asc"}
+                                    onClick={() => {
+                                        setSortOption("author-asc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Person />
+                                        <ArrowUpward fontSize="small" />
+                                    </ListItemIcon>
+                                    Author (A-Z)
+                                </MenuItem>
+                                <MenuItem
+                                    selected={sortOption === "author-desc"}
+                                    onClick={() => {
+                                        setSortOption("author-desc");
+                                        setSortAnchorEl(null);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Person />
+                                        <ArrowDownward fontSize="small" />
+                                    </ListItemIcon>
+                                    Author (Z-A)
+                                </MenuItem>
+                            </Menu>
+                        </>
+                    )}
                 </Stack>
                 <List>
-                    {filteredScripts.map((scriptData) => (
+                    {sortedScripts.map((scriptData) => (
                         <ListItem key={scriptData.script.id}>
                             <ScriptCard {...scriptData} />
                         </ListItem>
