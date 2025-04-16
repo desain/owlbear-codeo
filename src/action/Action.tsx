@@ -4,6 +4,7 @@ import {
     Card,
     CardActions,
     CardContent,
+    CardHeader,
     IconButton,
     List,
     ListItem,
@@ -49,9 +50,19 @@ export function Action() {
         <Box ref={box}>
             <Stack spacing={2}>
                 <Stack direction={"row"} gap={1} alignItems={"center"}>
-                    <Typography variant="h6" sx={{ flex: 1 }}>
-                        Owlbear Codeo
-                    </Typography>
+                    <CardHeader
+                        title={"Owlbear Codeo"}
+                        slotProps={{
+                            title: {
+                                sx: {
+                                    fontSize: "1.125rem",
+                                    fontWeight: "bold",
+                                    lineHeight: "32px",
+                                    color: "text.primary",
+                                },
+                            },
+                        }}
+                    />
                     <Tooltip title="Create new script">
                         <IconButton
                             color="primary"
@@ -74,10 +85,16 @@ export function Action() {
                     {scripts.map((script) => (
                         <ListItem key={script.id}>
                             <Card sx={{ width: "100%" }}>
+                                <CardHeader
+                                    title={script.name}
+                                    slotProps={{
+                                        title: {
+                                            variant: "h6",
+                                        },
+                                    }}
+                                    action={<RunScriptButton script={script} />}
+                                />
                                 <CardContent>
-                                    <Typography variant="h6" component="h2">
-                                        {script.name}
-                                    </Typography>
                                     <Typography
                                         color="text.secondary"
                                         sx={{ wordBreak: "break-word" }}
@@ -86,7 +103,6 @@ export function Action() {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <RunScriptButton script={script} />
                                     <Tooltip title="Edit script">
                                         <IconButton
                                             color="primary"
