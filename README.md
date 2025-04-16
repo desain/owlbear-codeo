@@ -56,11 +56,11 @@ To make a production build run:
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
--   Maybe? Live updating scripts (instead of storing code, they store a url, and fetch the latest code on run)
 -   Script arguments that can be specified before running like in unity.
     -   Ability to duplicate scripts with arguments to allow for multiple arguments lists
 -   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
 -   Favorites system
+-   Overflow menu
 
 ## License
 

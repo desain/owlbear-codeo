@@ -11,9 +11,11 @@ function guessName(url: string): string | null {
 }
 
 function guessAuthor(url: string): string | undefined {
-    const match = url.match(/^https?:\/\/gist\.github\.com\/([^/]+)\//);
-    if (match && match[1]) {
-        return match[1];
+    const match = url.match(
+        /^https?:\/\/gist\.github(usercontent)?\.com\/([^/]+)\//,
+    );
+    if (match && match[2]) {
+        return match[2];
     }
     return undefined;
 }
@@ -26,10 +28,9 @@ function getRaw(url: string): string {
     return url;
 }
 
-export async function importScript(url: string): Promise<Omit<
-    CodeoScript,
-    "createdAt" | "updatedAt"
-> | null> {
+export async function importScript(
+    url: string,
+): Promise<Omit<CodeoScript, "createdAt" | "updatedAt"> | null> {
     url = getRaw(url);
 
     try {
