@@ -121,10 +121,10 @@ function OverflowMenu({ script }: { script: CodeoScript }) {
             </Tooltip>
             <Menu
                 anchorEl={anchorEl}
-                open={anchorEl !== null}
+                open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
             >
-                <MenuItem onClick={() => removeScript(script.id)} color="error">
+                <MenuItem onClick={() => removeScript(script.id)}>
                     <ListItemIcon>
                         <Delete />
                     </ListItemIcon>
@@ -315,206 +315,205 @@ export function Action() {
 
     return (
         <Box ref={box}>
-            <Stack spacing={1}>
-                {/* Header and top buttons */}
-                <Stack direction={"row"} gap={1} alignItems={"center"}>
-                    <CardHeader
-                        title={"Owlbear Codeo"}
+            {/* Header and top buttons */}
+            <Stack direction={"row"} gap={1} alignItems={"center"}>
+                <CardHeader
+                    title={"Owlbear Codeo"}
+                    slotProps={{
+                        title: {
+                            sx: {
+                                fontSize: "1.125rem",
+                                fontWeight: "bold",
+                                lineHeight: "32px",
+                                color: "text.primary",
+                            },
+                        },
+                    }}
+                    sx={{ flex: 1 }}
+                />
+                <Tooltip title="Create new script">
+                    <IconButton onClick={() => openEditModal()}>
+                        <Add />
+                    </IconButton>
+                </Tooltip>
+                <ImportButton addScript={addScript} />
+                <ScriptUploadButton
+                    onReceiveScript={(script) => {
+                        const { id, createdAt, updatedAt, ...scriptData } =
+                            script;
+                        addScript(scriptData);
+                    }}
+                />
+            </Stack>
+            {/* Search and filter row */}
+            <Stack direction="row" alignItems="center" spacing={1} px={2}>
+                {searchOpen ? (
+                    <TextField
+                        inputRef={searchInputRef}
+                        fullWidth
+                        size="small"
+                        placeholder="Search scripts..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         slotProps={{
-                            title: {
-                                sx: {
-                                    fontSize: "1.125rem",
-                                    fontWeight: "bold",
-                                    lineHeight: "32px",
-                                    color: "text.primary",
-                                },
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search />
+                                    </InputAdornment>
+                                ),
+                                type: "search",
                             },
                         }}
-                        sx={{ flex: 1 }}
-                    />
-                    <Tooltip title="Create new script">
-                        <IconButton onClick={() => openEditModal()}>
-                            <Add />
-                        </IconButton>
-                    </Tooltip>
-                    <ImportButton addScript={addScript} />
-                    <ScriptUploadButton
-                        onReceiveScript={(script) => {
-                            const { id, createdAt, updatedAt, ...scriptData } =
-                                script;
-                            addScript(scriptData);
+                        onBlur={() => {
+                            if (search === "") {
+                                setSearchOpen(false);
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                                e.preventDefault();
+                                setSearchOpen(false);
+                            }
                         }}
                     />
-                </Stack>
-                {/* Search and filter row */}
-                <Stack direction="row" alignItems="center" spacing={1} px={2}>
-                    {searchOpen ? (
-                        <TextField
-                            inputRef={searchInputRef}
-                            fullWidth
-                            size="small"
-                            placeholder="Search scripts..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            slotProps={{
-                                input: {
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Search />
-                                        </InputAdornment>
-                                    ),
-                                    type: "search",
-                                },
-                            }}
-                            onBlur={() => {
-                                if (search === "") {
-                                    setSearchOpen(false);
+                ) : (
+                    <>
+                        <Tooltip title="Search scripts">
+                            <IconButton onClick={() => setSearchOpen(true)}>
+                                <Search />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Sort scripts">
+                            <IconButton
+                                onClick={(e) =>
+                                    setSortAnchorEl(e.currentTarget)
                                 }
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Escape") {
-                                    e.preventDefault();
-                                    setSearchOpen(false);
-                                }
-                            }}
-                        />
-                    ) : (
-                        <>
-                            <Tooltip title="Search scripts">
-                                <IconButton onClick={() => setSearchOpen(true)}>
-                                    <Search />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Sort scripts">
-                                <IconButton
-                                    onClick={(e) =>
-                                        setSortAnchorEl(e.currentTarget)
-                                    }
-                                >
-                                    <Sort />
-                                </IconButton>
-                            </Tooltip>
-                            <Menu
-                                anchorEl={sortAnchorEl}
-                                open={Boolean(sortAnchorEl)}
-                                onClose={() => setSortAnchorEl(null)}
                             >
-                                <MenuItem
-                                    selected={sortOption === "name-asc"}
-                                    onClick={() => {
-                                        setSortOption("name-asc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <SortByAlpha />
-                                        <ArrowUpward fontSize="small" />
-                                    </ListItemIcon>
-                                    Name (A-Z)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "name-desc"}
-                                    onClick={() => {
-                                        setSortOption("name-desc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <SortByAlpha />
-                                        <ArrowDownward fontSize="small" />
-                                    </ListItemIcon>
-                                    Name (Z-A)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "created-desc"}
-                                    onClick={() => {
-                                        setSortOption("created-desc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <AccessTime />
-                                        <ArrowUpward fontSize="small" />
-                                    </ListItemIcon>
-                                    Created Time (new to old)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "created-asc"}
-                                    onClick={() => {
-                                        setSortOption("created-asc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <AccessTime />
-                                        <ArrowDownward fontSize="small" />
-                                    </ListItemIcon>
-                                    Created Time (old to new)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "updated-desc"}
-                                    onClick={() => {
-                                        setSortOption("updated-desc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <Update />
-                                        <ArrowUpward fontSize="small" />
-                                    </ListItemIcon>
-                                    Updated Time (new to old)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "updated-asc"}
-                                    onClick={() => {
-                                        setSortOption("updated-asc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <Update />
-                                        <ArrowDownward fontSize="small" />
-                                    </ListItemIcon>
-                                    Updated Time (old to new)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "author-asc"}
-                                    onClick={() => {
-                                        setSortOption("author-asc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <Person />
-                                        <ArrowUpward fontSize="small" />
-                                    </ListItemIcon>
-                                    Author (A-Z)
-                                </MenuItem>
-                                <MenuItem
-                                    selected={sortOption === "author-desc"}
-                                    onClick={() => {
-                                        setSortOption("author-desc");
-                                        setSortAnchorEl(null);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <Person />
-                                        <ArrowDownward fontSize="small" />
-                                    </ListItemIcon>
-                                    Author (Z-A)
-                                </MenuItem>
-                            </Menu>
-                        </>
-                    )}
-                </Stack>
-                <List>
-                    {sortedScripts.map((scriptData) => (
-                        <ListItem key={scriptData.script.id}>
-                            <ScriptCard {...scriptData} />
-                        </ListItem>
-                    ))}
-                </List>
+                                <Sort />
+                            </IconButton>
+                        </Tooltip>
+                        <Menu
+                            anchorEl={sortAnchorEl}
+                            open={Boolean(sortAnchorEl)}
+                            onClose={() => setSortAnchorEl(null)}
+                        >
+                            <MenuItem
+                                selected={sortOption === "name-asc"}
+                                onClick={() => {
+                                    setSortOption("name-asc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <SortByAlpha />
+                                    <ArrowUpward />
+                                </ListItemIcon>
+                                Name (A-Z)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "name-desc"}
+                                onClick={() => {
+                                    setSortOption("name-desc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <SortByAlpha />
+                                    <ArrowDownward />
+                                </ListItemIcon>
+                                Name (Z-A)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "created-desc"}
+                                onClick={() => {
+                                    setSortOption("created-desc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <AccessTime />
+                                    <ArrowUpward />
+                                </ListItemIcon>
+                                Created Time (new to old)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "created-asc"}
+                                onClick={() => {
+                                    setSortOption("created-asc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <AccessTime />
+                                    <ArrowDownward />
+                                </ListItemIcon>
+                                Created Time (old to new)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "updated-desc"}
+                                onClick={() => {
+                                    setSortOption("updated-desc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Update />
+                                    <ArrowUpward />
+                                </ListItemIcon>
+                                Updated Time (new to old)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "updated-asc"}
+                                onClick={() => {
+                                    setSortOption("updated-asc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Update />
+                                    <ArrowDownward />
+                                </ListItemIcon>
+                                Updated Time (old to new)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "author-asc"}
+                                onClick={() => {
+                                    setSortOption("author-asc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Person />
+                                    <ArrowUpward />
+                                </ListItemIcon>
+                                Author (A-Z)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "author-desc"}
+                                onClick={() => {
+                                    setSortOption("author-desc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Person />
+                                    <ArrowDownward />
+                                </ListItemIcon>
+                                Author (Z-A)
+                            </MenuItem>
+                        </Menu>
+                    </>
+                )}
             </Stack>
+            {/* List of scripts */}
+            <List>
+                {sortedScripts.map((scriptData) => (
+                    <ListItem key={scriptData.script.id}>
+                        <ScriptCard {...scriptData} />
+                    </ListItem>
+                ))}
+            </List>
         </Box>
     );
 }
