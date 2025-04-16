@@ -9,6 +9,7 @@ import { MESSAGE_CHANNEL } from "../constants";
 import { startSyncing } from "../state/startSyncing";
 import { Action } from "./Action";
 import { installContextMenu as createContextMenu } from "./createContextMenu";
+import { handleBroadcast } from "./handleBroadcast";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {};
@@ -27,8 +28,7 @@ if (import.meta.hot) {
 
 function installBroadcastListener() {
     return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) => {
-        // TODO handle
-        console.log(data);
+        handleBroadcast(data);
     });
 }
 
