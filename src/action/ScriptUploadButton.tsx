@@ -53,7 +53,7 @@ export function ScriptUploadButton({
     return (
         <>
             <Tooltip title="Upload script from file">
-                <IconButton color="primary" onClick={handleUploadClick}>
+                <IconButton onClick={handleUploadClick}>
                     <Upload />
                 </IconButton>
             </Tooltip>

@@ -89,12 +89,9 @@ function ExecutionItem({
                         transform: "translate(-50%, -50%)",
                         backgroundColor: "background.paper",
                         boxShadow: 1,
-                        "&:hover": {
-                            backgroundColor: "background.paper",
-                        },
                     }}
                 >
-                    <Stop fontSize="small" />
+                    <Stop />
                 </IconButton>
             </Box>
             <Typography variant="body2" color="textSecondary">
@@ -255,10 +252,7 @@ export function Action() {
                         sx={{ flex: 1 }}
                     />
                     <Tooltip title="Create new script">
-                        <IconButton
-                            color="primary"
-                            onClick={() => openEditModal()}
-                        >
+                        <IconButton onClick={() => openEditModal()}>
                             <Add />
                         </IconButton>
                     </Tooltip>

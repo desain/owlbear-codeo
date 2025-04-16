@@ -35,6 +35,10 @@ export async function importScript(
 
     try {
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+
         const text = await response.text();
 
         try {

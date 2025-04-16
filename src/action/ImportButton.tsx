@@ -11,7 +11,6 @@ export function ImportButton({
     return (
         <Tooltip title="Import script from URL">
             <IconButton
-                color="primary"
                 onClick={async () => {
                     const url = window.prompt("Enter script URL");
                     if (!url) {
