@@ -60,7 +60,6 @@ To make a production build run:
     -   Ability to duplicate scripts with arguments to allow for multiple arguments lists
 -   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
 -   Favorites system
--   Overflow menu
 
 ## License
 

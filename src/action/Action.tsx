@@ -2,8 +2,8 @@ import {
     Add,
     Delete,
     Edit,
+    MoreVert,
     PlayCircleOutlineTwoTone,
-    Public,
     Search,
     Stop,
     Visibility,
@@ -19,6 +19,9 @@ import {
     InputAdornment,
     List,
     ListItem,
+    ListItemIcon,
+    Menu,
+    MenuItem,
     Stack,
     Tooltip,
     Typography,
@@ -101,6 +104,33 @@ function ExecutionItem({
     );
 }
 
+function OverflowMenu({ script }: { script: CodeoScript }) {
+    const removeScript = usePlayerStorage((store) => store.removeScript);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    return (
+        <>
+            <Tooltip title="More">
+                <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
+                    <MoreVert />
+                </IconButton>
+            </Tooltip>
+            <Menu
+                anchorEl={anchorEl}
+                open={anchorEl !== null}
+                onClose={() => setAnchorEl(null)}
+            >
+                <MenuItem onClick={() => removeScript(script.id)} color="error">
+                    <ListItemIcon>
+                        <Delete />
+                    </ListItemIcon>
+                    Delete
+                </MenuItem>
+            </Menu>
+        </>
+    );
+}
+
 function ScriptCard({
     script,
     nameRanges,
@@ -112,7 +142,6 @@ function ScriptCard({
     descriptionRanges: HighlightRanges | null;
     authorRanges: HighlightRanges | null;
 }) {
-    const removeScript = usePlayerStorage((store) => store.removeScript);
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
 
@@ -135,7 +164,7 @@ function ScriptCard({
                         variant: "h6",
                     },
                 }}
-                // action={}
+                action={<OverflowMenu script={script} />}
             />
             <CardContent>
                 {script.description !== "" && (
@@ -176,24 +205,7 @@ function ScriptCard({
                     </IconButton>
                 </Tooltip>
                 <DownloadScriptButton script={script} />
-                {script.url && (
-                    <>
-                        <RefreshScriptButton script={script} />
-                        <Tooltip title="Open source URL">
-                            <IconButton href={script.url} target="_blank">
-                                <Public />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-                <Tooltip title="Delete script">
-                    <IconButton
-                        color="error"
-                        onClick={() => removeScript(script.id)}
-                    >
-                        <Delete />
-                    </IconButton>
-                </Tooltip>
+                {script.url && <RefreshScriptButton script={script} />}
             </CardActions>
         </Card>
     );

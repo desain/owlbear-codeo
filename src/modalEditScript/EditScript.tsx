@@ -1,5 +1,4 @@
-import CloseIcon from "@mui/icons-material/Close";
-import SaveIcon from "@mui/icons-material/Save";
+import { Close, Public, Save } from "@mui/icons-material";
 import {
     Button,
     Dialog,
@@ -140,14 +139,23 @@ export function EditScript({ scriptId }: EditScriptProps) {
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} startIcon={<CloseIcon />}>
+                {script?.url && (
+                    <Button
+                        href={script.url}
+                        target="_blank"
+                        startIcon={<Public />}
+                    >
+                        Open URL Source
+                    </Button>
+                )}
+                <Button onClick={handleClose} startIcon={<Close />}>
                     {editingDisabled ? "Close" : "Cancel"}
                 </Button>
                 {!editingDisabled && (
                     <Button
                         onClick={handleSave}
                         variant="contained"
-                        startIcon={<SaveIcon />}
+                        startIcon={<Save />}
                     >
                         Save
                     </Button>
