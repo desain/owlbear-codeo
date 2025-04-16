@@ -1,4 +1,5 @@
 import { Add, Delete, Edit } from "@mui/icons-material";
+import SearchIcon from "@mui/icons-material/Search";
 import {
     Box,
     Card,
@@ -6,15 +7,18 @@ import {
     CardContent,
     CardHeader,
     IconButton,
+    InputAdornment,
     List,
     ListItem,
     Stack,
     Tooltip,
     Typography,
 } from "@mui/material";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MODAL_ID, SCRIPT_ID_PARAM } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
@@ -45,6 +49,22 @@ export function Action() {
 
     useRehydrate();
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
+
+    const [search, setSearch] = useState("");
+    // Fuzzy search on name, description, and code
+    const filteredScripts = useFuzzySearchList({
+        list: scripts,
+        queryText: search,
+        getText: (item) => [item.name, item.description],
+        mapResultItem: ({
+            item,
+            matches: [nameRanges, descriptionRanges],
+        }) => ({
+            item,
+            nameRanges,
+            descriptionRanges,
+        }),
+    });
 
     return (
         <Box ref={box}>
@@ -80,54 +100,81 @@ export function Action() {
                         }}
                     />
                 </Stack>
-
+                <Box px={2}>
+                    <OutlinedInput
+                        fullWidth
+                        size="small"
+                        placeholder="Search scripts..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        startAdornment={
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        }
+                    />
+                </Box>
                 <List>
-                    {scripts.map((script) => (
-                        <ListItem key={script.id}>
-                            <Card sx={{ width: "100%" }}>
-                                <CardHeader
-                                    title={script.name}
-                                    slotProps={{
-                                        title: {
-                                            variant: "h6",
-                                        },
-                                    }}
-                                    action={<RunScriptButton script={script} />}
-                                />
-                                <CardContent>
-                                    <Typography
-                                        color="text.secondary"
-                                        sx={{ wordBreak: "break-word" }}
-                                    >
-                                        {script.description}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Tooltip title="Edit script">
-                                        <IconButton
-                                            color="primary"
-                                            onClick={() =>
-                                                void openEditModal(script.id)
-                                            }
+                    {filteredScripts.map(
+                        ({ item: script, nameRanges, descriptionRanges }) => (
+                            <ListItem key={script.id}>
+                                <Card sx={{ width: "100%" }}>
+                                    <CardHeader
+                                        title={
+                                            <Highlight
+                                                text={script.name}
+                                                ranges={nameRanges}
+                                            />
+                                        }
+                                        slotProps={{
+                                            title: {
+                                                variant: "h6",
+                                            },
+                                        }}
+                                        action={
+                                            <RunScriptButton script={script} />
+                                        }
+                                    />
+                                    <CardContent>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{ wordBreak: "break-word" }}
                                         >
-                                            <Edit />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <DownloadScriptButton script={script} />
-                                    <Tooltip title="Delete script">
-                                        <IconButton
-                                            color="error"
-                                            onClick={() =>
-                                                removeScript(script.id)
-                                            }
-                                        >
-                                            <Delete />
-                                        </IconButton>
-                                    </Tooltip>
-                                </CardActions>
-                            </Card>
-                        </ListItem>
-                    ))}
+                                            <Highlight
+                                                text={script.description}
+                                                ranges={descriptionRanges}
+                                            />
+                                        </Typography>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Tooltip title="Edit script">
+                                            <IconButton
+                                                color="primary"
+                                                onClick={() =>
+                                                    void openEditModal(
+                                                        script.id,
+                                                    )
+                                                }
+                                            >
+                                                <Edit />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <DownloadScriptButton script={script} />
+                                        <Tooltip title="Delete script">
+                                            <IconButton
+                                                color="error"
+                                                onClick={() =>
+                                                    removeScript(script.id)
+                                                }
+                                            >
+                                                <Delete />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </CardActions>
+                                </Card>
+                            </ListItem>
+                        ),
+                    )}
                 </List>
             </Stack>
         </Box>
