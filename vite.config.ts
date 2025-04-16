@@ -13,8 +13,15 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 // must have a 'main' entry point
-                action: resolve(__dirname, "/action.html"),
-                modal: resolve(__dirname, "/modal.html"),
+                action: resolve(__dirname, "/src/action/action.html"),
+                modalEditScript: resolve(
+                    __dirname,
+                    "/src/modalEditScript/modalEditScript.html",
+                ),
+                popoverAddButton: resolve(
+                    __dirname,
+                    "src/popoverAddButton/popoverAddButton.html",
+                ),
             },
         },
     },

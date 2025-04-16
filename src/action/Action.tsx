@@ -19,7 +19,7 @@ import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
 import { useRef, useState } from "react";
-import { MODAL_ID, SCRIPT_ID_PARAM } from "../constants";
+import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
@@ -33,8 +33,8 @@ const MAX_HEIGHT = 700;
 async function openEditModal(scriptId?: string) {
     const queryString = scriptId ? `${SCRIPT_ID_PARAM}=${scriptId}` : "";
     await OBR.modal.open({
-        id: MODAL_ID,
-        url: `/modal.html?${queryString}`,
+        id: MODAL_EDIT_SCRIPT_ID,
+        url: `/src/modalEditScript/modalEditScript.html?${queryString}`,
         fullScreen: true,
         hideBackdrop: true,
         hidePaper: true,
@@ -68,7 +68,7 @@ export function Action() {
 
     return (
         <Box ref={box}>
-            <Stack spacing={2}>
+            <Stack spacing={1}>
                 <Stack direction={"row"} gap={1} alignItems={"center"}>
                     <CardHeader
                         title={"Owlbear Codeo"}
@@ -82,6 +82,7 @@ export function Action() {
                                 },
                             },
                         }}
+                        sx={{ flex: 1 }}
                     />
                     <Tooltip title="Create new script">
                         <IconButton

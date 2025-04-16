@@ -1,6 +1,10 @@
 const PLUGIN_ID = "com.desain.codeo";
-export const METADATA_KEY = `${PLUGIN_ID}/metadata`;
+export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/metadata`;
 export const MESSAGE_CHANNEL = `${PLUGIN_ID}/message`;
 export const LOCAL_STORAGE_STORE_NAME = `${PLUGIN_ID}/localStorage`;
-export const MODAL_ID = `${PLUGIN_ID}/modal`;
+export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;
+export const POPOVER_ADD_BUTTON_ID = `${PLUGIN_ID}/popoverAddButton`;
 export const SCRIPT_ID_PARAM = "scriptId";
+export const LOCATION_X_PARAM = "x";
+export const LOCATION_Y_PARAM = "y";
+export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/create-button`;

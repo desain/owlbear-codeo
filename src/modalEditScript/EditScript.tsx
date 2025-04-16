@@ -1,3 +1,5 @@
+import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
 import {
     Button,
     Dialog,
@@ -11,17 +13,17 @@ import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { useCallback, useEffect, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
-import { MODAL_ID } from "../constants";
+import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
-interface ModalProps {
+interface EditScriptProps {
     /**
      * Script to edit. If null, this is a new script.
      */
     scriptId: string | null;
 }
 
-export function Modal({ scriptId }: ModalProps) {
+export function EditScript({ scriptId }: EditScriptProps) {
     const sensible = usePlayerStorage((store) => store.hasSensibleValues);
     const scripts = usePlayerStorage((store) => store.scripts);
     const updateScript = usePlayerStorage((store) => store.updateScript);
@@ -29,7 +31,7 @@ export function Modal({ scriptId }: ModalProps) {
     const [formData, setFormData] = useState<Partial<CodeoScript>>({});
 
     const handleClose = useCallback(() => {
-        void OBR.modal.close(MODAL_ID);
+        void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
     }, []);
 
     useEffect(() => {
@@ -133,8 +135,14 @@ export function Modal({ scriptId }: ModalProps) {
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleSave} variant="contained">
+                <Button onClick={handleClose} startIcon={<CloseIcon />}>
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleSave}
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                >
                     Save
                 </Button>
             </DialogActions>
