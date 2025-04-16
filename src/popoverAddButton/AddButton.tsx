@@ -9,7 +9,6 @@ import OBR, { Math2, Vector2 } from "@owlbear-rodeo/sdk";
 import { useCallback, useState } from "react";
 import { POPOVER_ADD_BUTTON_ID } from "../constants";
 import { buildScriptButton } from "../ScriptButton";
-import { useOwlbearStore } from "../state/useOwlbearStore";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 interface ScriptOption {
@@ -23,7 +22,7 @@ export function AddButton({ position }: { position: Vector2 }) {
     const handleClose = useCallback(() => {
         void OBR.popover.close(POPOVER_ADD_BUTTON_ID);
     }, []);
-    const playerColor = useOwlbearStore((store) => store.playerColor);
+    const playerColor = usePlayerStorage((store) => store.playerColor);
 
     const [selectedScript, setSelectedScript] = useState<ScriptOption | null>(
         null,
