@@ -32,7 +32,7 @@ import { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
 import { Execution } from "../Execution";
@@ -217,6 +217,9 @@ export function Action() {
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
 
     const [search, setSearch] = useState("");
+    const [searchOpen, setSearchOpen] = useState(false);
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
     // Fuzzy search on name, description, and code
     const filteredScripts = useFuzzySearchList({
         list: scripts,
@@ -233,9 +236,41 @@ export function Action() {
         }),
     });
 
+    // Focus input when search bar opens
+    useEffect(() => {
+        if (searchOpen && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [searchOpen]);
+
+    // Collapse search bar on outside click or Escape
+    useEffect(() => {
+        if (!searchOpen) return;
+        function handleClick(e: MouseEvent) {
+            if (
+                searchInputRef.current &&
+                !searchInputRef.current.contains(e.target as Node)
+            ) {
+                setSearchOpen(false);
+            }
+        }
+        function handleKey(e: KeyboardEvent) {
+            if (e.key === "Escape") {
+                setSearchOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        document.addEventListener("keydown", handleKey);
+        return () => {
+            document.removeEventListener("mousedown", handleClick);
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [searchOpen]);
+
     return (
         <Box ref={box}>
             <Stack spacing={1}>
+                {/* Header and top buttons */}
                 <Stack direction={"row"} gap={1} alignItems={"center"}>
                     <CardHeader
                         title={"Owlbear Codeo"}
@@ -265,20 +300,43 @@ export function Action() {
                         }}
                     />
                 </Stack>
-                <Box px={2}>
-                    <OutlinedInput
-                        fullWidth
-                        size="small"
-                        placeholder="Search scripts..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        startAdornment={
-                            <InputAdornment position="start">
-                                <Search />
-                            </InputAdornment>
-                        }
-                    />
-                </Box>
+                {/* Search and filter row */}
+                <Stack direction="row" alignItems="center" spacing={1} px={2}>
+                    <Box sx={{ position: "relative" }}>
+                        {searchOpen ? (
+                            <OutlinedInput
+                                inputRef={searchInputRef}
+                                fullWidth
+                                size="small"
+                                placeholder="Search scripts..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                startAdornment={
+                                    <InputAdornment position="start">
+                                        <Search />
+                                    </InputAdornment>
+                                }
+                                onBlur={() => setSearchOpen(false)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Escape") {
+                                        e.preventDefault();
+                                        setSearchOpen(false);
+                                    }
+                                }}
+                            />
+                        ) : (
+                            <Tooltip title="Search scripts">
+                                <IconButton
+                                    onClick={() => setSearchOpen(true)}
+                                    size="medium"
+                                >
+                                    <Search />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Box>
+                    {/* Future: filter/sort controls go here */}
+                </Stack>
                 <List>
                     {filteredScripts.map((scriptData) => (
                         <ListItem key={scriptData.script.id}>
