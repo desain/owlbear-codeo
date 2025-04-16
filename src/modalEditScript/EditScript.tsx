@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
@@ -26,9 +26,19 @@ interface EditScriptProps {
 export function EditScript({ scriptId }: EditScriptProps) {
     const sensible = usePlayerStorage((store) => store.hasSensibleValues);
     const scripts = usePlayerStorage((store) => store.scripts);
+    const script = useMemo(
+        () => scripts.find((script) => script.id === scriptId),
+        [scripts, scriptId],
+    );
     const updateScript = usePlayerStorage((store) => store.updateScript);
     const addScript = usePlayerStorage((store) => store.addScript);
-    const [formData, setFormData] = useState<Partial<CodeoScript>>({});
+    const [formData, setFormData] = useState<Partial<CodeoScript>>(
+        script ?? {
+            name: "My New Script",
+            description: "Describe your script here.",
+            code: "OBR.notification.show('Hello world!')",
+        },
+    );
 
     const handleClose = useCallback(() => {
         void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
@@ -44,23 +54,6 @@ export function EditScript({ scriptId }: EditScriptProps) {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handleClose]);
-
-    useEffect(() => {
-        const script = scripts.find((s) => s.id === scriptId);
-        if (script) {
-            setFormData({
-                name: script.name,
-                description: script.description,
-                code: script.code,
-            });
-        } else {
-            setFormData({
-                name: "My New Script",
-                description: "Describe your script here.",
-                code: "OBR.notification.show('Hello world!')",
-            });
-        }
-    }, []);
 
     if (!sensible) {
         return "Loading...";
@@ -85,41 +78,53 @@ export function EditScript({ scriptId }: EditScriptProps) {
         }
     };
 
+    // Don't allow editing imported scripts
+    const editingDisabled = script?.url !== undefined;
+
     return (
         <Dialog open fullWidth maxWidth="md">
-            <DialogTitle>{scriptId ? "Edit Script" : "New Script"}</DialogTitle>
+            <DialogTitle>
+                {editingDisabled
+                    ? "View Script"
+                    : scriptId
+                    ? "Edit Script"
+                    : "New Script"}
+            </DialogTitle>
             <DialogContent>
                 <Stack spacing={2} sx={{ mt: 1 }}>
                     <TextField
                         label="Name"
                         value={formData.name ?? ""}
+                        fullWidth
+                        disabled={editingDisabled}
                         onChange={(e) =>
                             setFormData((prev) => ({
                                 ...prev,
                                 name: e.target.value,
                             }))
                         }
-                        fullWidth
                     />
                     <TextField
                         label="Description"
                         value={formData.description ?? ""}
+                        fullWidth
+                        multiline
+                        rows={2}
+                        variant="standard"
+                        disabled={editingDisabled}
                         onChange={(e) =>
                             setFormData((prev) => ({
                                 ...prev,
                                 description: e.target.value,
                             }))
                         }
-                        fullWidth
-                        multiline
-                        rows={2}
-                        variant="standard"
                     />
                     <CodeEditor
                         language="js"
                         placeholder="Enter your script here"
                         value={formData.code ?? ""}
                         padding={30}
+                        disabled={editingDisabled}
                         style={{
                             fontFamily:
                                 "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
@@ -136,15 +141,17 @@ export function EditScript({ scriptId }: EditScriptProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} startIcon={<CloseIcon />}>
-                    Cancel
+                    {editingDisabled ? "Close" : "Cancel"}
                 </Button>
-                <Button
-                    onClick={handleSave}
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                >
-                    Save
-                </Button>
+                {!editingDisabled && (
+                    <Button
+                        onClick={handleSave}
+                        variant="contained"
+                        startIcon={<SaveIcon />}
+                    >
+                        Save
+                    </Button>
+                )}
             </DialogActions>
         </Dialog>
     );

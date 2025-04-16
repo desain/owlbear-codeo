@@ -94,6 +94,8 @@ export const usePlayerStorage = create<PlayerStorage>()(
                                 ? {
                                       ...script,
                                       ...updates,
+                                      id,
+                                      createdAt: script.createdAt,
                                       updatedAt: Date.now(),
                                   }
                                 : script,
