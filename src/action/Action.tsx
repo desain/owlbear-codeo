@@ -6,7 +6,6 @@ import {
     Public,
     Search,
     Stop,
-    Update,
     Visibility,
 } from "@mui/icons-material";
 import {
@@ -33,12 +32,13 @@ import { useActionResizer } from "owlbear-utils";
 import { useRef, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
-import { importScript } from "../importScript";
+import { Execution } from "../Execution";
 import { runScript } from "../runScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
+import { RefreshScriptButton } from "./RefreshScriptButton";
 import { ScriptUploadButton } from "./ScriptUploadButton";
 
 const BASE_HEIGHT = 100;
@@ -55,20 +55,66 @@ async function openEditModal(scriptId?: string) {
     });
 }
 
+function ExecutionItem({
+    script,
+    execution,
+}: {
+    script: CodeoScript;
+    execution: Execution;
+}) {
+    const stopExecution = usePlayerStorage((store) => store.stopExecution);
+
+    return (
+        <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+                sx={{
+                    position: "relative",
+                    display: "inline-flex",
+                }}
+            >
+                <CircularProgress size={36} />
+                <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() =>
+                        stopExecution(script.id, execution.executionId)
+                    }
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        backgroundColor: "background.paper",
+                        boxShadow: 1,
+                        "&:hover": {
+                            backgroundColor: "background.paper",
+                        },
+                    }}
+                >
+                    <Stop fontSize="small" />
+                </IconButton>
+            </Box>
+            <Typography variant="body2" color="textSecondary">
+                {execution.executionName}
+            </Typography>
+        </Stack>
+    );
+}
+
 function ScriptCard({
     script,
     nameRanges,
     descriptionRanges,
+    authorRanges,
 }: {
     script: CodeoScript;
     nameRanges: HighlightRanges | null;
     descriptionRanges: HighlightRanges | null;
+    authorRanges: HighlightRanges | null;
 }) {
     const removeScript = usePlayerStorage((store) => store.removeScript);
-    const updateScript = usePlayerStorage((store) => store.updateScript);
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
-    const stopExecution = usePlayerStorage((store) => store.stopExecution);
 
     const isImported = script.url !== undefined;
 
@@ -76,6 +122,14 @@ function ScriptCard({
         <Card sx={{ width: "100%" }}>
             <CardHeader
                 title={<Highlight text={script.name} ranges={nameRanges} />}
+                subheader={
+                    script.author && (
+                        <Highlight
+                            text={script.author ?? ""}
+                            ranges={authorRanges}
+                        />
+                    )
+                }
                 slotProps={{
                     title: {
                         variant: "h6",
@@ -84,67 +138,27 @@ function ScriptCard({
                 // action={}
             />
             <CardContent>
-                <Typography
-                    color="text.secondary"
-                    sx={{ wordBreak: "break-word" }}
-                >
-                    <Highlight
-                        text={script.description || "[no description]"}
-                        ranges={descriptionRanges}
-                    />
-                </Typography>
+                {script.description !== "" && (
+                    <Typography
+                        color="textSecondary"
+                        sx={{ wordBreak: "break-word" }}
+                    >
+                        <Highlight
+                            text={script.description}
+                            ranges={descriptionRanges}
+                        />
+                    </Typography>
+                )}
                 {executions.length > 0 && (
                     <>
                         <Divider />
                         <Stack spacing={1} mt={2}>
                             {executions.map((execution) => (
-                                <Stack
+                                <ExecutionItem
                                     key={execution.executionId}
-                                    direction="row"
-                                    alignItems="center"
-                                    spacing={2}
-                                >
-                                    <Box
-                                        sx={{
-                                            position: "relative",
-                                            display: "inline-flex",
-                                        }}
-                                    >
-                                        <CircularProgress size={36} />
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={() =>
-                                                stopExecution(
-                                                    script.id,
-                                                    execution.executionId,
-                                                )
-                                            }
-                                            sx={{
-                                                position: "absolute",
-                                                top: "50%",
-                                                left: "50%",
-                                                transform:
-                                                    "translate(-50%, -50%)",
-                                                backgroundColor:
-                                                    "background.paper",
-                                                boxShadow: 1,
-                                                "&:hover": {
-                                                    backgroundColor:
-                                                        "background.paper",
-                                                },
-                                            }}
-                                        >
-                                            <Stop fontSize="small" />
-                                        </IconButton>
-                                    </Box>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        {execution.executionName}
-                                    </Typography>
-                                </Stack>
+                                    script={script}
+                                    execution={execution}
+                                />
                             ))}
                         </Stack>
                     </>
@@ -164,28 +178,7 @@ function ScriptCard({
                 <DownloadScriptButton script={script} />
                 {script.url && (
                     <>
-                        <Tooltip title="Fetch latest script">
-                            <IconButton
-                                onClick={async () => {
-                                    if (!script.url) {
-                                        return;
-                                    }
-                                    const updated = await importScript(
-                                        script.url,
-                                    );
-                                    if (!updated) {
-                                        return;
-                                    }
-                                    updateScript(script.id, updated);
-                                    OBR.notification.show(
-                                        "Updated script",
-                                        "SUCCESS",
-                                    );
-                                }}
-                            >
-                                <Update />
-                            </IconButton>
-                        </Tooltip>
+                        <RefreshScriptButton script={script} />
                         <Tooltip title="Open source URL">
                             <IconButton href={script.url} target="_blank">
                                 <Public />
@@ -219,14 +212,15 @@ export function Action() {
     const filteredScripts = useFuzzySearchList({
         list: scripts,
         queryText: search,
-        getText: (item) => [item.name, item.description],
+        getText: (item) => [item.name, item.description, item.author ?? ""],
         mapResultItem: ({
             item,
-            matches: [nameRanges, descriptionRanges],
+            matches: [nameRanges, descriptionRanges, authorRanges],
         }) => ({
             script: item,
             nameRanges,
             descriptionRanges,
+            authorRanges,
         }),
     });
 
