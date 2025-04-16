@@ -2,7 +2,7 @@ import { AddLink } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import { CodeoScript, isCodeoScript } from "../CodeoScript";
-import { PlayerLocalStorage } from "../state/usePlayerStorage";
+import { PlayerStorage } from "../state/usePlayerStorage";
 
 function guessName(url: string) {
     const match = url.match(/\/([^\/?#]+)\.(json|js)(?:[?#].*)?$/i);
@@ -64,7 +64,7 @@ async function importFromUrl(): Promise<Omit<
 export function ImportButton({
     addScript,
 }: {
-    addScript: PlayerLocalStorage["addScript"];
+    addScript: PlayerStorage["addScript"];
 }) {
     return (
         <Tooltip title="Import script from URL">

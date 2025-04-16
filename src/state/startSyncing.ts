@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { deferCallAll } from "owlbear-utils";
-import { useOwlbearStore } from "./useOwlbearStore";
+import { usePlayerStorage } from "./usePlayerStorage";
 
 /**
  *
@@ -9,7 +9,7 @@ import { useOwlbearStore } from "./useOwlbearStore";
  */
 export function startSyncing(): [Promise<void>, VoidFunction] {
     // console.log("startSyncing");
-    const store = useOwlbearStore.getState();
+    const store = usePlayerStorage.getState();
 
     const sceneReadyInitialized = OBR.scene.isReady().then(store.setSceneReady);
     const unsubscribeSceneReady = OBR.scene.onReadyChange((ready) => {

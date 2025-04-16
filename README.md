@@ -12,6 +12,10 @@ TODO
 
 TODO
 
+Some scripts to get you started:
+
+-   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
+
 ## Support
 
 If you need support for this extension you can message me in the [Owlbear Rodeo Discord](https://discord.com/invite/u5RYMkV98s) @Nick or open an issue on [GitHub](https://github.com/desain/owlbear-codeo/issues).
@@ -51,8 +55,6 @@ To make a production build run:
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
--   Script 'running' mode - scripts can return a 'stop' function, and if so they are considered running until the 'stop' button is clicked, which calls that function.
-    -   Multiple instances of scripts running - scripts can return an 'execution name' and stop function
 -   Maybe? Live updating scripts (instead of storing code, they store a url, and fetch the latest code on run)
 -   Script arguments that can be specified before running like in unity.
     -   Ability to duplicate scripts with arguments to allow for multiple arguments lists
