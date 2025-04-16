@@ -6,7 +6,10 @@ This extension allows you to manage custom user scripts for the Owlbear Rodeo VT
 
 ## Features
 
-TODO
+-   Create and edit custom scripts directly from the extension
+-   Import scripts from external sources and update them if those sources change
+-   Download and upload scripts
+-   Track actively running scripts
 
 ## How to use
 
@@ -16,6 +19,38 @@ Some scripts to get you started:
 
 -   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
 -   [Live Line](https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44) - select two tokens and a line, and the line will move to connect the tokens even if you move them.
+
+### Calling this extension from other extensions
+
+Dump this into your extension:
+
+```typescript
+type ScriptSelector = { name: string } | { id: string };
+type RunScriptMessage = ScriptSelector & {
+    type: "RUN_SCRIPT";
+    replyTo?: string;
+    destination?: NonNullable<
+        Parameters<typeof OBR.broadcast.sendMessage>[2]
+    >["destination"];
+};
+type StopExecutionMessage = ScriptSelector & {
+    type: "STOP_EXECUTION";
+    executionId: string;
+};
+
+interface RunScriptMessageResponse {
+    executionId: string;
+}
+
+const codeo = (message: RunScriptMessage | StopExecutionMessage) =>
+    OBR.broadcast.sendMessage("com.desain.codeo/message", message, {
+        destination: "LOCAL",
+    });
+```
+
+Then call the `codeo` function to send messages to your local copy of the extension.
+
+The `replyTo` and `destination` parameters allow you to receive a reply of type `RunScriptMessage` in the `replyTo` channel. The execution ID can then be passed in a `StopExecutionMessage`.
 
 ## Support
 

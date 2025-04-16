@@ -60,7 +60,12 @@ function getExecution(response: unknown): Execution | null {
 const AsyncFunction = async function () {}.constructor;
 const TIMEOUT_MS = 1000;
 
-export async function runScript(script: CodeoScript) {
+/**
+ * Run a script.
+ * @param script The script to run.
+ * @returns The execution ID of the script, or null if the script did not return an execution.
+ */
+export async function runScript(script: CodeoScript): Promise<string | null> {
     const Codeo: Codeo = {
         executionId: null,
         stopSelf() {
@@ -151,9 +156,11 @@ export async function runScript(script: CodeoScript) {
         if (execution !== null) {
             Codeo.executionId = execution.executionId;
             usePlayerStorage.getState().addExecution(script.id, execution);
+            return execution.executionId;
         }
     } catch (error) {
         console.error(`Error running script "${script.name}":`, error);
         void OBR.notification.show(String(error), "ERROR");
     }
+    return null;
 }
