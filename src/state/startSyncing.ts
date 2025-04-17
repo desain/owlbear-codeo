@@ -19,14 +19,20 @@ export function startSyncing(): [Promise<void>, VoidFunction] {
     const playerColorInitialized = OBR.player
         .getColor()
         .then(store.setPlayerColor);
+    const playerNameInitialized = OBR.player
+        .getName()
+        .then(store.setPlayerName);
     const unsubscribePlayer = OBR.player.onChange((player) => {
         store.setPlayerColor(player.color);
+        store.setPlayerName(player.name);
     });
 
     return [
-        Promise.all([sceneReadyInitialized, playerColorInitialized]).then(
-            () => void 0,
-        ),
+        Promise.all([
+            sceneReadyInitialized,
+            playerColorInitialized,
+            playerNameInitialized,
+        ]).then(() => void 0),
         deferCallAll(unsubscribeSceneReady, unsubscribePlayer),
     ];
 }

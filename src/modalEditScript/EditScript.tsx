@@ -41,6 +41,7 @@ interface EditScriptProps {
 export function EditScript({ scriptId }: EditScriptProps) {
     const sensible = usePlayerStorage((store) => store.hasSensibleValues);
     const scripts = usePlayerStorage((store) => store.scripts);
+    const playerName = usePlayerStorage((store) => store.playerName);
     const updateScript = usePlayerStorage((store) => store.updateScript);
     const addScript = usePlayerStorage((store) => store.addScript);
     const script = useMemo(
@@ -68,7 +69,7 @@ export function EditScript({ scriptId }: EditScriptProps) {
         if (scriptId) {
             updateScript(scriptId, formData);
         } else {
-            addScript(formData);
+            addScript({ author: playerName, ...formData });
         }
         handleClose();
     };

@@ -125,8 +125,8 @@ To make a production build run:
 -   Gist API to get latest version
 -   Add simple bar for scrolls
 -   More parameter types
-    -   Item
     -   Location
+-   Add API for setting parameters
 
 ## License
 

@@ -1,6 +1,6 @@
 import { isObject } from "owlbear-utils";
 
-export const PARAMETER_TYPES = ["boolean", "string", "number"] as const;
+export const PARAMETER_TYPES = ["boolean", "string", "number", "Item"] as const;
 export type ParameterType = (typeof PARAMETER_TYPES)[number];
 export function isParameterType(type: unknown): type is ParameterType {
     const parameterTypes2: readonly string[] = PARAMETER_TYPES;
