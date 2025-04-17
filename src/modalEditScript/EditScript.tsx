@@ -31,12 +31,12 @@ import {
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
-interface EditScriptProps {
+type EditScriptProps = Readonly<{
     /**
      * Script to edit. If null, this is a new script.
      */
     scriptId: string | null;
-}
+}>;
 
 export function EditScript({ scriptId }: EditScriptProps) {
     const sensible = usePlayerStorage((store) => store.hasSensibleValues);

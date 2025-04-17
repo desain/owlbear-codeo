@@ -6,7 +6,7 @@ export function useRehydrate() {
     useEffect(() => {
         function handleStorageEvent(e: StorageEvent) {
             if (e.key === LOCAL_STORAGE_STORE_NAME) {
-                usePlayerStorage.persist.rehydrate();
+                return usePlayerStorage.persist.rehydrate();
             }
         }
 

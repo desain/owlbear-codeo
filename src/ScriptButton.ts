@@ -10,7 +10,7 @@ import {
 import { assertItem, HasParameterizedMetadata } from "owlbear-utils";
 import { METADATA_SCRIPT_ID_KEY } from "./constants";
 
-export type ScriptButton = Label &
+export type ScriptButton = Readonly<Label> &
     HasParameterizedMetadata<typeof METADATA_SCRIPT_ID_KEY, string>;
 export function isScriptButton(item: Item): item is ScriptButton {
     return (
@@ -21,7 +21,7 @@ export function isScriptButton(item: Item): item is ScriptButton {
 }
 
 export function buildScriptButton(
-    position: Vector2,
+    position: Readonly<Vector2>,
     color: string,
     text: string,
     scriptId: string,

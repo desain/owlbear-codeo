@@ -12,43 +12,45 @@ enableMapSet();
 
 const SET_SENSIBLE = Symbol("SetSensible");
 
-const ObrSceneReady = new Promise<void>((resolve) => {
-    OBR.onReady(async () => {
-        if (await OBR.scene.isReady()) {
-            resolve();
-        } else {
-            const unsubscribeScene = OBR.scene.onReadyChange((ready) => {
-                if (ready) {
-                    unsubscribeScene();
-                    resolve();
-                }
-            });
-        }
-    });
-});
+/*
+Values here must be readonly to avoid a Typescript issue
+If values can be written, then this compiles:
 
-async function fetchDefaults(): Promise<StoredScript[]> {
-    await ObrSceneReady;
-    return [];
+const x: ParameterWithValue =
+    Math.random() > 0.5
+        ? { type: "string", value: "x" }
+        : { type: "number", value: 0 };
+
+x.value = 100;
+
+But it might result in a runtime state where x = {
+    type: "string",
+    value: 100,
 }
 
-interface BooleanParameter {
+This is apparently not considered a typescript bug, but
+I think it should be.
+
+Making the values readonly avoids this.
+*/
+
+type BooleanParameter = Readonly<{
     type: "boolean";
     value?: boolean;
-}
-interface NumberParameter {
+}>;
+type NumberParameter = Readonly<{
     type: "number";
     value?: number;
-}
-interface StringParameter {
+}>;
+type StringParameter = Readonly<{
     type: "string";
     value?: string;
-}
+}>;
 
-interface ItemParameter {
+type ItemParameter = Readonly<{
     type: "Item";
     value?: Item;
-}
+}>;
 
 export type ParameterWithValue =
     | BooleanParameter
@@ -56,38 +58,37 @@ export type ParameterWithValue =
     | StringParameter
     | ItemParameter;
 
-function setParameter(
-    parameter: ParameterWithValue,
-    value: ParameterWithValue["value"],
-) {
+function withValue<T extends ParameterWithValue>(
+    parameter: T,
+    value: T["value"],
+): T {
     if (value === undefined) {
-        parameter.value = undefined;
-        return;
+        return { ...parameter, value };
     }
 
     switch (parameter.type) {
         case "boolean":
-            parameter.value = Boolean(value);
-            break;
+            return { ...parameter, value: Boolean(value) };
         case "number":
-            parameter.value = Number(value);
-            break;
+            return { ...parameter, value: Number(value) };
         case "string":
-            parameter.value = String(value);
-            break;
+            if (typeof value !== "string") {
+                throw new Error(
+                    `Value for Item parameter must be a string, got ${typeof value}`,
+                );
+            }
+            return { ...parameter, value };
         case "Item":
             if (
                 typeof value === "string" ||
                 typeof value === "boolean" ||
                 typeof value === "number"
             ) {
-                console.warn(
+                throw new Error(
                     `Value for Item parameter must be an Item, got ${typeof value}`,
                 );
-                return;
             }
-            parameter.value = value;
-            break;
+            return { ...parameter, value };
     }
 }
 
@@ -98,7 +99,7 @@ export type StoredScript = CodeoScript & {
     parameters: ParameterWithValue[];
 };
 
-export interface PlayerStorage {
+export type PlayerStorage = Readonly<{
     // Persistent values
     hasSensibleValues: boolean;
     scripts: StoredScript[];
@@ -130,7 +131,7 @@ export interface PlayerStorage {
     setSceneReady(this: void, sceneReady: boolean): void;
     setPlayerColor(this: void, playerColor: string): void;
     setPlayerName(this: void, playerName: string): void;
-}
+}>;
 
 export const usePlayerStorage = create<PlayerStorage>()(
     subscribeWithSelector(
@@ -242,10 +243,11 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             );
                             return;
                         }
-                        const parameter =
-                            state.scripts[scriptIdx].parameters[paramIndex];
-                        setParameter(parameter, value);
-                        // DANGER: assigning parameter.value = value here works but shouldn't
+                        state.scripts[scriptIdx].parameters[paramIndex] =
+                            withValue(
+                                state.scripts[scriptIdx].parameters[paramIndex],
+                                value,
+                            );
                     }),
             })),
             {
@@ -255,23 +257,6 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     hasSensibleValues,
                     toolEnabled,
                 }),
-                onRehydrateStorage() {
-                    return (state, error) => {
-                        if (state) {
-                            if (!state.hasSensibleValues) {
-                                void fetchDefaults().then((defaultScripts) => {
-                                    state.scripts = defaultScripts;
-                                    state[SET_SENSIBLE]();
-                                });
-                            }
-                        } else if (error) {
-                            console.error(
-                                "Error hydrating player settings store",
-                                error,
-                            );
-                        }
-                    };
-                },
             },
         ),
     ),

@@ -57,8 +57,45 @@ function getExecution(response: unknown): Execution | null {
     }
 }
 
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 const AsyncFunction = async function () {}.constructor;
 const TIMEOUT_MS = 1000;
+
+type ScriptFunction = (
+    codeo: Codeo,
+    obr: typeof OBR,
+    math2: typeof Math2,
+    mathM: typeof MathM,
+    _buildBillboard: typeof buildBillboard,
+    _isBillboard: typeof isBillboard,
+    _buildCurve: typeof buildCurve,
+    _isCurve: typeof isCurve,
+    _buildEffect: typeof buildEffect,
+    _isEffect: typeof isEffect,
+    _buildImage: typeof buildImage,
+    _isImage: typeof isImage,
+    _buildLabel: typeof buildLabel,
+    _isLabel: typeof isLabel,
+    _buildLight: typeof buildLight,
+    _isLight: typeof isLight,
+    _buildLine: typeof buildLine,
+    _isLine: typeof isLine,
+    _buildPointer: typeof buildPointer,
+    _isPointer: typeof isPointer,
+    _buildRuler: typeof buildRuler,
+    _isRuler: typeof isRuler,
+    _buildShape: typeof buildShape,
+    _isShape: typeof isShape,
+    _buildText: typeof buildText,
+    _isText: typeof isText,
+    _buildPath: typeof buildPath,
+    _isPath: typeof isPath,
+    _buildWall: typeof buildWall,
+    _isWall: typeof isWall,
+    _buildImageUpload: typeof buildImageUpload,
+    _buildSceneUpload: typeof buildSceneUpload,
+    ...args: ParameterWithValue["value"][]
+) => unknown;
 
 /**
  * Run a script.
@@ -67,7 +104,8 @@ const TIMEOUT_MS = 1000;
  */
 export async function runScript(script: StoredScript): Promise<string | null> {
     try {
-        const scriptFunction = AsyncFunction(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+        const scriptFunction: ScriptFunction = AsyncFunction(
             "Codeo",
             "OBR",
             "Math2",
@@ -104,7 +142,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
             "'use strict';" + script.code,
         );
         const codeo = new Codeo(script.id);
-        const response: unknown = await Promise.race([
+        const response = await Promise.race([
             scriptFunction(
                 codeo,
                 OBR,

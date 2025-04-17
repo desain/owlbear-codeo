@@ -45,9 +45,9 @@ function isStopExecutionMessage(
     );
 }
 
-interface RunScriptMessageResponse {
+type RunScriptMessageResponse = Readonly<{
     executionId: string;
-}
+}>;
 
 function getScriptOrWarn(selector: ScriptSelector): StoredScript | null {
     const finder =
@@ -74,7 +74,7 @@ export async function handleBroadcast(data: unknown) {
                 const reply = {
                     executionId,
                 } satisfies RunScriptMessageResponse;
-                OBR.broadcast.sendMessage(
+                void OBR.broadcast.sendMessage(
                     data.replyTo,
                     reply,
                     data.destination && { destination: data.destination },

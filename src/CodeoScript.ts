@@ -7,11 +7,11 @@ export function isParameterType(type: unknown): type is ParameterType {
     return typeof type === "string" && parameterTypes2.includes(type);
 }
 
-export interface ScriptParameter {
+export type ScriptParameter = Readonly<{
     name: string;
     description: string;
     type: ParameterType;
-}
+}>;
 export function isScriptParameter(parameter: unknown) {
     return (
         isObject(parameter) &&
@@ -24,7 +24,7 @@ export function isScriptParameter(parameter: unknown) {
     );
 }
 
-export interface CodeoScript {
+export type CodeoScript = Readonly<{
     name: string;
     author?: string;
     /**
@@ -35,7 +35,7 @@ export interface CodeoScript {
     version?: string;
     parameters: ScriptParameter[];
     code: string;
-}
+}>;
 
 export function isCodeoScript(script: unknown): script is CodeoScript {
     return (

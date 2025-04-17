@@ -11,10 +11,10 @@ import { POPOVER_ADD_BUTTON_ID } from "../constants";
 import { buildScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
-interface ScriptOption {
+type ScriptOption = Readonly<{
     label: string;
     id: string;
-}
+}>;
 
 export function AddButton({ position }: { position: Vector2 }) {
     const sensible = usePlayerStorage((store) => store.hasSensibleValues);

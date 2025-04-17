@@ -28,9 +28,7 @@ if (import.meta.hot) {
 }
 
 function installBroadcastListener() {
-    return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) => {
-        handleBroadcast(data);
-    });
+    return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) => handleBroadcast(data));
 }
 
 async function installExtension(): Promise<VoidFunction> {

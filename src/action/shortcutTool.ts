@@ -18,25 +18,25 @@ export async function startWatchingToolEnabled(): Promise<VoidFunction> {
             if (enabled) {
                 await installTool();
             } else {
-                uninstallTool();
+                await uninstallTool();
             }
         },
     );
 }
 
 async function installTool() {
-    OBR.tool.create({
-        id: SHORTCUT_TOOL_ID,
-        shortcut: ";",
-        icons: [
-            {
-                icon: logo,
-                label: "Codeo Shortcuts",
-            },
-        ],
-        defaultMetadata: {},
-    });
     await Promise.all([
+        OBR.tool.create({
+            id: SHORTCUT_TOOL_ID,
+            shortcut: ";",
+            icons: [
+                {
+                    icon: logo,
+                    label: "Codeo Shortcuts",
+                },
+            ],
+            defaultMetadata: {},
+        }),
         OBR.tool.createAction({
             id: SHORTCUT_TOOL_SETTINGS_ACTION_ID,
             icons: [
@@ -48,10 +48,8 @@ async function installTool() {
                     },
                 },
             ],
-            onClick() {
-                // TODO open settings popover
-                OBR.notification.show("YOU CLICKED SETTINGS", "WARNING");
-            },
+            onClick: () =>
+                OBR.notification.show("YOU CLICKED SETTINGS", "WARNING"),
         }),
         ...SHORTCUT_OPTIONS.map((letter) =>
             OBR.tool.createAction({
@@ -86,6 +84,6 @@ async function installTool() {
     ]);
 }
 
-async function uninstallTool() {
-    OBR.tool.remove(SHORTCUT_TOOL_ID);
+function uninstallTool() {
+    return OBR.tool.remove(SHORTCUT_TOOL_ID);
 }

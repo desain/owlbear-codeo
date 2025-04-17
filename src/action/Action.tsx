@@ -54,7 +54,7 @@ import {
     usePlayerStorage,
 } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
-import { getName } from "../utils/itemUtils";
+import { getName } from "owlbear-utils";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
@@ -209,7 +209,7 @@ function Parameter({
                             const [selected] =
                                 (await OBR.player.getSelection()) ?? [];
                             if (!selected) {
-                                OBR.notification.show(
+                                void OBR.notification.show(
                                     "No items selected",
                                     "ERROR",
                                 );
@@ -418,6 +418,7 @@ export function Action() {
 
     // Search state
     const [search, setSearch] = useState("");
+    const noSearch = search === "";
     const [searchOpen, setSearchOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -449,10 +450,10 @@ export function Action() {
     // If search is open, don't sort the scripts since the fuzzy search already sorts by match
     const sortedScripts = useMemo(
         () =>
-            search === ""
+            noSearch
                 ? [...filteredScripts].sort(getComparator(sortOption))
                 : filteredScripts,
-        [search === "", sortOption, filteredScripts],
+        [noSearch, sortOption, filteredScripts],
     );
 
     // Focus input when search bar opens
@@ -509,7 +510,7 @@ export function Action() {
                             },
                         }}
                         onBlur={() => {
-                            if (search === "") {
+                            if (noSearch) {
                                 setSearchOpen(false);
                             }
                         }}

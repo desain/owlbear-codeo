@@ -10,7 +10,7 @@ export class Codeo {
      * If the script has an active execution, calls the execution's stop() function and removes
      * the execution.
      */
-    stopSelf() {
+    stopSelf = () => {
         if (this.executionId === null) {
             throw new Error("stopSelf() called before execution created");
         } else {
@@ -18,17 +18,17 @@ export class Codeo {
                 .getState()
                 .stopExecution(this.scriptId, this.executionId);
         }
-    }
-    saveExecution(executionId: string) {
+    };
+
+    saveExecution = (executionId: string) => {
         if (this.executionId !== null) {
             throw new Error("Execution already set");
         }
         this.executionId = executionId;
-    }
-    continueExecution(name: string, stop: VoidFunction): NewExecution {
-        return {
-            stop,
-            executionName: name,
-        };
-    }
+    };
+
+    continueExecution = (name: string, stop: VoidFunction): NewExecution => ({
+        stop,
+        executionName: name,
+    });
 }

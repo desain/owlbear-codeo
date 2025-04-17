@@ -1,5 +1,6 @@
 {
   "name": "owlbear-template",
+  "type": "module",
   "version": "0.0.1",
   "description": "Manage and run code snippets and user scripts in Owlbear Rodeo",
   "scripts": {
@@ -19,13 +20,15 @@
     "@types/node": "^22.14.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^4.4.0",
     "eslint": "^9.24.0",
+    "eslint-plugin-functional": "^9.0.1",
+    "eslint-plugin-prefer-arrow-functions": "^3.6.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.2.6",
+    "vite": "^6.3.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {
