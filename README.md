@@ -112,17 +112,21 @@ To make a production build run:
 
 -   Figure out a better way to pass the OBR APIs than as AsyncFunction args
 -   Figure out a way to share scripts with others in the room, or with yourself on different devices
+
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
--   Script arguments that can be specified before running like in unity.
-    -   Ability to duplicate scripts with arguments to allow for multiple arguments lists
+        -   Store urls in metadata and load all on extension load?
+
+-   Ability to duplicate scripts with arguments to allow for multiple arguments lists
 -   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
 -   Favorites system
 -   Script icons
 -   Gist API to get latest version
--   Store urls in metadata and load all on extension load?
 -   Add simple bar for scrolls
+-   More parameter types
+    -   Item
+    -   Location
 
 ## License
 
