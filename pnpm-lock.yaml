@@ -26,6 +26,9 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.0.0
+      immer:
+        specifier: ^10.1.1
+        version: 10.1.1
       owlbear-utils:
         specifier: git+https://github.com/desain/owlbear-utils.git
         version: git+https://github.com/desain/owlbear-utils.git#06c7aac87a90b7133839b90739e8e0262bbbacc9(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))

@@ -15,10 +15,34 @@ This extension allows you to manage custom user scripts for the Owlbear Rodeo VT
 
 TODO
 
+### Installing scripts
+
+TODO
+
 Some scripts to get you started:
 
 -   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
 -   [Live Line](https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44) - select two tokens and a line, and the line will move to connect the tokens even if you move them.
+
+### Writing scripts
+
+TODO
+
+Script parameters are all optional - be sure to handle `undefined` valuees.
+
+Scripts have access to the `OBR` object from the Owlbear Rodeo SDK, as well as the type-check functions (e.g `isImage`), and the builders (e.g `buildImage`).
+
+Scripts also have access to this object:
+
+```typescript
+interface Codeo {
+    /**
+     * If the script has an active execution, calls the execution's stop() function and removes
+     * the execution.
+     */
+    stopSelf(): void;
+}
+```
 
 ### Calling this extension from other extensions
 
@@ -97,7 +121,6 @@ To make a production build run:
 -   Favorites system
 -   Script icons
 -   Gist API to get latest version
--   Loading spinner on edit
 -   Store urls in metadata and load all on extension load?
 -   Add simple bar for scrolls
 

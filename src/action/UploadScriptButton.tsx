@@ -1,5 +1,6 @@
 import { Upload } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
+import OBR from "@owlbear-rodeo/sdk";
 import { useRef } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { parseJsonOrCode } from "../importScript";
@@ -18,13 +19,20 @@ const handleFileUpload = (
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        // result must be string because onload was called from readAsText
-        const text = e.target?.result as string;
-        const script = {
-            name: file.name,
-            ...parseJsonOrCode(text),
-        };
-        onReceiveScript(script);
+        try {
+            const text = e.target?.result;
+            if (typeof text !== "string") {
+                throw new Error("File content is not a string");
+            }
+            const script = {
+                name: file.name,
+                ...parseJsonOrCode(text),
+            };
+            onReceiveScript(script);
+        } catch (e) {
+            console.error("Failed to parse script:", e);
+            void OBR.notification.show("Failed to parse script: " + e, "ERROR");
+        }
     };
     reader.readAsText(file);
     event.target.value = ""; // Reset file input

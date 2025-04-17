@@ -21,6 +21,7 @@ import {
     CardActions,
     CardContent,
     CardHeader,
+    Checkbox,
     Divider,
     IconButton,
     InputAdornment,
@@ -40,10 +41,15 @@ import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ScriptParameter } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
 import { Execution } from "../Execution";
 import { runScript } from "../runScript";
-import { StoredScript, usePlayerStorage } from "../state/usePlayerStorage";
+import {
+    ParameterWithValue,
+    StoredScript,
+    usePlayerStorage,
+} from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
@@ -148,6 +154,10 @@ function ScriptCard({
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
 
+    const setParameterValue = usePlayerStorage(
+        (store) => store.setParameterValue,
+    );
+
     const isImported = script.url !== undefined;
 
     return (
@@ -192,6 +202,70 @@ function ScriptCard({
                         />
                     </Typography>
                 )}
+                {/* Parameters UI */}
+                {script.parameters.length > 0 && (
+                    <Stack spacing={2} mt={2} mb={2}>
+                        <Typography variant="subtitle2" color="textSecondary">
+                            Parameters
+                        </Typography>
+                        {script.parameters.map(
+                            (
+                                param: ScriptParameter & ParameterWithValue,
+                                idx,
+                            ) => (
+                                <Stack
+                                    key={idx}
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={2}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        fontWeight="bold"
+                                        sx={{ minWidth: 120 }}
+                                    >
+                                        {param.description}
+                                    </Typography>
+                                    {param.type === "boolean" ? (
+                                        <Checkbox
+                                            checked={!!param.value}
+                                            onChange={(_, checked) =>
+                                                setParameterValue(
+                                                    script.id,
+                                                    idx,
+                                                    checked,
+                                                )
+                                            }
+                                        />
+                                    ) : (
+                                        <TextField
+                                            type={
+                                                param.type === "number"
+                                                    ? "number"
+                                                    : "text"
+                                            }
+                                            size="small"
+                                            value={param.value ?? ""}
+                                            onChange={(e) => {
+                                                const val =
+                                                    param.type === "number"
+                                                        ? Number(e.target.value)
+                                                        : e.target.value;
+                                                setParameterValue(
+                                                    script.id,
+                                                    idx,
+                                                    val,
+                                                );
+                                            }}
+                                            // sx={{ minWidth: 120 }}
+                                        />
+                                    )}
+                                </Stack>
+                            ),
+                        )}
+                    </Stack>
+                )}
+                {/* Executions UI */}
                 {executions.length > 0 && (
                     <>
                         <Divider />

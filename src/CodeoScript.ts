@@ -1,5 +1,29 @@
 import { isObject } from "owlbear-utils";
 
+export const PARAMETER_TYPES = ["boolean", "string", "number"] as const;
+export type ParameterType = (typeof PARAMETER_TYPES)[number];
+export function isParameterType(type: unknown): type is ParameterType {
+    const parameterTypes2: readonly string[] = PARAMETER_TYPES;
+    return typeof type === "string" && parameterTypes2.includes(type);
+}
+
+export interface ScriptParameter {
+    name: string;
+    description: string;
+    type: ParameterType;
+}
+export function isScriptParameter(parameter: unknown) {
+    return (
+        isObject(parameter) &&
+        "name" in parameter &&
+        typeof parameter.name === "string" &&
+        "description" in parameter &&
+        typeof parameter.description === "string" &&
+        "type" in parameter &&
+        isParameterType(parameter.type)
+    );
+}
+
 export interface CodeoScript {
     name: string;
     author?: string;
@@ -9,14 +33,13 @@ export interface CodeoScript {
     url?: string;
     description?: string;
     version?: string;
+    parameters: ScriptParameter[];
     code: string;
 }
 
 export function isCodeoScript(script: unknown): script is CodeoScript {
     return (
         isObject(script) &&
-        "id" in script &&
-        typeof script.id === "string" &&
         "name" in script &&
         typeof script.name === "string" &&
         (!("author" in script) || typeof script.author === "string") &&
@@ -26,11 +49,8 @@ export function isCodeoScript(script: unknown): script is CodeoScript {
         (!("version" in script) || typeof script.version === "string") &&
         "code" in script &&
         typeof script.code === "string" &&
-        "createdAt" in script &&
-        typeof script.createdAt === "number" &&
-        "updatedAt" in script &&
-        typeof script.updatedAt === "number" &&
-        "enabled" in script &&
-        typeof script.enabled === "boolean"
+        "parameters" in script &&
+        Array.isArray(script.parameters) &&
+        script.parameters.every(isScriptParameter)
     );
 }
