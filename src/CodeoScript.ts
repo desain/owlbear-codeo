@@ -1,7 +1,6 @@
 import { isObject } from "owlbear-utils";
 
 export interface CodeoScript {
-    id: string;
     name: string;
     author?: string;
     /**
@@ -11,8 +10,6 @@ export interface CodeoScript {
     description?: string;
     version?: string;
     code: string;
-    createdAt: number;
-    updatedAt: number;
 }
 
 export function isCodeoScript(script: unknown): script is CodeoScript {

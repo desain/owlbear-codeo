@@ -20,28 +20,27 @@ const ObrSceneReady = new Promise<void>((resolve) => {
     });
 });
 
-async function fetchDefaults(): Promise<CodeoScript[]> {
+async function fetchDefaults(): Promise<StoredScript[]> {
     await ObrSceneReady;
     return [];
 }
 
+export interface StoredScript extends CodeoScript {
+    id: string;
+    createdAt: number;
+    updatedAt: number;
+}
+
 export interface PlayerStorage {
     hasSensibleValues: boolean;
-    scripts: CodeoScript[];
+    scripts: StoredScript[];
     executions: Map<string, Execution[]>;
     sceneReady: boolean;
     playerColor: string;
     _markSensible(this: void): void;
-    addScript(
-        this: void,
-        script: Omit<CodeoScript, "id" | "createdAt" | "updatedAt">,
-    ): void;
+    addScript(this: void, script: CodeoScript): void;
     removeScript(this: void, id: string): void;
-    updateScript(
-        this: void,
-        id: string,
-        updates: Partial<Omit<CodeoScript, "id" | "createdAt" | "updatedAt">>,
-    ): void;
+    updateScript(this: void, id: string, updates: Partial<CodeoScript>): void;
     addExecution(this: void, scriptId: string, execution: Execution): void;
     stopExecution(this: void, scriptId: string, executionId: string): void;
     setSceneReady(this: void, sceneReady: boolean): void;
@@ -62,7 +61,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 },
                 addScript(scriptData) {
                     const now = Date.now();
-                    const newScript: CodeoScript = {
+                    const newScript = {
                         ...scriptData,
                         id: crypto.randomUUID(),
                         createdAt: now,

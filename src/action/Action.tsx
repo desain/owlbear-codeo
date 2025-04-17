@@ -40,11 +40,10 @@ import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
 import { Execution } from "../Execution";
 import { runScript } from "../runScript";
-import { usePlayerStorage } from "../state/usePlayerStorage";
+import { StoredScript, usePlayerStorage } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
@@ -69,7 +68,7 @@ function ExecutionItem({
     script,
     execution,
 }: {
-    script: CodeoScript;
+    script: StoredScript;
     execution: Execution;
 }) {
     const stopExecution = usePlayerStorage((store) => store.stopExecution);
@@ -108,7 +107,7 @@ function ExecutionItem({
     );
 }
 
-function OverflowMenu({ script }: { script: CodeoScript }) {
+function OverflowMenu({ script }: { script: StoredScript }) {
     const removeScript = usePlayerStorage((store) => store.removeScript);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -141,7 +140,7 @@ function ScriptCard({
     descriptionRanges,
     authorRanges,
 }: {
-    script: CodeoScript;
+    script: StoredScript;
     nameRanges: HighlightRanges | null;
     descriptionRanges: HighlightRanges | null;
     authorRanges: HighlightRanges | null;
@@ -238,7 +237,7 @@ type SortOption =
 
 function getComparator(
     sortOption: SortOption,
-): (a: { script: CodeoScript }, b: { script: CodeoScript }) => number {
+): (a: { script: StoredScript }, b: { script: StoredScript }) => number {
     switch (sortOption) {
         case "name-asc":
             return (a, b) =>
@@ -316,9 +315,14 @@ export function Action() {
         }),
     });
 
+    // Sort scripts based on selected option
+    // If search is open, don't sort the scripts since the fuzzy search already sorts by match
     const sortedScripts = useMemo(
-        () => [...filteredScripts].sort(getComparator(sortOption)),
-        [sortOption, filteredScripts],
+        () =>
+            search === ""
+                ? [...filteredScripts].sort(getComparator(sortOption))
+                : filteredScripts,
+        [search === "", sortOption, filteredScripts],
     );
 
     // Focus input when search bar opens
@@ -516,13 +520,23 @@ export function Action() {
                 )}
             </Stack>
             {/* List of scripts */}
-            <List>
-                {sortedScripts.map((scriptData) => (
-                    <ListItem key={scriptData.script.id}>
-                        <ScriptCard {...scriptData} />
-                    </ListItem>
-                ))}
-            </List>
+            {sortedScripts.length > 0 ? (
+                <List>
+                    {sortedScripts.map((scriptData) => (
+                        <ListItem key={scriptData.script.id}>
+                            <ScriptCard {...scriptData} />
+                        </ListItem>
+                    ))}
+                </List>
+            ) : (
+                <Typography
+                    color="textSecondary"
+                    sx={{ p: 2, fontStyle: "italic" }}
+                >
+                    No scripts found. Click 'Add' to create a new script, or
+                    import one from a file or URL.
+                </Typography>
+            )}
         </Box>
     );
 }
