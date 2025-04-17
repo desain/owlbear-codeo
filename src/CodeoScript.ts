@@ -8,7 +8,8 @@ export interface CodeoScript {
      * URL the script was imported from. Used to dynamically reload scripts.
      */
     url?: string;
-    description: string;
+    description?: string;
+    version?: string;
     code: string;
     createdAt: number;
     updatedAt: number;
@@ -23,8 +24,9 @@ export function isCodeoScript(script: unknown): script is CodeoScript {
         typeof script.name === "string" &&
         (!("author" in script) || typeof script.author === "string") &&
         (!("url" in script) || typeof script.url === "string") &&
-        "description" in script &&
-        typeof script.description === "string" &&
+        (!("description" in script) ||
+            typeof script.description === "string") &&
+        (!("version" in script) || typeof script.version === "string") &&
         "code" in script &&
         typeof script.code === "string" &&
         "createdAt" in script &&

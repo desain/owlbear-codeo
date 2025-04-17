@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CodeoScript } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
@@ -42,17 +42,6 @@ export function EditScript({ scriptId }: EditScriptProps) {
     const handleClose = useCallback(() => {
         void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
     }, []);
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                handleClose();
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handleClose]);
 
     if (!sensible) {
         return "Loading...";
