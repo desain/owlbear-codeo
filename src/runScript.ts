@@ -30,11 +30,21 @@ import OBR, {
     Math2,
     MathM,
 } from "@owlbear-rodeo/sdk";
+import { ScriptParameter } from "./CodeoScript";
 import { Execution, isNewExecution } from "./Execution";
-import { StoredScript, usePlayerStorage } from "./state/usePlayerStorage";
+import {
+    ParameterWithValue,
+    StoredScript,
+    usePlayerStorage,
+} from "./state/usePlayerStorage";
 
+const CODEO_EXECUTION_ID = Symbol("CodeoExecutionId");
 interface Codeo {
-    executionId: string | null;
+    [CODEO_EXECUTION_ID]: string | null;
+    /**
+     * If the script has an active execution, calls the execution's stop() function and removes
+     * the execution.
+     */
     stopSelf(): void;
 }
 
@@ -66,9 +76,9 @@ const TIMEOUT_MS = 1000;
  */
 export async function runScript(script: StoredScript): Promise<string | null> {
     const Codeo: Codeo = {
-        executionId: null,
+        [CODEO_EXECUTION_ID]: null,
         stopSelf() {
-            const executionId = Codeo.executionId;
+            const executionId = Codeo[CODEO_EXECUTION_ID];
             if (executionId != null) {
                 usePlayerStorage
                     .getState()
@@ -110,6 +120,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
             "isWall",
             "buildImageUpload",
             "buildSceneUpload",
+            ...script.parameters.map((parameter) => parameter.name),
             "'use strict';" + script.code,
         );
         const response: unknown = await Promise.race([
@@ -146,6 +157,10 @@ export async function runScript(script: StoredScript): Promise<string | null> {
                 isWall,
                 buildImageUpload,
                 buildSceneUpload,
+                ...script.parameters.map(
+                    (parameter: ScriptParameter & ParameterWithValue) =>
+                        parameter.value,
+                ),
             ),
             new Promise((_resolve, reject) =>
                 setTimeout(() => reject(new Error("Timed out")), TIMEOUT_MS),
@@ -153,7 +168,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
         ]);
         const execution = getExecution(response);
         if (execution !== null) {
-            Codeo.executionId = execution.executionId;
+            Codeo[CODEO_EXECUTION_ID] = execution.executionId;
             usePlayerStorage.getState().addExecution(script.id, execution);
             return execution.executionId;
         }
