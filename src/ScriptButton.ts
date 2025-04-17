@@ -8,15 +8,24 @@ import {
     Vector2,
 } from "@owlbear-rodeo/sdk";
 import { assertItem, HasParameterizedMetadata } from "owlbear-utils";
-import { METADATA_SCRIPT_ID_KEY } from "./constants";
+import { METADATA_EXECUTION_ID_KEY, METADATA_SCRIPT_ID_KEY } from "./constants";
+
+export const BACKGROUND_OFF = "#3020B0";
+export const BACKGROUND_ON = "#5030F0";
 
 export type ScriptButton = Readonly<Label> &
-    HasParameterizedMetadata<typeof METADATA_SCRIPT_ID_KEY, string>;
+    HasParameterizedMetadata<typeof METADATA_SCRIPT_ID_KEY, string> &
+    HasParameterizedMetadata<
+        typeof METADATA_EXECUTION_ID_KEY,
+        string | undefined
+    >;
 export function isScriptButton(item: Item): item is ScriptButton {
     return (
         isLabel(item) &&
         METADATA_SCRIPT_ID_KEY in item.metadata &&
-        typeof item.metadata[METADATA_SCRIPT_ID_KEY] === "string"
+        typeof item.metadata[METADATA_SCRIPT_ID_KEY] === "string" &&
+        (!(METADATA_EXECUTION_ID_KEY in item.metadata) ||
+            typeof item.metadata[METADATA_EXECUTION_ID_KEY] === "string")
     );
 }
 
@@ -43,6 +52,7 @@ export function buildScriptButton(
         .position(position)
         .attachedTo(handle.id)
         .plainText(text)
+        .backgroundColor(BACKGROUND_OFF)
         .metadata({ [METADATA_SCRIPT_ID_KEY]: scriptId })
         .locked(true)
         .maxViewScale(4)

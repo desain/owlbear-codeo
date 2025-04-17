@@ -1,7 +1,8 @@
 const PLUGIN_ID = "com.desain.codeo";
 
 // Metadata
-export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/metadata`;
+export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/script-id`;
+export const METADATA_EXECUTION_ID_KEY = `${PLUGIN_ID}/execution-id`;
 
 // Modals and popovers
 export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;
