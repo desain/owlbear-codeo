@@ -55,7 +55,8 @@ function parseCode(
     const partial: Partial<Pick<CodeoScript, HeaderAttr>> = {};
     const parameters: CodeoScript["parameters"] = [];
     const parameterRegex = /^\s*\/\/\s*@param\s+(\w+)\s+(\w+)\s+(.+?)\s*$/;
-    const lines = code.split(/\r?\n/);
+    // Remove empty lines for parsing
+    const lines = code.split(/\r?\n/).filter((line) => line.trim() !== "");
     if (
         lines.length > 0 &&
         lines[0].search(/^\s*\/\/\s*@CodeoScript\s*$/) >= 0
@@ -145,4 +146,64 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
         void OBR.notification.show(message, "ERROR");
         return null;
     }
+}
+
+if (import.meta.vitest) {
+    const { it, expect } = import.meta.vitest;
+
+    const SCRIPT_NAME = "Script name";
+    const SCRIPT_AUTHOR = "Script author";
+    const SCRIPT_DESCRIPTION = "Script description";
+    const SCRIPT_VERSION = "1.0.0";
+
+    it("Should parse code with starting empty lines", () => {
+        const code = `
+
+        // @CodeoScript
+        // @name ${SCRIPT_NAME}
+        `;
+        const result = parseCode(code);
+        expect(result.name).toBe(SCRIPT_NAME);
+    });
+
+    it("Should parse code with headers", () => {
+        const code = `// @CodeoScript
+        // @name ${SCRIPT_NAME}
+        // @author ${SCRIPT_AUTHOR}
+        // @description ${SCRIPT_DESCRIPTION}
+        // @version ${SCRIPT_VERSION}
+        function helloWorld() {
+            console.log("Hello, world!");
+        }`;
+        const result = parseCode(code);
+        expect(result.name).toBe(SCRIPT_NAME);
+        expect(result.author).toBe(SCRIPT_AUTHOR);
+        expect(result.description).toBe(SCRIPT_DESCRIPTION);
+        expect(result.version).toBe(SCRIPT_VERSION);
+        expect(result.code).toBe(code);
+        expect(result.parameters).toEqual([]);
+    });
+
+    it("Should parse code with parameters", () => {
+        const PARAM_1_NAME = "param1";
+        const PARAM_1_TYPE = "string";
+        const PARAM_1_DESCRIPTION = "Parameter 1";
+        const PARAM_2_NAME = "param2";
+        const PARAM_2_TYPE = "number";
+        const PARAM_2_DESCRIPTION = "Parameter 2";
+        const code = `// @CodeoScript
+        // @param ${PARAM_1_NAME} ${PARAM_1_TYPE} ${PARAM_1_DESCRIPTION}
+        // @param ${PARAM_2_NAME} ${PARAM_2_TYPE} ${PARAM_2_DESCRIPTION}
+        function helloWorld(param1, param2) {
+            console.log("Hello, world!");
+        }`;
+        const result = parseCode(code);
+        expect(result.parameters.length).toBe(2);
+        expect(result.parameters[0].name).toBe(PARAM_1_NAME);
+        expect(result.parameters[0].type).toBe(PARAM_1_TYPE);
+        expect(result.parameters[0].description).toBe(PARAM_1_DESCRIPTION);
+        expect(result.parameters[1].name).toBe(PARAM_2_NAME);
+        expect(result.parameters[1].type).toBe(PARAM_2_TYPE);
+        expect(result.parameters[1].description).toBe(PARAM_2_DESCRIPTION);
+    });
 }

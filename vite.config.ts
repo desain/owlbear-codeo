@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { defineConfig } from "vite";
@@ -24,5 +26,12 @@ export default defineConfig({
                 ),
             },
         },
+    },
+    test: {
+        includeSource: ["src/**/*.{js,ts}"],
+        setupFiles: ["./test/vitest.setup.ts"],
+    },
+    define: {
+        "import.meta.vitest": "undefined",
     },
 });
