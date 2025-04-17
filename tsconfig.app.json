@@ -18,7 +18,8 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "noImplicitReturns": true
+        "noImplicitReturns": true,
+        "types": ["vitest/importMeta"]
     },
-    "include": ["src"]
+    "include": ["src", "test"]
 }
