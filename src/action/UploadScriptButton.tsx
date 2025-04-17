@@ -1,12 +1,14 @@
 import { Upload } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import OBR from "@owlbear-rodeo/sdk";
 import { useRef } from "react";
-import { CodeoScript, isCodeoScript } from "../CodeoScript";
+import { CodeoScript } from "../CodeoScript";
+import { parseJsonOrCode } from "../importScript";
 
 const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
-    onReceiveScript: (script: CodeoScript) => void,
+    onReceiveScript: (
+        script: Omit<CodeoScript, "createdAt" | "updatedAt">,
+    ) => void,
 ) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -16,33 +18,24 @@ const handleFileUpload = (
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        try {
-            const content = JSON.parse(e.target?.result as string);
-            if (isCodeoScript(content)) {
-                onReceiveScript(content);
-            } else {
-                console.error("Invalid script file format");
-                void OBR.notification.show(
-                    "Invalid script file format",
-                    "ERROR",
-                );
-            }
-        } catch (error) {
-            console.error("Error parsing script file:", error);
-            void OBR.notification.show(
-                "Error parsing script file:" + String(error),
-                "ERROR",
-            );
-        }
+        // result must be string because onload was called from readAsText
+        const text = e.target?.result as string;
+        const script = {
+            name: file.name,
+            ...parseJsonOrCode(text),
+        };
+        onReceiveScript(script);
     };
     reader.readAsText(file);
     event.target.value = ""; // Reset file input
 };
 
-export function ScriptUploadButton({
+export function UploadScriptButton({
     onReceiveScript,
 }: {
-    onReceiveScript: (script: CodeoScript) => void;
+    onReceiveScript: (
+        script: Omit<CodeoScript, "createdAt" | "updatedAt">,
+    ) => void;
 }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 

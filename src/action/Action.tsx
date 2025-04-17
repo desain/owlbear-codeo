@@ -49,7 +49,7 @@ import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
-import { ScriptUploadButton } from "./ScriptUploadButton";
+import { UploadScriptButton } from "./UploadScriptButton";
 
 const BASE_HEIGHT = 100;
 const MAX_HEIGHT = 700;
@@ -154,7 +154,18 @@ function ScriptCard({
     return (
         <Card sx={{ width: "100%" }}>
             <CardHeader
-                title={<Highlight text={script.name} ranges={nameRanges} />}
+                title={
+                    <Stack direction="row" alignItems="center" gap={1}>
+                        <Box>
+                            <Highlight text={script.name} ranges={nameRanges} />
+                        </Box>
+                        {script.version && (
+                            <Typography color="textSecondary">
+                                v{script.version}
+                            </Typography>
+                        )}
+                    </Stack>
+                }
                 subheader={
                     script.author && (
                         <Highlight
@@ -171,7 +182,7 @@ function ScriptCard({
                 action={<OverflowMenu script={script} />}
             />
             <CardContent>
-                {script.description !== "" && (
+                {script.description && (
                     <Typography
                         color="textSecondary"
                         sx={{ wordBreak: "break-word" }}
@@ -289,7 +300,11 @@ export function Action() {
     const filteredScripts = useFuzzySearchList({
         list: scripts,
         queryText: search,
-        getText: (item) => [item.name, item.description, item.author ?? ""],
+        getText: (item) => [
+            item.name,
+            item.description ?? "",
+            item.author ?? "",
+        ],
         mapResultItem: ({
             item,
             matches: [nameRanges, descriptionRanges, authorRanges],
@@ -337,13 +352,7 @@ export function Action() {
                     </IconButton>
                 </Tooltip>
                 <ImportButton addScript={addScript} />
-                <ScriptUploadButton
-                    onReceiveScript={(script) => {
-                        const { id, createdAt, updatedAt, ...scriptData } =
-                            script;
-                        addScript(scriptData);
-                    }}
-                />
+                <UploadScriptButton onReceiveScript={addScript} />
             </Stack>
             {/* Search and filter row */}
             <Stack direction="row" alignItems="center" spacing={1} px={2}>
