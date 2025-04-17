@@ -5,6 +5,7 @@ import {
     ArrowUpward,
     Delete,
     Edit,
+    FileCopy,
     MoreVert,
     Person,
     PlayCircleOutlineTwoTone,
@@ -16,12 +17,14 @@ import {
     Visibility,
 } from "@mui/icons-material";
 import {
+    Avatar,
     Box,
     Card,
     CardActions,
     CardContent,
     CardHeader,
     Checkbox,
+    Chip,
     Divider,
     IconButton,
     InputAdornment,
@@ -38,7 +41,7 @@ import {
 import CircularProgress from "@mui/material/CircularProgress";
 import { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
-import OBR from "@owlbear-rodeo/sdk";
+import OBR, { isImage } from "@owlbear-rodeo/sdk";
 import { useActionResizer } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScriptParameter } from "../CodeoScript";
@@ -51,6 +54,7 @@ import {
     usePlayerStorage,
 } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
+import { getName } from "../utils/itemUtils";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
@@ -114,6 +118,8 @@ function ExecutionItem({
 }
 
 function OverflowMenu({ script }: { script: StoredScript }) {
+    const playerName = usePlayerStorage((store) => store.playerName);
+    const addScript = usePlayerStorage((store) => store.addScript);
     const removeScript = usePlayerStorage((store) => store.removeScript);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -135,8 +141,109 @@ function OverflowMenu({ script }: { script: StoredScript }) {
                     </ListItemIcon>
                     Delete
                 </MenuItem>
+                <MenuItem
+                    onClick={() => {
+                        addScript({
+                            name: script.name + " (copy)",
+                            author: playerName,
+                            description: script.description,
+                            code: script.code,
+                            parameters: script.parameters,
+                        });
+                        setAnchorEl(null);
+                    }}
+                >
+                    <ListItemIcon>
+                        <FileCopy />
+                    </ListItemIcon>
+                    Copy to New
+                </MenuItem>
             </Menu>
         </>
+    );
+}
+
+function Parameter({
+    script,
+    param,
+    idx,
+}: {
+    script: StoredScript;
+    param: ScriptParameter & ParameterWithValue;
+    idx: number;
+}) {
+    const setParameterValue = usePlayerStorage(
+        (store) => store.setParameterValue,
+    );
+
+    return (
+        <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography
+                variant="body2"
+                fontWeight="bold"
+                sx={{ minWidth: 120 }}
+            >
+                {param.description}
+            </Typography>
+            {param.type === "boolean" ? (
+                <Checkbox
+                    checked={!!param.value}
+                    onChange={(_, checked) =>
+                        setParameterValue(script.id, idx, checked)
+                    }
+                />
+            ) : param.type === "Item" ? (
+                <Chip
+                    avatar={
+                        param.value && isImage(param.value) ? (
+                            <Avatar src={param.value.image.url} />
+                        ) : undefined
+                    }
+                    label={
+                        param.value ? getName(param.value) : "Take Selection"
+                    }
+                    onClick={async () => {
+                        if (param.value) {
+                            void OBR.player.select([param.value.id]);
+                        } else {
+                            const [selected] =
+                                (await OBR.player.getSelection()) ?? [];
+                            if (!selected) {
+                                OBR.notification.show(
+                                    "No items selected",
+                                    "ERROR",
+                                );
+                                return;
+                            }
+                            const [item] = await OBR.scene.items.getItems([
+                                selected,
+                            ]);
+                            if (item) {
+                                setParameterValue(script.id, idx, item);
+                            }
+                        }
+                    }}
+                    onDelete={
+                        param.value &&
+                        (() => setParameterValue(script.id, idx, undefined))
+                    }
+                />
+            ) : (
+                <TextField
+                    type={param.type === "number" ? "number" : "text"}
+                    size="small"
+                    value={param.value ?? ""}
+                    onChange={(e) => {
+                        const val =
+                            param.type === "number"
+                                ? Number(e.target.value)
+                                : e.target.value;
+                        setParameterValue(script.id, idx, val);
+                    }}
+                    // sx={{ minWidth: 120 }}
+                />
+            )}
+        </Stack>
     );
 }
 
@@ -153,10 +260,6 @@ function ScriptCard({
 }) {
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
-
-    const setParameterValue = usePlayerStorage(
-        (store) => store.setParameterValue,
-    );
 
     const isImported = script.url !== undefined;
 
@@ -208,61 +311,14 @@ function ScriptCard({
                         <Typography variant="subtitle2" color="textSecondary">
                             Parameters
                         </Typography>
-                        {script.parameters.map(
-                            (
-                                param: ScriptParameter & ParameterWithValue,
-                                idx,
-                            ) => (
-                                <Stack
-                                    key={idx}
-                                    direction="row"
-                                    alignItems="center"
-                                    spacing={2}
-                                >
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight="bold"
-                                        sx={{ minWidth: 120 }}
-                                    >
-                                        {param.description}
-                                    </Typography>
-                                    {param.type === "boolean" ? (
-                                        <Checkbox
-                                            checked={!!param.value}
-                                            onChange={(_, checked) =>
-                                                setParameterValue(
-                                                    script.id,
-                                                    idx,
-                                                    checked,
-                                                )
-                                            }
-                                        />
-                                    ) : (
-                                        <TextField
-                                            type={
-                                                param.type === "number"
-                                                    ? "number"
-                                                    : "text"
-                                            }
-                                            size="small"
-                                            value={param.value ?? ""}
-                                            onChange={(e) => {
-                                                const val =
-                                                    param.type === "number"
-                                                        ? Number(e.target.value)
-                                                        : e.target.value;
-                                                setParameterValue(
-                                                    script.id,
-                                                    idx,
-                                                    val,
-                                                );
-                                            }}
-                                            // sx={{ minWidth: 120 }}
-                                        />
-                                    )}
-                                </Stack>
-                            ),
-                        )}
+                        {script.parameters.map((param, idx) => (
+                            <Parameter
+                                key={idx}
+                                script={script}
+                                param={param}
+                                idx={idx}
+                            />
+                        ))}
                     </Stack>
                 )}
                 {/* Executions UI */}

@@ -1,4 +1,4 @@
-import OBR from "@owlbear-rodeo/sdk";
+import OBR, { Item } from "@owlbear-rodeo/sdk";
 import { enableMapSet } from "immer";
 import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
@@ -43,10 +43,51 @@ interface StringParameter {
     value?: string;
 }
 
+interface ItemParameter {
+    type: "Item";
+    value?: Item;
+}
+
 export type ParameterWithValue =
     | BooleanParameter
     | NumberParameter
-    | StringParameter;
+    | StringParameter
+    | ItemParameter;
+
+function setParameter(
+    parameter: ParameterWithValue,
+    value: ParameterWithValue["value"],
+) {
+    if (value === undefined) {
+        parameter.value = undefined;
+        return;
+    }
+
+    switch (parameter.type) {
+        case "boolean":
+            parameter.value = Boolean(value);
+            break;
+        case "number":
+            parameter.value = Number(value);
+            break;
+        case "string":
+            parameter.value = String(value);
+            break;
+        case "Item":
+            if (
+                typeof value === "string" ||
+                typeof value === "boolean" ||
+                typeof value === "number"
+            ) {
+                console.warn(
+                    `Value for Item parameter must be an Item, got ${typeof value}`,
+                );
+                return;
+            }
+            parameter.value = value;
+            break;
+    }
+}
 
 export type StoredScript = CodeoScript & {
     id: string;
@@ -61,6 +102,7 @@ export interface PlayerStorage {
     executions: Map<string, Execution[]>;
     sceneReady: boolean;
     playerColor: string;
+    playerName: string;
     _markSensible(this: void): void;
     addScript(this: void, script: CodeoScript): void;
     removeScript(this: void, id: string): void;
@@ -69,11 +111,12 @@ export interface PlayerStorage {
     stopExecution(this: void, scriptId: string, executionId: string): void;
     setSceneReady(this: void, sceneReady: boolean): void;
     setPlayerColor(this: void, playerColor: string): void;
+    setPlayerName(this: void, playerName: string): void;
     setParameterValue(
         this: void,
         scriptId: string,
         paramIndex: number,
-        value: NonNullable<ParameterWithValue["value"]>,
+        value: ParameterWithValue["value"],
     ): void;
 }
 
@@ -86,6 +129,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 executions: new Map(),
                 sceneReady: false,
                 playerColor: "#FFFFFF",
+                playerName: "Placeholder",
                 _markSensible: () => set({ hasSensibleValues: true }),
                 addScript: (scriptData) =>
                     set((state) => {
@@ -149,7 +193,8 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     }),
                 setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
                 setPlayerColor: (playerColor) => set({ playerColor }),
-                setParameterValue(scriptId, paramIndex, value) {
+                setPlayerName: (playerName) => set({ playerName }),
+                setParameterValue: (scriptId, paramIndex, value) =>
                     set((state) => {
                         const scriptIdx = state.scripts.findIndex(
                             (script) => script.id === scriptId,
@@ -172,17 +217,9 @@ export const usePlayerStorage = create<PlayerStorage>()(
                         }
                         const parameter =
                             state.scripts[scriptIdx].parameters[paramIndex];
-                        if (typeof value !== parameter.type) {
-                            console.warn(
-                                `Value type ${typeof value} does not match parameter type ${
-                                    parameter.type
-                                }`,
-                            );
-                            return;
-                        }
-                        parameter.value = value;
-                    });
-                },
+                        setParameter(parameter, value);
+                        // DANGER: assigning parameter.value = value here works but shouldn't
+                    }),
             })),
             {
                 name: LOCAL_STORAGE_STORE_NAME,

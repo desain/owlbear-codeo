@@ -30,6 +30,7 @@ import OBR, {
     Math2,
     MathM,
 } from "@owlbear-rodeo/sdk";
+import { makeCodeo, saveExecution } from "./Codeo";
 import { ScriptParameter } from "./CodeoScript";
 import { Execution, isNewExecution } from "./Execution";
 import {
@@ -37,16 +38,6 @@ import {
     StoredScript,
     usePlayerStorage,
 } from "./state/usePlayerStorage";
-
-const CODEO_EXECUTION_ID = Symbol("CodeoExecutionId");
-interface Codeo {
-    [CODEO_EXECUTION_ID]: string | null;
-    /**
-     * If the script has an active execution, calls the execution's stop() function and removes
-     * the execution.
-     */
-    stopSelf(): void;
-}
 
 function getExecution(response: unknown): Execution | null {
     if (isNewExecution(response)) {
@@ -75,17 +66,6 @@ const TIMEOUT_MS = 1000;
  * @returns The execution ID of the script, or null if the script did not return an execution.
  */
 export async function runScript(script: StoredScript): Promise<string | null> {
-    const Codeo: Codeo = {
-        [CODEO_EXECUTION_ID]: null,
-        stopSelf() {
-            const executionId = Codeo[CODEO_EXECUTION_ID];
-            if (executionId != null) {
-                usePlayerStorage
-                    .getState()
-                    .stopExecution(script.id, executionId);
-            }
-        },
-    };
     try {
         const scriptFunction = AsyncFunction(
             "Codeo",
@@ -123,9 +103,10 @@ export async function runScript(script: StoredScript): Promise<string | null> {
             ...script.parameters.map((parameter) => parameter.name),
             "'use strict';" + script.code,
         );
+        const codeo = makeCodeo(script.id);
         const response: unknown = await Promise.race([
             scriptFunction(
-                Codeo,
+                codeo,
                 OBR,
                 Math2,
                 MathM,
@@ -168,7 +149,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
         ]);
         const execution = getExecution(response);
         if (execution !== null) {
-            Codeo[CODEO_EXECUTION_ID] = execution.executionId;
+            saveExecution(codeo, execution.executionId);
             usePlayerStorage.getState().addExecution(script.id, execution);
             return execution.executionId;
         }
