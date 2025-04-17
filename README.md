@@ -23,6 +23,7 @@ Some scripts to get you started:
 
 -   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
 -   [Live Line](https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44) - select two tokens and a line, and the line will move to connect the tokens even if you move them.
+-   [Shake it Off](https://gist.github.com/desain/5315c2c18ba469cd85534e8c29f8abbc) - shake the screen when selected tokens move.
 
 ### Writing scripts
 

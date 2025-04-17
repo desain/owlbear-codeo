@@ -10,6 +10,7 @@ import {
     Person,
     PlayCircleOutlineTwoTone,
     Search,
+    Settings,
     Sort,
     SortByAlpha,
     Stop,
@@ -42,7 +43,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR, { isImage } from "@owlbear-rodeo/sdk";
-import { useActionResizer } from "owlbear-utils";
+import { getName, useActionResizer } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScriptParameter } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
@@ -54,7 +55,6 @@ import {
     usePlayerStorage,
 } from "../state/usePlayerStorage";
 import { useRehydrate } from "../state/useRehydrate";
-import { getName } from "owlbear-utils";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
@@ -62,6 +62,15 @@ import { UploadScriptButton } from "./UploadScriptButton";
 
 const BASE_HEIGHT = 100;
 const MAX_HEIGHT = 700;
+
+async function openSettingsPopover() {
+    await OBR.popover.open({
+        id: MODAL_EDIT_SCRIPT_ID,
+        url: `/src/popoverSettings/popoverSettings.html`,
+        width: 400,
+        height: 600,
+    });
+}
 
 async function openEditModal(scriptId?: string) {
     const queryString = scriptId ? `${SCRIPT_ID_PARAM}=${scriptId}` : "";
@@ -481,6 +490,11 @@ export function Action() {
                     }}
                     sx={{ flex: 1 }}
                 />
+                <Tooltip title="Settings">
+                    <IconButton onClick={openSettingsPopover}>
+                        <Settings />
+                    </IconButton>
+                </Tooltip>
                 <Tooltip title="Create new script">
                     <IconButton onClick={() => openEditModal()}>
                         <Add />
