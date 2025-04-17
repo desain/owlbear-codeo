@@ -30,7 +30,7 @@ import OBR, {
     Math2,
     MathM,
 } from "@owlbear-rodeo/sdk";
-import { makeCodeo, saveExecution } from "./Codeo";
+import { Codeo } from "./Codeo";
 import { ScriptParameter } from "./CodeoScript";
 import { Execution, isNewExecution } from "./Execution";
 import {
@@ -103,7 +103,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
             ...script.parameters.map((parameter) => parameter.name),
             "'use strict';" + script.code,
         );
-        const codeo = makeCodeo(script.id);
+        const codeo = new Codeo(script.id);
         const response: unknown = await Promise.race([
             scriptFunction(
                 codeo,
@@ -149,7 +149,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
         ]);
         const execution = getExecution(response);
         if (execution !== null) {
-            saveExecution(codeo, execution.executionId);
+            codeo.saveExecution(execution.executionId);
             usePlayerStorage.getState().addExecution(script.id, execution);
             return execution.executionId;
         }
