@@ -10,6 +10,8 @@ import { Execution } from "../Execution";
 
 enableMapSet();
 
+const SET_SENSIBLE = Symbol("SetSensible");
+
 const ObrSceneReady = new Promise<void>((resolve) => {
     OBR.onReady(async () => {
         if (await OBR.scene.isReady()) {
@@ -102,7 +104,7 @@ export interface PlayerStorage {
     scripts: StoredScript[];
     toolEnabled: boolean;
     toolMappings: Map<string, string>; // Map letter to script ID
-    _markSensible(this: void): void;
+    [SET_SENSIBLE](this: void): void;
     setToolEnabled(this: void, enabled: boolean): void;
     setToolShortcut(this: void, shortcut: string, scriptId: string): void;
     removeToolShortcut(this: void, shortcut: string): void;
@@ -142,7 +144,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 sceneReady: false,
                 playerColor: "#FFFFFF",
                 playerName: "Placeholder",
-                _markSensible: () => set({ hasSensibleValues: true }),
+                [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
                 setToolShortcut: (shortcut, scriptId) => {
                     set((state) => state.toolMappings.set(shortcut, scriptId));
@@ -259,7 +261,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             if (!state.hasSensibleValues) {
                                 void fetchDefaults().then((defaultScripts) => {
                                     state.scripts = defaultScripts;
-                                    state._markSensible();
+                                    state[SET_SENSIBLE]();
                                 });
                             }
                         } else if (error) {
