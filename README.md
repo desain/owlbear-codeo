@@ -57,14 +57,15 @@ type RunScriptMessage = ScriptSelector & {
         Parameters<typeof OBR.broadcast.sendMessage>[2]
     >["destination"];
 };
-type StopExecutionMessage = ScriptSelector & {
-    type: "STOP_EXECUTION";
-    executionId: string;
-};
+type StopExecutionMessage = ScriptSelector &
+    Readonly<{
+        type: "STOP_EXECUTION";
+        executionId: string;
+    }>;
 
-interface RunScriptMessageResponse {
+type RunScriptMessageResponse = Readonly<{
     executionId: string;
-}
+}>;
 
 const codeo = (message: RunScriptMessage | StopExecutionMessage) =>
     OBR.broadcast.sendMessage("com.desain.codeo/message", message, {

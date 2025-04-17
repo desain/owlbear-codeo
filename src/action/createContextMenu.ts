@@ -19,10 +19,10 @@ export async function installContextMenu() {
                 },
             },
         ],
-        onClick(context, elementId) {
+        onClick: (context, elementId) => {
             const x = context.selectionBounds.center.x;
             const y = context.selectionBounds.center.y;
-            OBR.popover.open({
+            return OBR.popover.open({
                 id: POPOVER_ADD_BUTTON_ID,
                 url: `/src/popoverAddButton/popoverAddButton.html?x=${x}&y=${y}`,
                 anchorElementId: elementId,

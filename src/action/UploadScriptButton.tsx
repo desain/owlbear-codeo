@@ -31,7 +31,10 @@ const handleFileUpload = (
             onReceiveScript(script);
         } catch (e) {
             console.error("Failed to parse script:", e);
-            void OBR.notification.show("Failed to parse script: " + e, "ERROR");
+            void OBR.notification.show(
+                `Failed to parse script: ${String(e)}`,
+                "ERROR",
+            );
         }
     };
     reader.readAsText(file);

@@ -1,9 +1,10 @@
 import { isObject } from "owlbear-utils";
 
-export interface NewExecution {
+export type NewExecution = Readonly<{
     stop: VoidFunction;
     executionName: string;
-}
+}>;
+
 export function isNewExecution(execution: unknown): execution is NewExecution {
     return (
         isObject(execution) &&
@@ -14,6 +15,7 @@ export function isNewExecution(execution: unknown): execution is NewExecution {
     );
 }
 
-export interface Execution extends NewExecution {
-    executionId: string;
-}
+export type Execution = NewExecution &
+    Readonly<{
+        executionId: string;
+    }>;

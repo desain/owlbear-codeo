@@ -26,6 +26,6 @@ export function startWatchingButtons() {
             );
             return;
         }
-        runScript(script);
+        void runScript(script);
     });
 }

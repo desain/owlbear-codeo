@@ -5,6 +5,8 @@ import {
     PARAMETER_TYPES,
 } from "../CodeoScript";
 
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+
 const HEADER_ATTRS = [
     "name",
     "author",
@@ -24,7 +26,7 @@ function parseCode(
     code: string,
 ): Pick<CodeoScript, "code" | "parameters"> &
     Partial<Pick<CodeoScript, HeaderAttr>> {
-    const partial: Partial<Pick<CodeoScript, HeaderAttr>> = {};
+    const partial: Writeable<Partial<Pick<CodeoScript, HeaderAttr>>> = {};
     const parameters: CodeoScript["parameters"] = [];
     const parameterRegex = /^\s*\/\/\s*@param\s+(\w+)\s+(\w+)\s+(.+?)\s*$/;
     // Remove empty lines for parsing

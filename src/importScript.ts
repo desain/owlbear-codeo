@@ -13,7 +13,7 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
             /^https?:\/\/gist\.github\.com\/([^/]+)\/(\w+)\/?$/,
         );
         if (gistMatch) {
-            const [_, _user, gistId] = gistMatch;
+            const [, , gistId] = gistMatch;
             const response = await request("GET /gists/{gist_id}", {
                 gist_id: gistId,
             });
@@ -50,7 +50,7 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
             url,
         };
     } catch (error) {
-        const message = "Failed to import script:" + error;
+        const message = `Failed to import script: ${String(error)}`;
         console.error(message);
         void OBR.notification.show(message, "ERROR");
         return null;

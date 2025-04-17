@@ -19,7 +19,7 @@ export function RefreshScriptButton({ script }: { script: StoredScript }) {
                         return;
                     }
                     updateScript(script.id, updated);
-                    OBR.notification.show("Updated script", "SUCCESS");
+                    void OBR.notification.show("Updated script", "SUCCESS");
                 }}
             >
                 <Update />
