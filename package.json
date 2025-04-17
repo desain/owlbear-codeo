@@ -32,6 +32,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@nozbe/microfuzz": "^1.0.0",
+    "@octokit/request": "^9.2.3",
     "@owlbear-rodeo/sdk": "^3.1.0",
     "@uiw/react-textarea-code-editor": "^3.1.0",
     "globals": "^16.0.0",

@@ -3,7 +3,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import { useRef } from "react";
 import { CodeoScript } from "../CodeoScript";
-import { parseJsonOrCode } from "../importScript";
+import { parseJsonOrCode } from "../utils/parseScript";
 
 const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
