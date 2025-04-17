@@ -1,10 +1,26 @@
 const PLUGIN_ID = "com.desain.codeo";
+
+// Metadata
 export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/metadata`;
-export const MESSAGE_CHANNEL = `${PLUGIN_ID}/message`;
-export const LOCAL_STORAGE_STORE_NAME = `${PLUGIN_ID}/localStorage`;
+
+// Modals and popovers
 export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;
 export const POPOVER_ADD_BUTTON_ID = `${PLUGIN_ID}/popoverAddButton`;
 export const SCRIPT_ID_PARAM = "scriptId";
 export const LOCATION_X_PARAM = "x";
 export const LOCATION_Y_PARAM = "y";
+
+// Messaging
+export const MESSAGE_CHANNEL = `${PLUGIN_ID}/message`;
+
+// Storage
+export const LOCAL_STORAGE_STORE_NAME = `${PLUGIN_ID}/localStorage`;
+
+// Context menu
 export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/create-button`;
+
+// Tool
+export const SHORTCUT_TOOL_ID = `${PLUGIN_ID}/shortcut-tool`;
+export const SHORTCUT_TOOL_ACTION_ID_PREFIX = `${SHORTCUT_TOOL_ID}/action/`;
+export const SHORTCUT_TOOL_SETTINGS_ACTION_ID = `${SHORTCUT_TOOL_ID}/settings`;
+export const SHORTCUT_OPTIONS = [..."BCEFGLNOPRVX"];

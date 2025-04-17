@@ -10,6 +10,7 @@ import { startSyncing } from "../state/startSyncing";
 import { Action } from "./Action";
 import { installContextMenu as createContextMenu } from "./createContextMenu";
 import { handleBroadcast } from "./handleBroadcast";
+import { startWatchingToolEnabled } from "./shortcutTool";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {};
@@ -39,12 +40,14 @@ async function installExtension(): Promise<VoidFunction> {
     await storeInitialized;
     const uninstallBroadcastListener = installBroadcastListener();
     const stopWatchingButtons = startWatchingButtons();
+    const stopWatchingTool = await startWatchingToolEnabled();
     await createContextMenu();
 
     return deferCallAll(
         () => console.log("Uninstalling Owlbear Codeo"),
         stopSyncing,
         stopWatchingButtons,
+        stopWatchingTool,
         uninstallBroadcastListener,
     );
 }

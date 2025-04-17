@@ -5,7 +5,7 @@ import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { CodeoScript } from "../CodeoScript";
-import { LOCAL_STORAGE_STORE_NAME } from "../constants";
+import { LOCAL_STORAGE_STORE_NAME, SHORTCUT_TOOL_ID } from "../constants";
 import { Execution } from "../Execution";
 
 enableMapSet();
@@ -97,27 +97,37 @@ export type StoredScript = CodeoScript & {
 };
 
 export interface PlayerStorage {
+    // Persistent values
     hasSensibleValues: boolean;
     scripts: StoredScript[];
-    executions: Map<string, Execution[]>;
-    sceneReady: boolean;
-    playerColor: string;
-    playerName: string;
+    toolEnabled: boolean;
+    toolMappings: Map<string, string>; // Map letter to script ID
     _markSensible(this: void): void;
+    setToolEnabled(this: void, enabled: boolean): void;
+    setToolShortcut(this: void, shortcut: string, scriptId: string): void;
+    removeToolShortcut(this: void, shortcut: string): void;
     addScript(this: void, script: CodeoScript): void;
     removeScript(this: void, id: string): void;
     updateScript(this: void, id: string, updates: Partial<CodeoScript>): void;
-    addExecution(this: void, scriptId: string, execution: Execution): void;
-    stopExecution(this: void, scriptId: string, executionId: string): void;
-    setSceneReady(this: void, sceneReady: boolean): void;
-    setPlayerColor(this: void, playerColor: string): void;
-    setPlayerName(this: void, playerName: string): void;
     setParameterValue(
         this: void,
         scriptId: string,
         paramIndex: number,
         value: ParameterWithValue["value"],
     ): void;
+
+    // Temporary values
+    executions: Map<string, Execution[]>;
+    addExecution(this: void, scriptId: string, execution: Execution): void;
+    stopExecution(this: void, scriptId: string, executionId: string): void;
+
+    // Tracking OBR
+    sceneReady: boolean;
+    playerColor: string;
+    playerName: string;
+    setSceneReady(this: void, sceneReady: boolean): void;
+    setPlayerColor(this: void, playerColor: string): void;
+    setPlayerName(this: void, playerName: string): void;
 }
 
 export const usePlayerStorage = create<PlayerStorage>()(
@@ -126,11 +136,26 @@ export const usePlayerStorage = create<PlayerStorage>()(
             immer((set) => ({
                 hasSensibleValues: false,
                 scripts: [],
+                toolEnabled: false,
+                toolMappings: new Map(),
                 executions: new Map(),
                 sceneReady: false,
                 playerColor: "#FFFFFF",
                 playerName: "Placeholder",
                 _markSensible: () => set({ hasSensibleValues: true }),
+                setToolEnabled: (toolEnabled) => set({ toolEnabled }),
+                setToolShortcut: (shortcut, scriptId) => {
+                    set((state) => state.toolMappings.set(shortcut, scriptId));
+                    void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
+                        [shortcut]: true,
+                    });
+                },
+                removeToolShortcut: (shortcut) => {
+                    set((state) => state.toolMappings.delete(shortcut));
+                    void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
+                        [shortcut]: false,
+                    });
+                },
                 addScript: (scriptData) =>
                     set((state) => {
                         const now = Date.now();
@@ -223,9 +248,10 @@ export const usePlayerStorage = create<PlayerStorage>()(
             })),
             {
                 name: LOCAL_STORAGE_STORE_NAME,
-                partialize: ({ scripts, hasSensibleValues }) => ({
+                partialize: ({ scripts, hasSensibleValues, toolEnabled }) => ({
                     scripts,
                     hasSensibleValues,
+                    toolEnabled,
                 }),
                 onRehydrateStorage() {
                     return (state, error) => {
