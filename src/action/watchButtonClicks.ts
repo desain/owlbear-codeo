@@ -1,7 +1,10 @@
 import OBR from "@owlbear-rodeo/sdk";
-import { METADATA_SCRIPT_ID_KEY } from "../constants";
+import {
+    METADATA_EXECUTION_ID_KEY,
+    METADATA_SCRIPT_ID_KEY,
+} from "../constants";
 import { runScript } from "../runScript";
-import { isScriptButton } from "../ScriptButton";
+import { BACKGROUND_OFF, BACKGROUND_ON, isScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 export function startWatchingButtons() {
@@ -14,18 +17,33 @@ export function startWatchingButtons() {
             return;
         }
         void OBR.player.deselect();
-        const script = usePlayerStorage
-            .getState()
-            .scripts.find(
-                (script) => script.id === item.metadata[METADATA_SCRIPT_ID_KEY],
-            );
-        if (script === undefined) {
-            void OBR.notification.show(
-                `Script for ${item.text.plainText} not found`,
-                "ERROR",
-            );
-            return;
+
+        const scriptId = item.metadata[METADATA_SCRIPT_ID_KEY];
+        const executionId = item.metadata[METADATA_EXECUTION_ID_KEY];
+        if (executionId) {
+            usePlayerStorage.getState().stopExecution(scriptId, executionId);
+            await OBR.scene.items.updateItems([item], ([item]) => {
+                item.metadata[METADATA_EXECUTION_ID_KEY] = undefined;
+                item.style.backgroundColor = BACKGROUND_OFF;
+            });
+        } else {
+            const script = usePlayerStorage
+                .getState()
+                .scripts.find((script) => script.id === scriptId);
+            if (script === undefined) {
+                void OBR.notification.show(
+                    `Script for button '${item.text.plainText}' not found`,
+                    "ERROR",
+                );
+                return;
+            }
+            const newExecutionId = await runScript(script);
+            if (newExecutionId) {
+                await OBR.scene.items.updateItems([item], ([item]) => {
+                    item.style.backgroundColor = BACKGROUND_ON;
+                    item.metadata[METADATA_EXECUTION_ID_KEY] = newExecutionId;
+                });
+            }
         }
-        void runScript(script);
     });
 }
