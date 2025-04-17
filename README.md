@@ -118,14 +118,13 @@ To make a production build run:
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
 
--   Ability to duplicate scripts with arguments to allow for multiple arguments lists
 -   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
 -   Favorites system
 -   Script icons
--   Gist API to get latest version
 -   Add simple bar for scrolls
 -   More parameter types
-    -   Location
+    -   Location?
+    -   Item list?
 -   Add API for setting parameters
 
 ## License
