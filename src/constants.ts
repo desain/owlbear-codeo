@@ -23,5 +23,4 @@ export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/create-button`;
 // Tool
 export const SHORTCUT_TOOL_ID = `${PLUGIN_ID}/shortcut-tool`;
 export const SHORTCUT_TOOL_ACTION_ID_PREFIX = `${SHORTCUT_TOOL_ID}/action/`;
-export const SHORTCUT_TOOL_SETTINGS_ACTION_ID = `${SHORTCUT_TOOL_ID}/settings`;
 export const SHORTCUT_OPTIONS = [..."BCEFGLNOPRVX"];

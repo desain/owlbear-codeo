@@ -39,7 +39,6 @@ type EditScriptProps = Readonly<{
 }>;
 
 export function EditScript({ scriptId }: EditScriptProps) {
-    const sensible = usePlayerStorage((store) => store.hasSensibleValues);
     const scripts = usePlayerStorage((store) => store.scripts);
     const playerName = usePlayerStorage((store) => store.playerName);
     const updateScript = usePlayerStorage((store) => store.updateScript);
@@ -60,10 +59,6 @@ export function EditScript({ scriptId }: EditScriptProps) {
     const handleClose = useCallback(() => {
         void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
     }, []);
-
-    if (!sensible) {
-        return "Loading...";
-    }
 
     const handleSave = () => {
         if (scriptId) {

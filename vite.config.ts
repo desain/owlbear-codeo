@@ -24,6 +24,10 @@ export default defineConfig({
                     __dirname,
                     "src/popoverAddButton/popoverAddButton.html",
                 ),
+                popoverSettings: resolve(
+                    __dirname,
+                    "src/popoverSettings/popoverSettings.html",
+                ),
             },
         },
     },

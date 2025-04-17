@@ -4,6 +4,7 @@ import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { enabledKey } from "../action/shortcutTool";
 import { CodeoScript } from "../CodeoScript";
 import { LOCAL_STORAGE_STORE_NAME, SHORTCUT_TOOL_ID } from "../constants";
 import { Execution } from "../Execution";
@@ -104,7 +105,7 @@ export type PlayerStorage = Readonly<{
     hasSensibleValues: boolean;
     scripts: StoredScript[];
     toolEnabled: boolean;
-    toolMappings: Map<string, string>; // Map letter to script ID
+    toolMappings: Record<string, string | undefined>; // Map letter to script ID
     [SET_SENSIBLE](this: void): void;
     setToolEnabled(this: void, enabled: boolean): void;
     setToolShortcut(this: void, shortcut: string, scriptId: string): void;
@@ -140,7 +141,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 hasSensibleValues: false,
                 scripts: [],
                 toolEnabled: false,
-                toolMappings: new Map(),
+                toolMappings: {},
                 executions: new Map(),
                 sceneReady: false,
                 playerColor: "#FFFFFF",
@@ -148,15 +149,19 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
                 setToolShortcut: (shortcut, scriptId) => {
-                    set((state) => state.toolMappings.set(shortcut, scriptId));
+                    set((state) => {
+                        state.toolMappings[shortcut] = scriptId;
+                    });
                     void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
-                        [shortcut]: true,
+                        [enabledKey(shortcut)]: true,
                     });
                 },
                 removeToolShortcut: (shortcut) => {
-                    set((state) => state.toolMappings.delete(shortcut));
+                    set((state) => {
+                        delete state.toolMappings[shortcut];
+                    });
                     void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
-                        [shortcut]: false,
+                        [enabledKey(shortcut)]: false,
                     });
                 },
                 addScript: (scriptData) =>
@@ -171,11 +176,22 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     }),
                 removeScript: (id) =>
                     set((state) => {
+                        // remove executions for the script
                         const scriptExecutions = state.executions.get(id) ?? [];
                         for (const execution of scriptExecutions) {
                             execution.stop();
                         }
                         state.executions.delete(id);
+
+                        // remove mappings to the script
+                        for (const [shortcut, scriptId] of Object.entries(
+                            state.toolMappings,
+                        )) {
+                            if (scriptId === id) {
+                                state.removeToolShortcut(shortcut);
+                            }
+                        }
+
                         state.scripts = state.scripts.filter(
                             (script) => script.id !== id,
                         );
@@ -252,10 +268,16 @@ export const usePlayerStorage = create<PlayerStorage>()(
             })),
             {
                 name: LOCAL_STORAGE_STORE_NAME,
-                partialize: ({ scripts, hasSensibleValues, toolEnabled }) => ({
+                partialize: ({
                     scripts,
                     hasSensibleValues,
                     toolEnabled,
+                    toolMappings,
+                }) => ({
+                    scripts,
+                    hasSensibleValues,
+                    toolEnabled,
+                    toolMappings,
                 }),
             },
         ),

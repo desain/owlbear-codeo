@@ -1,0 +1,9 @@
+This is an extension for the Owlbear Rodeo virtual tabletop. It uses Typescript, with React and MUI components for rendering. Stage is managed in a Zustand store.
+
+When defining types, avoid interfaces, and prefer the style:
+
+```
+type MyType = Readonly<{
+    property: PropertyType;
+}>;
+```
