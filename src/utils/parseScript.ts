@@ -85,13 +85,19 @@ function parseCode(
  * @throws Error if the code is not valid as JSON or code with headers.
  */
 export function parseJsonOrCode(jsonOrCode: string): Omit<CodeoScript, "name"> {
+    let json: unknown = null;
     try {
-        const json: unknown = JSON.parse(jsonOrCode);
-        if (isCodeoScript(json)) {
-            return json;
-        }
+        json = JSON.parse(jsonOrCode);
     } catch {
         console.log("Not json, trying to parse as code");
+    }
+
+    if (json) {
+        if (isCodeoScript(json)) {
+            return json;
+        } else {
+            throw new Error("Invalid JSON");
+        }
     }
 
     return parseCode(jsonOrCode);
