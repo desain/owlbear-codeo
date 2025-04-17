@@ -30,9 +30,8 @@ import OBR, {
     Math2,
     MathM,
 } from "@owlbear-rodeo/sdk";
-import { CodeoScript } from "./CodeoScript";
 import { Execution, isNewExecution } from "./Execution";
-import { usePlayerStorage } from "./state/usePlayerStorage";
+import { StoredScript, usePlayerStorage } from "./state/usePlayerStorage";
 
 interface Codeo {
     executionId: string | null;
@@ -65,7 +64,7 @@ const TIMEOUT_MS = 1000;
  * @param script The script to run.
  * @returns The execution ID of the script, or null if the script did not return an execution.
  */
-export async function runScript(script: CodeoScript): Promise<string | null> {
+export async function runScript(script: StoredScript): Promise<string | null> {
     const Codeo: Codeo = {
         executionId: null,
         stopSelf() {

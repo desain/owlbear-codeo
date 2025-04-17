@@ -97,11 +97,8 @@ To make a production build run:
 -   Favorites system
 -   Script icons
 -   Gist API to get latest version
--   Sort OR filter
 -   Loading spinner on edit
--   Store urls in metadata and load all on extension load
--   Factor out core vs contingent script traits
--   Message if no scripts
+-   Store urls in metadata and load all on extension load?
 -   Add simple bar for scrolls
 
 ## License

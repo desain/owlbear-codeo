@@ -76,13 +76,10 @@ export function parseJsonOrCode(
 
     return {
         ...parseCode(jsonOrCode),
-        id: crypto.randomUUID(),
     };
 }
 
-export async function importScript(
-    url: string,
-): Promise<null | Omit<CodeoScript, "createdAt" | "updatedAt">> {
+export async function importScript(url: string): Promise<null | CodeoScript> {
     url = getRaw(url);
 
     try {

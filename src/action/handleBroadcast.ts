@@ -2,7 +2,7 @@ import OBR from "@owlbear-rodeo/sdk";
 import { isObject } from "owlbear-utils";
 import { CodeoScript } from "../CodeoScript";
 import { runScript } from "../runScript";
-import { usePlayerStorage } from "../state/usePlayerStorage";
+import { StoredScript, usePlayerStorage } from "../state/usePlayerStorage";
 
 type ScriptSelector = { name: string } | { id: string };
 function isScriptSelector(message: unknown): message is ScriptSelector {
@@ -49,10 +49,10 @@ interface RunScriptMessageResponse {
     executionId: string;
 }
 
-function getScriptOrWarn(selector: ScriptSelector): CodeoScript | null {
+function getScriptOrWarn(selector: ScriptSelector): StoredScript | null {
     const finder =
         "id" in selector
-            ? (s: CodeoScript) => s.id === selector.id
+            ? (s: StoredScript) => s.id === selector.id
             : (s: CodeoScript) => s.name === selector.name;
     const script = usePlayerStorage.getState().scripts.find(finder);
     if (!script) {

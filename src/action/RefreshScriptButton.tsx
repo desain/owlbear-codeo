@@ -1,11 +1,10 @@
 import { Update } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
-import { CodeoScript } from "../CodeoScript";
 import { importScript } from "../importScript";
-import { usePlayerStorage } from "../state/usePlayerStorage";
+import { StoredScript, usePlayerStorage } from "../state/usePlayerStorage";
 
-export function RefreshScriptButton({ script }: { script: CodeoScript }) {
+export function RefreshScriptButton({ script }: { script: StoredScript }) {
     const updateScript = usePlayerStorage((store) => store.updateScript);
 
     return (
