@@ -129,6 +129,9 @@ To make a production build run:
 -   Move create buttons to the bottom of the script list
 -   Set tool metadata on load
 -   Ctrl/Cmd + S shortcut for editor
+-   Utility methods for codeo object
+    - Get item name / names
+    - Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
 
 ## License
 
