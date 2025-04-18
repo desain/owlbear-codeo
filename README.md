@@ -120,14 +120,16 @@ To make a production build run:
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
 
--   Letter tool, with mode actions for each allowed letter, and the ability to map them to scripts?
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
 -   More parameter types
     -   Location?
     -   Item list?
+    -   Asset
 -   Add API for setting parameters
+-   Move create buttons to the bottom of the script list
+-   Set tool metadata on load
 
 ## License
 
