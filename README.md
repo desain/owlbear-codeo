@@ -114,12 +114,10 @@ To make a production build run:
 
 -   Figure out a better way to pass the OBR APIs than as AsyncFunction args
 -   Figure out a way to share scripts with others in the room, or with yourself on different devices
-
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
-
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
@@ -130,6 +128,7 @@ To make a production build run:
 -   Add API for setting parameters
 -   Move create buttons to the bottom of the script list
 -   Set tool metadata on load
+-   Ctrl/Cmd + S shortcut for editor
 
 ## License
 
