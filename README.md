@@ -118,7 +118,7 @@ To make a production build run:
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
-    - Tool metadata stays with player??
+    - Tool metadata is in local storage, so no advantage over zustand persist
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
