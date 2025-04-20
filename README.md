@@ -112,12 +112,13 @@ To make a production build run:
 
 ## To do
 
--   Figure out a better way to pass the OBR APIs than as AsyncFunction args
+-   Figure out a better way to pass the OBR APIs than as AsyncFunction args. https://www.totaltypescript.com/tips/turn-a-module-into-a-type?
 -   Figure out a way to share scripts with others in the room, or with yourself on different devices
     -   Player metadata: goes away when you leave
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
+    - Tool metadata stays with player??
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
