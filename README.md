@@ -119,6 +119,8 @@ To make a production build run:
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
     - Tool metadata is in local storage, so no advantage over zustand persist
+    - Firestore? (nosql)
+    - Suprabase? (postgres)
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
@@ -137,6 +139,7 @@ To make a production build run:
 - Download as source with annotations
 - Move parameters to the card dropdown
 - Give settings popover its own id
+- Use useRehydrate from utils
 
 ## License
 
