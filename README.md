@@ -140,6 +140,7 @@ To make a production build run:
 - Move parameters to the card dropdown
 - Give settings popover its own id
 - Use useRehydrate from utils
+- https://github.com/marketplace/actions/automated-version-bump
 
 ## License
 
