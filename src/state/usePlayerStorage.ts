@@ -137,9 +137,11 @@ export type PlayerStorage = Readonly<{
     sceneReady: boolean;
     playerColor: string;
     playerName: string;
+    lastNonemptySelection: string[];
     setSceneReady(this: void, sceneReady: boolean): void;
     setPlayerColor(this: void, playerColor: string): void;
     setPlayerName(this: void, playerName: string): void;
+    setSelection(this: void, selection: string[] | undefined): void;
 }>;
 
 export const usePlayerStorage = create<PlayerStorage>()(
@@ -155,6 +157,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 sceneReady: false,
                 playerColor: "#FFFFFF",
                 playerName: "Placeholder",
+                lastNonemptySelection: [],
                 [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
                 setContextMenuEnabled: (contextMenuEnabled) =>
@@ -248,6 +251,11 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
                 setPlayerColor: (playerColor) => set({ playerColor }),
                 setPlayerName: (playerName) => set({ playerName }),
+                setSelection: (selection) => {
+                    if (selection?.length) {
+                        set({lastNonemptySelection: selection});
+                    }
+                },
                 setParameterValue: (scriptId, paramIndex, value) =>
                     set((state) => {
                         const scriptIdx = state.scripts.findIndex(
