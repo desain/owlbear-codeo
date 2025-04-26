@@ -34,7 +34,7 @@ importers:
         version: 10.1.1
       owlbear-utils:
         specifier: git+https://github.com/desain/owlbear-utils.git
-        version: git+https://github.com/desain/owlbear-utils.git#d820b4d7f572c5d17e29169a6f2b949f070ec4c4(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))
+        version: git+https://github.com/desain/owlbear-utils.git#b849cc7c21d9b734581e0c4722b02394bc165874(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -1433,8 +1433,8 @@ packages:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
 
-  owlbear-utils@git+https://github.com/desain/owlbear-utils.git#d820b4d7f572c5d17e29169a6f2b949f070ec4c4:
-    resolution: {commit: d820b4d7f572c5d17e29169a6f2b949f070ec4c4, repo: https://github.com/desain/owlbear-utils.git, type: git}
+  owlbear-utils@git+https://github.com/desain/owlbear-utils.git#b849cc7c21d9b734581e0c4722b02394bc165874:
+    resolution: {commit: b849cc7c21d9b734581e0c4722b02394bc165874, repo: https://github.com/desain/owlbear-utils.git, type: git}
     version: 1.0.0
 
   p-limit@3.1.0:
@@ -3259,7 +3259,7 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  owlbear-utils@git+https://github.com/desain/owlbear-utils.git#d820b4d7f572c5d17e29169a6f2b949f070ec4c4(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0)):
+  owlbear-utils@git+https://github.com/desain/owlbear-utils.git#b849cc7c21d9b734581e0c4722b02394bc165874(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0)):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.1.2)(react@19.1.0)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.2)(react@19.1.0))(@types/react@19.1.2)(react@19.1.0)

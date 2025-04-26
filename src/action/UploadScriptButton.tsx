@@ -66,7 +66,7 @@ export function UploadScriptButton({
                 ref={fileInputRef}
                 onChange={(e) => handleFileUpload(e, onReceiveScript)}
                 style={{ display: "none" }}
-                accept=".json"
+                accept="application/json, text/javascript"
             />
         </>
     );
