@@ -4,8 +4,9 @@ import {
     METADATA_SCRIPT_ID_KEY,
 } from "../constants";
 import { runScript } from "../runScript";
-import { BACKGROUND_OFF, BACKGROUND_ON, isScriptButton } from "../ScriptButton";
+import { BACKGROUND_ON, isScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
+import { broadcast } from "./handleBroadcast";
 
 export function startWatchingButtons() {
     return OBR.player.onChange(async (player) => {
@@ -21,10 +22,10 @@ export function startWatchingButtons() {
         const scriptId = item.metadata[METADATA_SCRIPT_ID_KEY];
         const executionId = item.metadata[METADATA_EXECUTION_ID_KEY];
         if (executionId) {
-            usePlayerStorage.getState().stopExecution(scriptId, executionId);
-            await OBR.scene.items.updateItems([item], ([item]) => {
-                item.metadata[METADATA_EXECUTION_ID_KEY] = undefined;
-                item.style.backgroundColor = BACKGROUND_OFF;
+            await broadcast({
+                type: "STOP_EXECUTION",
+                id: scriptId,
+                executionId,
             });
         } else {
             const script = usePlayerStorage

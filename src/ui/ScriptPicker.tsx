@@ -25,10 +25,12 @@ export const ScriptPicker: FC<ScriptPickerProps> = ({
         value={value}
         onChange={(_e, v) => onChange(v)}
         isOptionEqualToValue={(a, b) => a.id === b.id}
-        options={scripts.map((script) => ({
-            label: script.name,
-            id: script.id,
-        }))}
+        options={[...scripts]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((script) => ({
+                label: script.name,
+                id: script.id,
+            }))}
         renderInput={(params) => (
             <TextField {...params} label="Choose a script" />
         )}

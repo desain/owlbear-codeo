@@ -5,21 +5,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "../../assets/style.css";
 import { version } from "../../package.json";
-import { MESSAGE_CHANNEL } from "../constants";
 import { startWatchingContextMenuEnabled } from "../contextmenu/contextmenu";
 import { startSyncing } from "../state/startSyncing";
 import { startWatchingToolEnabled } from "../tool/shortcutTool";
 import { Action } from "./Action";
-import { handleBroadcast } from "./handleBroadcast";
+import { installBroadcastListener } from "./handleBroadcast";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {};
-
-function installBroadcastListener() {
-    return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) =>
-        handleBroadcast(data),
-    );
-}
 
 async function installExtension(): Promise<VoidFunction> {
     console.log(`Owlbear Codeo version ${version}`);

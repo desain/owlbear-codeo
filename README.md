@@ -134,8 +134,6 @@ To make a production build run:
     -   Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
 -   Move parameters to the card dropdown
 -   https://github.com/marketplace/actions/automated-version-bump
--   Stop execution when changing tool mapping
--   Fix button when stopping execution
 
 ## License
 

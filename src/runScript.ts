@@ -194,7 +194,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
         }
     } catch (error) {
         console.error(`Error running script "${script.name}":`, error);
-        void OBR.notification.show(String(error), "ERROR");
+        void OBR.notification.show(`${script.name}: ${String(error)}`, "ERROR");
     }
     return null;
 }

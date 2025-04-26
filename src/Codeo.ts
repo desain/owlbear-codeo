@@ -1,5 +1,5 @@
+import { broadcast } from "./action/handleBroadcast";
 import { NewExecution } from "./Execution";
-import { usePlayerStorage } from "./state/usePlayerStorage";
 
 export class Codeo {
     private executionId: string | null = null;
@@ -14,9 +14,11 @@ export class Codeo {
         if (this.executionId === null) {
             throw new Error("stopSelf() called before execution created");
         } else {
-            usePlayerStorage
-                .getState()
-                .stopExecution(this.scriptId, this.executionId);
+            void broadcast({
+                type: "STOP_EXECUTION",
+                id: this.scriptId,
+                executionId: this.executionId,
+            });
         }
     };
 
