@@ -135,6 +135,7 @@ To make a production build run:
 -   Move parameters to the card dropdown
 -   https://github.com/marketplace/actions/automated-version-bump
 -   Stop execution when changing tool mapping
+-   Fix button when stopping execution
 
 ## License
 
