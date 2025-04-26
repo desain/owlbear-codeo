@@ -1,7 +1,7 @@
 {
   "name": "owlbear-template",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Manage and run code snippets and user scripts in Owlbear Rodeo",
   "scripts": {
     "dev": "vite",
