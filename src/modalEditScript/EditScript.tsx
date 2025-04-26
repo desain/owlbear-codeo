@@ -21,7 +21,7 @@ import {
 import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { produce } from "immer";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     CodeoScript,
     isParameterType,
@@ -47,6 +47,9 @@ export function EditScript({ scriptId }: EditScriptProps) {
         () => scripts.find((script) => script.id === scriptId),
         [scripts, scriptId],
     );
+    // Don't allow editing imported scripts
+    const editingDisabled = script?.url !== undefined;
+
     const [formData, setFormData] = useState<CodeoScript>(
         script ?? {
             name: "My New Script",
@@ -60,14 +63,29 @@ export function EditScript({ scriptId }: EditScriptProps) {
         void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
     }, []);
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         if (scriptId) {
             updateScript(scriptId, formData);
         } else {
             addScript({ author: playerName, ...formData });
         }
         handleClose();
-    };
+    }, [scriptId, handleClose, updateScript, formData, addScript, playerName]);
+
+    // Save on Ctrl+S or Cmd+S
+    useEffect(() => {
+        if (editingDisabled) {
+            return;
+        }
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+                e.preventDefault();
+                handleSave();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [editingDisabled, handleSave]);
 
     const handleParamChange = <K extends keyof ScriptParameter>(
         idx: number,
@@ -114,9 +132,6 @@ export function EditScript({ scriptId }: EditScriptProps) {
             }),
         );
     };
-
-    // Don't allow editing imported scripts
-    const editingDisabled = script?.url !== undefined;
 
     return (
         <Dialog open fullWidth maxWidth="md">
