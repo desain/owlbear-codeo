@@ -1,7 +1,7 @@
 {
   "name": "Owlbear Codeo",
   "description": "Manage and run code snippets and user scripts in Owlbear Rodeo.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "manifest_version": 1,
   "author": "desain",
   "icon": "/logo.svg",
