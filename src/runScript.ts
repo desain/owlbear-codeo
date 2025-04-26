@@ -185,6 +185,7 @@ export async function runScript(script: StoredScript): Promise<string | null> {
                 setTimeout(() => reject(new Error("Timed out")), TIMEOUT_MS),
             ),
         ]);
+        usePlayerStorage.getState().markScriptRun(script.id);
         const execution = getExecution(response);
         if (execution !== null) {
             codeo.saveExecution(execution.executionId);

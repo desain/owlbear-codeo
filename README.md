@@ -134,7 +134,6 @@ To make a production build run:
 -   Utility methods for codeo object
     -   Get item name / names
     -   Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
--   Sort by recently run
 -   Download as source with annotations
 -   Move parameters to the card dropdown
 -   https://github.com/marketplace/actions/automated-version-bump
