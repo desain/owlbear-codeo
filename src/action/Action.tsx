@@ -43,7 +43,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR, { isImage } from "@owlbear-rodeo/sdk";
-import { getName, useActionResizer } from "owlbear-utils";
+import { getName, useActionResizer, useRehydrate } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScriptParameter } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
@@ -54,7 +54,6 @@ import {
     StoredScript,
     usePlayerStorage,
 } from "../state/usePlayerStorage";
-import { useRehydrate } from "../state/useRehydrate";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
@@ -422,7 +421,7 @@ export function Action() {
     const scripts = usePlayerStorage((store) => store.scripts);
     const addScript = usePlayerStorage((store) => store.addScript);
 
-    useRehydrate();
+    useRehydrate(usePlayerStorage);
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
 
     // Search state

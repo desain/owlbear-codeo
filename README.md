@@ -118,9 +118,9 @@ To make a production build run:
     -   Local storage: Doesn't sync between devices
     -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
         -   Store urls in metadata and load all on extension load?
-    - Tool metadata is in local storage, so no advantage over zustand persist
-    - Firestore? (nosql)
-    - Suprabase? (postgres)
+    -   Tool metadata is in local storage, so no advantage over zustand persist
+    -   Firestore? (nosql)
+    -   Suprabase? (postgres)
 -   Favorites system
 -   Script icons
 -   Add simple bar for scrolls
@@ -133,14 +133,13 @@ To make a production build run:
 -   Set tool metadata on load
 -   Ctrl/Cmd + S shortcut for editor
 -   Utility methods for codeo object
-    - Get item name / names
-    - Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
-- Sort by recently run
-- Download as source with annotations
-- Move parameters to the card dropdown
-- Give settings popover its own id
-- Use useRehydrate from utils
-- https://github.com/marketplace/actions/automated-version-bump
+    -   Get item name / names
+    -   Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
+-   Sort by recently run
+-   Download as source with annotations
+-   Move parameters to the card dropdown
+-   Give settings popover its own id
+-   https://github.com/marketplace/actions/automated-version-bump
 
 ## License
 
