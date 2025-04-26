@@ -3,11 +3,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import { useMemo } from "react";
-import { SHORTCUT_OPTIONS } from "../constants";
+import { Shortcut, SHORTCUT_OPTIONS } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { ScriptPicker, ScriptPickerOption } from "../ui/ScriptPicker";
 
-function ShortcutSetting({ shortcut }: { shortcut: string }) {
+function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
     const setToolShortcut = usePlayerStorage((state) => state.setToolShortcut);
     const removeToolShortcut = usePlayerStorage(
         (state) => state.removeToolShortcut,
@@ -23,7 +23,7 @@ function ShortcutSetting({ shortcut }: { shortcut: string }) {
     );
 
     const handleScriptChange = (
-        shortcut: string,
+        shortcut: Shortcut,
         option: ScriptPickerOption | null,
     ) => {
         if (option) {

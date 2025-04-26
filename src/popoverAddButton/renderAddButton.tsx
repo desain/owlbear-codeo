@@ -7,24 +7,12 @@ import { LOCATION_X_PARAM, LOCATION_Y_PARAM } from "../constants";
 import { startSyncing } from "../state/startSyncing";
 import { AddButton } from "./AddButton";
 
-if (import.meta.hot) {
-    import.meta.hot.accept();
-    import.meta.hot.dispose(() => {
-        console.log("Disposing");
-        root?.unmount();
-        root = null;
-        return;
-    });
-}
-
-let root: ReactDOM.Root | null = null;
-
 OBR.onReady(() => {
     void startSyncing();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    root = ReactDOM.createRoot(document.getElementById("reactApp")!);
+    const root = ReactDOM.createRoot(document.getElementById("reactApp")!);
 
     const urlParams = new URLSearchParams(window.location.search);
     const x = parseFloat(urlParams.get(LOCATION_X_PARAM) ?? "");

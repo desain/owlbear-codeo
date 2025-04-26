@@ -14,21 +14,11 @@ import { startWatchingToolEnabled } from "./shortcutTool";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {};
-let root: ReactDOM.Root | null = null;
-
-if (import.meta.hot) {
-    import.meta.hot.accept();
-    import.meta.hot.dispose(() => {
-        console.log("Disposing");
-        uninstall();
-        root?.unmount();
-        root = null;
-        return;
-    });
-}
 
 function installBroadcastListener() {
-    return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) => handleBroadcast(data));
+    return OBR.broadcast.onMessage(MESSAGE_CHANNEL, ({ data }) =>
+        handleBroadcast(data),
+    );
 }
 
 async function installExtension(): Promise<VoidFunction> {
@@ -51,7 +41,7 @@ async function installExtension(): Promise<VoidFunction> {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    root = ReactDOM.createRoot(document.getElementById("reactApp")!);
+    const root = ReactDOM.createRoot(document.getElementById("reactApp")!);
     root.render(
         <React.StrictMode>
             <PluginGate>
