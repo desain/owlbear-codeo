@@ -7,6 +7,7 @@ export const METADATA_EXECUTION_ID_KEY = `${PLUGIN_ID}/execution-id`;
 // Modals and popovers
 export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;
 export const POPOVER_ADD_BUTTON_ID = `${PLUGIN_ID}/popoverAddButton`;
+export const POPOVER_SETTINGS_ID = `${PLUGIN_ID}/popoverSettings`;
 export const SCRIPT_ID_PARAM = "scriptId";
 export const LOCATION_X_PARAM = "x";
 export const LOCATION_Y_PARAM = "y";
