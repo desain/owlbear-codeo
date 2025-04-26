@@ -129,12 +129,14 @@ To make a production build run:
     -   Item list?
     -   Asset
 -   Add API for setting parameters
--   Set tool metadata on load
 -   Utility methods for codeo object
     -   Get item name / names
     -   Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
 -   Move parameters to the card dropdown
 -   https://github.com/marketplace/actions/automated-version-bump
+-   Stop execution when changing tool mapping
+-   Remove tool metadata when execution stops
+-   Figure out how to pass selection to tool action
 
 ## License
 

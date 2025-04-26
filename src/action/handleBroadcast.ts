@@ -29,7 +29,7 @@ function isRunScriptMessage(message: unknown): message is RunScriptMessage {
     );
 }
 
-type StopExecutionMessage = ScriptSelector & {
+export type StopExecutionMessage = ScriptSelector & {
     type: "STOP_EXECUTION";
     executionId: string;
 };

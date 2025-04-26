@@ -1,12 +1,12 @@
-import OBR, { Item } from "@owlbear-rodeo/sdk";
+import { Item } from "@owlbear-rodeo/sdk";
 import { enableMapSet } from "immer";
 import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { enabledKey } from "../action/shortcutTool";
+import { clearExecution, setShortcutEnabledUi } from "../action/shortcutTool";
 import { CodeoScript } from "../CodeoScript";
-import { LOCAL_STORAGE_STORE_NAME, SHORTCUT_TOOL_ID } from "../constants";
+import { LOCAL_STORAGE_STORE_NAME, Shortcut } from "../constants";
 import { Execution } from "../Execution";
 
 enableMapSet();
@@ -106,11 +106,11 @@ export type PlayerStorage = Readonly<{
     hasSensibleValues: boolean;
     scripts: StoredScript[];
     toolEnabled: boolean;
-    toolMappings: Record<string, string | undefined>; // Map letter to script ID
+    toolMappings: Partial<Record<Shortcut, string>>; // Map letter to script ID
     [SET_SENSIBLE](this: void): void;
     setToolEnabled(this: void, enabled: boolean): void;
-    setToolShortcut(this: void, shortcut: string, scriptId: string): void;
-    removeToolShortcut(this: void, shortcut: string): void;
+    setToolShortcut(this: void, shortcut: Shortcut, scriptId: string): void;
+    removeToolShortcut(this: void, shortcut: Shortcut): void;
     addScript(this: void, script: CodeoScript): void;
     removeScript(this: void, id: string): void;
     updateScript(this: void, id: string, updates: Partial<CodeoScript>): void;
@@ -125,7 +125,11 @@ export type PlayerStorage = Readonly<{
     // Temporary values
     executions: Map<string, Execution[]>;
     addExecution(this: void, scriptId: string, execution: Execution): void;
-    stopExecution(this: void, scriptId: string, executionId: string): void;
+    stopExecution(
+        this: void,
+        scriptId: string,
+        executionId: string,
+    ): Promise<void>;
 
     // Tracking OBR
     sceneReady: boolean;
@@ -154,17 +158,13 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     set((state) => {
                         state.toolMappings[shortcut] = scriptId;
                     });
-                    void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
-                        [enabledKey(shortcut)]: true,
-                    });
+                    void setShortcutEnabledUi(shortcut, true);
                 },
                 removeToolShortcut: (shortcut) => {
                     set((state) => {
                         delete state.toolMappings[shortcut];
                     });
-                    void OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
-                        [enabledKey(shortcut)]: false,
-                    });
+                    void setShortcutEnabledUi(shortcut, false);
                 },
                 addScript: (scriptData) =>
                     set((state) => {
@@ -191,7 +191,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             state.toolMappings,
                         )) {
                             if (scriptId === id) {
-                                state.removeToolShortcut(shortcut);
+                                state.removeToolShortcut(shortcut as Shortcut); // object entries doesn't keep key type info apparently
                             }
                         }
 
@@ -219,7 +219,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             execution,
                         );
                     }),
-                stopExecution: (scriptId, executionId) =>
+                stopExecution: async (scriptId, executionId) => {
                     set((state) => {
                         const executionsForScript =
                             state.executions.get(scriptId) ?? [];
@@ -237,7 +237,9 @@ export const usePlayerStorage = create<PlayerStorage>()(
                                     execution.executionId !== executionId,
                             ),
                         );
-                    }),
+                    });
+                    await clearExecution(executionId);
+                },
                 setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
                 setPlayerColor: (playerColor) => set({ playerColor }),
                 setPlayerName: (playerName) => set({ playerName }),

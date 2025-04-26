@@ -19,9 +19,23 @@ export const MESSAGE_CHANNEL = `${PLUGIN_ID}/message`;
 export const LOCAL_STORAGE_STORE_NAME = `${PLUGIN_ID}/localStorage`;
 
 // Context menu
-export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/create-button`;
+export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/createButton`;
 
 // Tool
-export const SHORTCUT_TOOL_ID = `${PLUGIN_ID}/shortcut-tool`;
+export const SHORTCUT_TOOL_ID = `${PLUGIN_ID}/shortcutTool`;
 export const SHORTCUT_TOOL_ACTION_ID_PREFIX = `${SHORTCUT_TOOL_ID}/action/`;
-export const SHORTCUT_OPTIONS = [..."BCEFGLNOPRVX"];
+export const SHORTCUT_OPTIONS = [
+    "b",
+    "c",
+    "e",
+    "f",
+    "g",
+    "l",
+    "n",
+    "o",
+    "p",
+    "r",
+    "v",
+    "x",
+] as const;
+export type Shortcut = (typeof SHORTCUT_OPTIONS)[number];
