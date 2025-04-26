@@ -13,19 +13,4 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-
-            - uses: phips28/gh-action-bump-version@v10.1.1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              # with:
-              # Optional: customize commit message, tag, etc.
-              # default: 'ci: version bump to {{version}}'
-              # commit-message: 'ci: version bump to {{version}}'
-              # tag-prefix: 'v'
-              # major-wording: 'MAJOR:'
-              # minor-wording: 'MINOR:'
-              # patch-wording: 'PATCH:'
-              # rc-wording: 'RC:'
-              # skip-tag: 'false'
-              # skip-commit: 'false'
-              # skip-push: 'false'
+            - uses: phips28/gh-action-bump-version@v11.0.7
