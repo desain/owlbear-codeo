@@ -18,3 +18,11 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: phips28/gh-action-bump-version@v11.0.7
+            - uses: sergeysova/jq-action@v2
+              id: version
+              with:
+                  cmd: "jq .version package.json -r"
+            - uses: sergeysova/jq-action@v2
+              with:
+                  cmd: 'jq ''.version = "${{ steps.version.outputs.value }}"'' < public/manifest.json > public/manifest.json.new && mv public/manifest.json{.new,}'
+            - run: 'git commit -a -m "ci: update manifest version" && git push'
