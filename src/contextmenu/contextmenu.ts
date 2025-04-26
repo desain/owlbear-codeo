@@ -4,8 +4,9 @@ import {
     CREATE_BUTTON_CONTEXTMENU_ID,
     POPOVER_ADD_BUTTON_ID,
 } from "../constants";
+import { usePlayerStorage } from "../state/usePlayerStorage";
 
-export async function installContextMenu() {
+async function installContextMenu() {
     await OBR.contextMenu.create({
         id: CREATE_BUTTON_CONTEXTMENU_ID,
         icons: [
@@ -31,4 +32,24 @@ export async function installContextMenu() {
             });
         },
     });
+}
+
+async function uninstallContextMenu() {
+    await OBR.contextMenu.remove(CREATE_BUTTON_CONTEXTMENU_ID);
+}
+
+export async function startWatchingContextMenuEnabled(): Promise<VoidFunction> {
+    if (usePlayerStorage.getState().contextMenuEnabled) {
+        await installContextMenu();
+    }
+    return usePlayerStorage.subscribe(
+        (store) => store.contextMenuEnabled,
+        async (enabled) => {
+            if (enabled) {
+                await installContextMenu();
+            } else {
+                await uninstallContextMenu();
+            }
+        },
+    );
 }

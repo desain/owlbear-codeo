@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, FormGroup, FormHelperText, Typography } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
@@ -61,33 +61,64 @@ function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
 }
 
 export function Settings() {
+    const contextMenuEnabled = usePlayerStorage(
+        (state) => state.contextMenuEnabled,
+    );
+    const setContextMenuEnabled = usePlayerStorage(
+        (state) => state.setContextMenuEnabled,
+    );
     const toolEnabled = usePlayerStorage((state) => state.toolEnabled);
     const setToolEnabled = usePlayerStorage((state) => state.setToolEnabled);
 
-    const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setToolEnabled(event.target.checked);
-    };
-
     return (
         <Box sx={{ p: 2, minWidth: 300 }}>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={toolEnabled}
-                        onChange={handleToggleChange}
-                    />
-                }
-                label="Enable Shortcut Tool"
-                sx={{ mb: 2 }}
-            />
-            <Typography variant="h6" gutterBottom>
-                Shortcut Tool Mappings
-            </Typography>
-            <Stack spacing={1}>
-                {SHORTCUT_OPTIONS.map((shortcut) => (
-                    <ShortcutSetting key={shortcut} shortcut={shortcut} />
-                ))}
-            </Stack>
+            <Typography variant="h6">Owlbear Codeo Settings</Typography>
+            <FormGroup sx={{ mb: 2 }}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={contextMenuEnabled}
+                            onChange={(e) =>
+                                setContextMenuEnabled(e.target.checked)
+                            }
+                        />
+                    }
+                    label="Enable Context Menu"
+                />
+                <FormHelperText>
+                    Enable a menu when right clicking on the map to add a button
+                    that can run a script when double-clicked.
+                </FormHelperText>
+            </FormGroup>
+            <FormGroup sx={{ mb: 2 }}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={toolEnabled}
+                            onChange={(e) => setToolEnabled(e.target.checked)}
+                        />
+                    }
+                    label="Enable Shortcut Tool"
+                />
+                <FormHelperText>
+                    Enable a tool that can map shortcuts to scripts.
+                </FormHelperText>
+            </FormGroup>
+            {toolEnabled && (
+                <>
+                    <Typography variant="h6" gutterBottom>
+                        Shortcut Tool Mappings
+                    </Typography>
+                    <Stack spacing={1}>
+                        {SHORTCUT_OPTIONS.map((shortcut) => (
+                            <ShortcutSetting
+                                key={shortcut}
+                                shortcut={shortcut}
+                            />
+                        ))}
+                    </Stack>
+                </>
+            )}
         </Box>
     );
 }

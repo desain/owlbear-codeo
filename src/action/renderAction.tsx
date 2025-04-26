@@ -6,11 +6,11 @@ import ReactDOM from "react-dom/client";
 import "../../assets/style.css";
 import { version } from "../../package.json";
 import { MESSAGE_CHANNEL } from "../constants";
+import { startWatchingContextMenuEnabled } from "../contextmenu/contextmenu";
 import { startSyncing } from "../state/startSyncing";
+import { startWatchingToolEnabled } from "../tool/shortcutTool";
 import { Action } from "./Action";
-import { installContextMenu as createContextMenu } from "./createContextMenu";
 import { handleBroadcast } from "./handleBroadcast";
-import { startWatchingToolEnabled } from "./shortcutTool";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {};
@@ -29,13 +29,14 @@ async function installExtension(): Promise<VoidFunction> {
     const uninstallBroadcastListener = installBroadcastListener();
     const stopWatchingButtons = startWatchingButtons();
     const stopWatchingTool = await startWatchingToolEnabled();
-    await createContextMenu();
+    const stopWatchingContextMenu = await startWatchingContextMenuEnabled();
 
     return deferCallAll(
         () => console.log("Uninstalling Owlbear Codeo"),
         stopSyncing,
         stopWatchingButtons,
         stopWatchingTool,
+        stopWatchingContextMenu,
         uninstallBroadcastListener,
     );
 }

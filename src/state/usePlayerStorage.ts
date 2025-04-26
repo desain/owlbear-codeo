@@ -4,10 +4,10 @@ import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { clearExecution, setShortcutEnabledUi } from "../action/shortcutTool";
 import { CodeoScript } from "../CodeoScript";
 import { LOCAL_STORAGE_STORE_NAME, Shortcut } from "../constants";
 import { Execution } from "../Execution";
+import { clearExecution, setShortcutEnabledUi } from "../tool/shortcutTool";
 
 enableMapSet();
 
@@ -106,9 +106,11 @@ export type PlayerStorage = Readonly<{
     hasSensibleValues: boolean;
     scripts: StoredScript[];
     toolEnabled: boolean;
-    toolMappings: Partial<Record<Shortcut, string>>; // Map letter to script ID
+    contextMenuEnabled: boolean;
+    toolMappings: Partial<Record<Shortcut, string>>;
     [SET_SENSIBLE](this: void): void;
     setToolEnabled(this: void, enabled: boolean): void;
+    setContextMenuEnabled(this: void, enabled: boolean): void;
     setToolShortcut(this: void, shortcut: Shortcut, scriptId: string): void;
     removeToolShortcut(this: void, shortcut: Shortcut): void;
     addScript(this: void, script: CodeoScript): void;
@@ -147,6 +149,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 hasSensibleValues: false,
                 scripts: [],
                 toolEnabled: false,
+                contextMenuEnabled: true,
                 toolMappings: {},
                 executions: new Map(),
                 sceneReady: false,
@@ -154,6 +157,8 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 playerName: "Placeholder",
                 [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
+                setContextMenuEnabled: (contextMenuEnabled) =>
+                    set({ contextMenuEnabled }),
                 setToolShortcut: (shortcut, scriptId) => {
                     set((state) => {
                         state.toolMappings[shortcut] = scriptId;
@@ -289,11 +294,13 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 partialize: ({
                     scripts,
                     hasSensibleValues,
+                    contextMenuEnabled,
                     toolEnabled,
                     toolMappings,
                 }) => ({
                     scripts,
                     hasSensibleValues,
+                    contextMenuEnabled,
                     toolEnabled,
                     toolMappings,
                 }),
