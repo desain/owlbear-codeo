@@ -134,11 +134,11 @@ async function installTool() {
         ...SHORTCUT_OPTIONS.map((letter) =>
             OBR.tool.createAction({
                 id: SHORTCUT_TOOL_ACTION_ID_PREFIX + letter,
-                shortcut: letter,
+                shortcut: letter.toUpperCase(),
                 icons: [
                     {
                         icon: STOP_ICONS[letter],
-                        label: `Stop - ${letter}`, // TODO script name
+                        label: `Stop script ${letter.toUpperCase()}`, // TODO script name
                         filter: {
                             activeTools: [SHORTCUT_TOOL_ID],
                             metadata: [
@@ -152,7 +152,7 @@ async function installTool() {
                     },
                     {
                         icon: ICONS[letter],
-                        label: `Run script - ${letter}`, // TODO script name
+                        label: `Run script ${letter.toUpperCase()}`, // TODO script name
                         filter: {
                             activeTools: [SHORTCUT_TOOL_ID],
                             metadata: [
