@@ -165,8 +165,9 @@ async function installTool() {
                     },
                 ],
                 onClick: async (context) => {
-                    const scriptId =
-                        usePlayerStorage.getState().toolMappings[letter];
+                    const state = usePlayerStorage.getState();
+
+                    const scriptId = state.toolMappings[letter];
                     if (!scriptId) {
                         return;
                     }
@@ -174,13 +175,11 @@ async function installTool() {
                     const executionId = context.metadata[executionKey(letter)];
 
                     if (typeof executionId === "string") {
-                        await usePlayerStorage
-                            .getState()
-                            .stopExecution(scriptId, executionId);
+                        await state.stopExecution(scriptId, executionId);
                     } else {
-                        const script = usePlayerStorage
-                            .getState()
-                            .scripts.find((script) => script.id === scriptId);
+                        const script = state.scripts.find(
+                            (script) => script.id === scriptId,
+                        );
 
                         if (script === undefined) {
                             void OBR.notification.show(
@@ -189,6 +188,14 @@ async function installTool() {
                             );
                             return;
                         }
+
+                        // re-select whatever we selected last, since activating
+                        // this shortcut cleared the selection
+                        await OBR.player.select(
+                            state.lastNonemptySelection,
+                            true,
+                        );
+
                         const newExecutionId = await runScript(script);
                         if (newExecutionId) {
                             await OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {

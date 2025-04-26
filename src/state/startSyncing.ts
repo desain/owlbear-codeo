@@ -25,6 +25,7 @@ export function startSyncing(): [Promise<void>, VoidFunction] {
     const unsubscribePlayer = OBR.player.onChange((player) => {
         store.setPlayerColor(player.color);
         store.setPlayerName(player.name);
+        store.setSelection(player.selection);
     });
 
     return [
