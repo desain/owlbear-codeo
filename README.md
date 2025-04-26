@@ -134,6 +134,7 @@ To make a production build run:
     -   Something to follow the common pattern of getting the selection, validating it, watching the targets, and when some validation passes on an update, executing some logic and updating some shared state
 -   Move parameters to the card dropdown
 -   Remove F as a shortcut (fog)
+-   When running script, catch `{error: {message: "..."}}`
 
 ## License
 
