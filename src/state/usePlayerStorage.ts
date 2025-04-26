@@ -97,6 +97,7 @@ export type StoredScript = CodeoScript & {
     id: string;
     createdAt: number;
     updatedAt: number;
+    runAt: number;
     parameters: ParameterWithValue[];
 };
 
@@ -119,6 +120,7 @@ export type PlayerStorage = Readonly<{
         paramIndex: number,
         value: ParameterWithValue["value"],
     ): void;
+    markScriptRun(this: void, id: string): void;
 
     // Temporary values
     executions: Map<string, Execution[]>;
@@ -172,6 +174,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             id: crypto.randomUUID(),
                             createdAt: now,
                             updatedAt: now,
+                            runAt: 0,
                         });
                     }),
                 removeScript: (id) =>
@@ -264,6 +267,19 @@ export const usePlayerStorage = create<PlayerStorage>()(
                                 state.scripts[scriptIdx].parameters[paramIndex],
                                 value,
                             );
+                    }),
+                markScriptRun: (scriptId) =>
+                    set((state) => {
+                        const scriptIdx = state.scripts.findIndex(
+                            (script) => script.id === scriptId,
+                        );
+                        if (scriptIdx === -1) {
+                            console.warn(
+                                `Script with ID ${scriptId} not found`,
+                            );
+                            return;
+                        }
+                        state.scripts[scriptIdx].runAt = Date.now();
                     }),
             })),
             {

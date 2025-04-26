@@ -375,7 +375,9 @@ type SortOption =
     | "updated-desc"
     | "updated-asc"
     | "author-asc"
-    | "author-desc";
+    | "author-desc"
+    | "run-asc"
+    | "run-desc";
 
 function getComparator(
     sortOption: SortOption,
@@ -417,6 +419,10 @@ function getComparator(
                         sensitivity: "base",
                     },
                 );
+        case "run-asc":
+            return (a, b) => b.script.runAt - a.script.runAt;
+        case "run-desc":
+            return (a, b) => a.script.runAt - b.script.runAt;
     }
 }
 
@@ -657,6 +663,32 @@ export function Action() {
                                     <ArrowDownward />
                                 </ListItemIcon>
                                 Author (Z-A)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "run-asc"}
+                                onClick={() => {
+                                    setSortOption("run-asc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <PlayCircleOutlineTwoTone />
+                                    <ArrowUpward />
+                                </ListItemIcon>
+                                Run (new to old)
+                            </MenuItem>
+                            <MenuItem
+                                selected={sortOption === "run-desc"}
+                                onClick={() => {
+                                    setSortOption("run-desc");
+                                    setSortAnchorEl(null);
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <PlayCircleOutlineTwoTone />
+                                    <ArrowDownward />
+                                </ListItemIcon>
+                                Run (old to new)
                             </MenuItem>
                         </Menu>
                     </>
