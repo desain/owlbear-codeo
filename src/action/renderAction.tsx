@@ -4,7 +4,7 @@ import { deferCallAll, PluginGate, PluginThemeProvider } from "owlbear-utils";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "../../assets/style.css";
-import { version } from "../../package.json";
+import { version } from "../../dist/manifest.json";
 import { startWatchingContextMenuEnabled } from "../contextmenu/contextmenu";
 import { startSyncing } from "../state/startSyncing";
 import { startWatchingToolEnabled } from "../tool/shortcutTool";
