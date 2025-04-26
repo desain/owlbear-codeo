@@ -11,7 +11,7 @@ import { usePlayerStorage } from "../state/usePlayerStorage";
 import { ScriptPicker, ScriptPickerOption } from "../ui/ScriptPicker";
 
 export function AddButton({ position }: { position: Vector2 }) {
-    const sensible = usePlayerStorage((store) => store.hasSensibleValues);
+    console.log("rend");
     const scripts = usePlayerStorage((store) => store.scripts);
     const handleClose = useCallback(() => {
         void OBR.popover.close(POPOVER_ADD_BUTTON_ID);
@@ -38,10 +38,6 @@ export function AddButton({ position }: { position: Vector2 }) {
         ]);
         handleClose();
     };
-
-    if (!sensible) {
-        return null;
-    }
 
     return (
         <Stack sx={{ p: 2 }} gap={2}>
