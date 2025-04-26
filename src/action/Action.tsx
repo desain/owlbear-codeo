@@ -46,7 +46,11 @@ import OBR, { isImage } from "@owlbear-rodeo/sdk";
 import { getName, useActionResizer, useRehydrate } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScriptParameter } from "../CodeoScript";
-import { MODAL_EDIT_SCRIPT_ID, SCRIPT_ID_PARAM } from "../constants";
+import {
+    MODAL_EDIT_SCRIPT_ID,
+    POPOVER_SETTINGS_ID,
+    SCRIPT_ID_PARAM,
+} from "../constants";
 import { Execution } from "../Execution";
 import { runScript } from "../runScript";
 import {
@@ -64,7 +68,7 @@ const MAX_HEIGHT = 700;
 
 async function openSettingsPopover() {
     await OBR.popover.open({
-        id: MODAL_EDIT_SCRIPT_ID,
+        id: POPOVER_SETTINGS_ID,
         url: `/src/popoverSettings/popoverSettings.html`,
         width: 400,
         height: 600,

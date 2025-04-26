@@ -138,7 +138,6 @@ To make a production build run:
 -   Sort by recently run
 -   Download as source with annotations
 -   Move parameters to the card dropdown
--   Give settings popover its own id
 -   https://github.com/marketplace/actions/automated-version-bump
 
 ## License
