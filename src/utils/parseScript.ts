@@ -1,3 +1,4 @@
+import { filterIterator, withIndices } from "owlbear-utils";
 import {
     CodeoScript,
     isCodeoScript,
@@ -17,6 +18,7 @@ type HeaderAttr = (typeof HEADER_ATTRS)[number];
 const HEADER_ATTR_REGEX = new RegExp(
     `^\\s*//\\s*@(${HEADER_ATTRS.join("|")})\\s+(.+?)\\s*$`,
 );
+
 /**
  * Parse the code and extract parameters header attributes.
  * @param code The code to parse.
@@ -30,13 +32,32 @@ function parseCode(
     const parameters: CodeoScript["parameters"] = [];
     const parameterRegex = /^\s*\/\/\s*@param\s+(\w+)\s+(\w+)\s+(.+?)\s*$/;
     // Remove empty lines for parsing
-    const lines = code.split(/\r?\n/).filter((line) => line.trim() !== "");
-    if (
-        lines.length > 0 &&
-        lines[0].search(/^\s*\/\/\s*@CodeoScript\s*$/) >= 0
-    ) {
-        for (let i = 1; i < lines.length; i++) {
-            const headerAttrMatch = lines[i].match(HEADER_ATTR_REGEX);
+    const lines = code.split(/\r?\n/);
+
+    let codeStartIdx: number = 0;
+    const nonemptyLines = filterIterator(
+        withIndices(lines),
+        ([line]) => line.trim() !== "",
+    );
+
+    // Check @CodeoScript header
+    const firstLine = nonemptyLines.next();
+    if (firstLine.done) {
+        codeStartIdx = firstLine.value;
+    } else if (firstLine.value[0].search(/^\s*\/\/\s*@CodeoScript\s*$/) < 0) {
+        codeStartIdx = firstLine.value[1];
+    } else {
+        let v;
+        while (true) {
+            v = nonemptyLines.next();
+            if (v.done) {
+                codeStartIdx = v.value;
+                break;
+            }
+            const line = v.value[0];
+
+            // Try matching simple header attr
+            const headerAttrMatch = line.match(HEADER_ATTR_REGEX);
             if (headerAttrMatch && headerAttrMatch[1] && headerAttrMatch[2]) {
                 // Key must be header attr since regex is defined as only matching header attrs
                 const key = headerAttrMatch[1] as HeaderAttr;
@@ -44,7 +65,8 @@ function parseCode(
                 continue;
             }
 
-            const parameterMatch = lines[i].match(parameterRegex);
+            // Try matching parameter
+            const parameterMatch = line.match(parameterRegex);
             if (
                 parameterMatch &&
                 parameterMatch[1] &&
@@ -72,11 +94,40 @@ function parseCode(
                 continue;
             }
 
-            // end of attr section
+            // Couldn't match anything in the header, must be start of code
+            codeStartIdx = v.value[1];
             break;
         }
     }
-    return { ...partial, parameters, code };
+
+    return {
+        ...partial,
+        parameters,
+        code: lines.slice(codeStartIdx).join("\n"),
+    };
+}
+
+export function toJsScript(script: CodeoScript): string {
+    let result: string = `// @CodeoScript\n// @name ${script.name}\n`;
+    const removeLineBreaks = (s: string) => s.replace(/\r?\n/g, "");
+    if (script.author) {
+        result += `// @author ${removeLineBreaks(script.author)}\n`;
+    }
+    if (script.description) {
+        result += `// @description ${removeLineBreaks(script.description)}\n`;
+    }
+    if (script.version) {
+        result += `// @version ${removeLineBreaks(script.version)}\n`;
+    }
+    for (const parameter of script.parameters) {
+        result += `// @param ${removeLineBreaks(
+            parameter.name,
+        )} ${removeLineBreaks(parameter.type)} ${removeLineBreaks(
+            parameter.description,
+        )}\n`;
+    }
+    result += script.code;
+    return result;
 }
 
 /**
@@ -109,6 +160,13 @@ if (import.meta.vitest) {
     const SCRIPT_AUTHOR = "Script author";
     const SCRIPT_DESCRIPTION = "Script description";
     const SCRIPT_VERSION = "1.0.0";
+    const PARAM_1_NAME = "param1";
+    const PARAM_1_TYPE = "string";
+    const PARAM_1_DESCRIPTION = "Parameter 1";
+    const PARAM_2_NAME = "param2";
+    const PARAM_2_TYPE = "number";
+    const PARAM_2_DESCRIPTION = "Parameter 2";
+    const SCRIPT_CODE = 'console.log("Hello world");';
 
     it("Should parse code with starting empty lines", () => {
         const code = `
@@ -126,38 +184,90 @@ if (import.meta.vitest) {
         // @author ${SCRIPT_AUTHOR}
         // @description ${SCRIPT_DESCRIPTION}
         // @version ${SCRIPT_VERSION}
-        function helloWorld() {
-            console.log("Hello, world!");
-        }`;
+        ${SCRIPT_CODE}`;
         const result = parseCode(code);
-        expect(result.name).toBe(SCRIPT_NAME);
-        expect(result.author).toBe(SCRIPT_AUTHOR);
-        expect(result.description).toBe(SCRIPT_DESCRIPTION);
-        expect(result.version).toBe(SCRIPT_VERSION);
-        expect(result.code).toBe(code);
+        expect(result.name).toEqual(SCRIPT_NAME);
+        expect(result.author).toEqual(SCRIPT_AUTHOR);
+        expect(result.description).toEqual(SCRIPT_DESCRIPTION);
+        expect(result.version).toEqual(SCRIPT_VERSION);
+        expect(result.code.trim()).toEqual(SCRIPT_CODE);
         expect(result.parameters).toEqual([]);
     });
 
+    it("Should allow gaps between headers", () => {
+        const code = `// @CodeoScript
+
+        // @name ${SCRIPT_NAME}
+
+
+        // @author ${SCRIPT_AUTHOR}
+
+        ${SCRIPT_CODE}`;
+
+        const result = parseCode(code);
+
+        expect(result.name).toEqual(SCRIPT_NAME);
+        expect(result.author).toEqual(SCRIPT_AUTHOR);
+        expect(result.code.trim()).toEqual(SCRIPT_CODE);
+    });
+
     it("Should parse code with parameters", () => {
-        const PARAM_1_NAME = "param1";
-        const PARAM_1_TYPE = "string";
-        const PARAM_1_DESCRIPTION = "Parameter 1";
-        const PARAM_2_NAME = "param2";
-        const PARAM_2_TYPE = "number";
-        const PARAM_2_DESCRIPTION = "Parameter 2";
         const code = `// @CodeoScript
         // @param ${PARAM_1_NAME} ${PARAM_1_TYPE} ${PARAM_1_DESCRIPTION}
-        // @param ${PARAM_2_NAME} ${PARAM_2_TYPE} ${PARAM_2_DESCRIPTION}
-        function helloWorld(param1, param2) {
-            console.log("Hello, world!");
-        }`;
+        // @param ${PARAM_2_NAME} ${PARAM_2_TYPE} ${PARAM_2_DESCRIPTION}`;
         const result = parseCode(code);
-        expect(result.parameters.length).toBe(2);
-        expect(result.parameters[0].name).toBe(PARAM_1_NAME);
-        expect(result.parameters[0].type).toBe(PARAM_1_TYPE);
-        expect(result.parameters[0].description).toBe(PARAM_1_DESCRIPTION);
-        expect(result.parameters[1].name).toBe(PARAM_2_NAME);
-        expect(result.parameters[1].type).toBe(PARAM_2_TYPE);
-        expect(result.parameters[1].description).toBe(PARAM_2_DESCRIPTION);
+        expect(result.parameters).toEqual([
+            {
+                name: PARAM_1_NAME,
+                type: PARAM_1_TYPE,
+                description: PARAM_1_DESCRIPTION,
+            },
+            {
+                name: PARAM_2_NAME,
+                type: PARAM_2_TYPE,
+                description: PARAM_2_DESCRIPTION,
+            },
+        ]);
+    });
+
+    it("Should roundtrip through parsing", () => {
+        const script: CodeoScript = {
+            name: SCRIPT_NAME,
+            description: SCRIPT_DESCRIPTION,
+            author: SCRIPT_AUTHOR,
+            version: SCRIPT_VERSION,
+            parameters: [
+                {
+                    name: PARAM_1_NAME,
+                    type: PARAM_1_TYPE,
+                    description: PARAM_1_DESCRIPTION,
+                },
+                {
+                    name: PARAM_2_NAME,
+                    type: PARAM_2_TYPE,
+                    description: PARAM_2_DESCRIPTION,
+                },
+            ],
+            code: SCRIPT_CODE,
+        };
+
+        const asText = toJsScript(script);
+        const reparsedScript = parseCode(asText);
+
+        expect(reparsedScript).toEqual(script);
+    });
+
+    it("Removes line breaks in descriptions", () => {
+        const script: CodeoScript = {
+            name: SCRIPT_NAME,
+            description: "A \nmulti-line \ndescription",
+            parameters: [],
+            code: SCRIPT_CODE,
+        };
+        const asText = toJsScript(script);
+
+        expect(asText).toEqual(
+            `// @CodeoScript\n// @name ${SCRIPT_NAME}\n// @description A multi-line description\n${SCRIPT_CODE}`,
+        );
     });
 }
