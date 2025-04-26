@@ -7,7 +7,7 @@ import { immer } from "zustand/middleware/immer";
 import { CodeoScript } from "../CodeoScript";
 import { LOCAL_STORAGE_STORE_NAME, Shortcut } from "../constants";
 import { Execution } from "../Execution";
-import { clearExecution, setShortcutEnabledUi } from "../tool/shortcutTool";
+import { setShortcutEnabledUi } from "../tool/shortcutTool";
 
 enableMapSet();
 
@@ -125,13 +125,15 @@ export type PlayerStorage = Readonly<{
     markScriptRun(this: void, id: string): void;
 
     // Temporary values
+    /**
+     * Map of script ID to list of its executions.
+     */
     executions: Map<string, Execution[]>;
     addExecution(this: void, scriptId: string, execution: Execution): void;
-    stopExecution(
-        this: void,
-        scriptId: string,
-        executionId: string,
-    ): Promise<void>;
+    /**
+     * Removes an execution, but doesn't stop it.
+     */
+    removeExecution(this: void, scriptId: string, executionId: string): void;
 
     // Tracking OBR
     sceneReady: boolean;
@@ -185,28 +187,14 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             runAt: 0,
                         });
                     }),
-                removeScript: (id) =>
+                removeScript: (id) => {
                     set((state) => {
-                        // remove executions for the script
-                        const scriptExecutions = state.executions.get(id) ?? [];
-                        for (const execution of scriptExecutions) {
-                            execution.stop();
-                        }
                         state.executions.delete(id);
-
-                        // remove mappings to the script
-                        for (const [shortcut, scriptId] of Object.entries(
-                            state.toolMappings,
-                        )) {
-                            if (scriptId === id) {
-                                state.removeToolShortcut(shortcut as Shortcut); // object entries doesn't keep key type info apparently
-                            }
-                        }
-
                         state.scripts = state.scripts.filter(
                             (script) => script.id !== id,
                         );
-                    }),
+                    });
+                },
                 updateScript: (id, updates) =>
                     set((state) => {
                         state.scripts = state.scripts.map((script) =>
@@ -227,33 +215,22 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             execution,
                         );
                     }),
-                stopExecution: async (scriptId, executionId) => {
+                removeExecution: (scriptId, executionId) =>
                     set((state) => {
-                        const executionsForScript =
-                            state.executions.get(scriptId) ?? [];
-                        const execution = executionsForScript.find(
-                            (execution) =>
-                                execution.executionId === executionId,
-                        );
-                        if (execution) {
-                            execution.stop();
-                        }
                         state.executions.set(
                             scriptId,
-                            executionsForScript.filter(
+                            (state.executions.get(scriptId) ?? []).filter(
                                 (execution) =>
                                     execution.executionId !== executionId,
                             ),
                         );
-                    });
-                    await clearExecution(executionId);
-                },
+                    }),
                 setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
                 setPlayerColor: (playerColor) => set({ playerColor }),
                 setPlayerName: (playerName) => set({ playerName }),
                 setSelection: (selection) => {
                     if (selection?.length) {
-                        set({lastNonemptySelection: selection});
+                        set({ lastNonemptySelection: selection });
                     }
                 },
                 setParameterValue: (scriptId, paramIndex, value) =>

@@ -1,8 +1,8 @@
 const PLUGIN_ID = "com.desain.codeo";
 
 // Metadata
-export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/script-id`;
-export const METADATA_EXECUTION_ID_KEY = `${PLUGIN_ID}/execution-id`;
+export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/scriptId`;
+export const METADATA_EXECUTION_ID_KEY = `${PLUGIN_ID}/executionId`;
 
 // Modals and popovers
 export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;
@@ -39,3 +39,7 @@ export const SHORTCUT_OPTIONS = [
     "x",
 ] as const;
 export type Shortcut = (typeof SHORTCUT_OPTIONS)[number];
+export function isShortcut(shortcut: string): shortcut is Shortcut {
+    const shortcutOptions2: ReadonlyArray<string> = SHORTCUT_OPTIONS;
+    return shortcutOptions2.includes(shortcut);
+}

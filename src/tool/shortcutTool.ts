@@ -27,6 +27,7 @@ import vStop from "../../assets/vStop.svg";
 import x from "../../assets/x.svg";
 import xStop from "../../assets/xStop.svg";
 
+import { broadcast } from "../action/handleBroadcast";
 import {
     Shortcut,
     SHORTCUT_OPTIONS,
@@ -70,7 +71,7 @@ const STOP_ICONS: Record<Shortcut, string> = {
  * Clear the execution record for the given execution ID. Does not actually stop
  * the execution.
  */
-export async function clearExecution(executionId: string) {
+export async function clearExecutionsFromTool(executionId: string) {
     const toolMetadata = await OBR.tool.getMetadata(SHORTCUT_TOOL_ID);
     if (!toolMetadata) {
         return;
@@ -85,6 +86,20 @@ export async function clearExecution(executionId: string) {
     }
 }
 
+export async function getExecution(
+    shortcut: Shortcut,
+): Promise<string | undefined> {
+    const toolMetadata = await OBR.tool.getMetadata(SHORTCUT_TOOL_ID);
+    if (toolMetadata === undefined) {
+        return undefined;
+    }
+    const value = toolMetadata[executionKey(shortcut)];
+    if (typeof value === "string") {
+        return value;
+    }
+    return undefined;
+}
+
 export async function setShortcutEnabledUi(
     shortcut: Shortcut,
     enabled: boolean,
@@ -94,7 +109,7 @@ export async function setShortcutEnabledUi(
     });
 }
 
-export function enabledKey(shortcut: Shortcut) {
+function enabledKey(shortcut: Shortcut) {
     return `${shortcut}/enabled`;
 }
 
@@ -175,7 +190,11 @@ async function installTool() {
                     const executionId = context.metadata[executionKey(letter)];
 
                     if (typeof executionId === "string") {
-                        await state.stopExecution(scriptId, executionId);
+                        await broadcast({
+                            type: "STOP_EXECUTION",
+                            id: scriptId,
+                            executionId,
+                        });
                     } else {
                         const script = state.scripts.find(
                             (script) => script.id === scriptId,
@@ -233,7 +252,12 @@ async function uninstallTool() {
             if (typeof executionId === "string") {
                 const scriptId = state.toolMappings[shortcut];
                 if (scriptId) {
-                    await state.stopExecution(scriptId, executionId);
+                    // TODO stop multiple executions at once
+                    void broadcast({
+                        type: "STOP_EXECUTION",
+                        id: scriptId,
+                        executionId,
+                    });
                 }
             }
         }

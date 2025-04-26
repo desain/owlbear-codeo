@@ -3,8 +3,10 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import { useMemo } from "react";
+import { broadcast } from "../action/handleBroadcast";
 import { Shortcut, SHORTCUT_OPTIONS } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
+import { getExecution } from "../tool/shortcutTool";
 import { ScriptPicker, ScriptPickerOption } from "../ui/ScriptPicker";
 
 function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
@@ -22,7 +24,7 @@ function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
         [scripts, mappedScriptId],
     );
 
-    const handleScriptChange = (
+    const handleScriptChange = async (
         shortcut: Shortcut,
         option: ScriptPickerOption | null,
     ) => {
@@ -30,6 +32,19 @@ function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
             setToolShortcut(shortcut, option.id);
         } else {
             removeToolShortcut(shortcut);
+        }
+
+        if (mappedScriptId && option?.id !== mappedScriptId) {
+            // Switching scripts, so stop any shortcut-based
+            // execution for the old one
+            const executionId = await getExecution(shortcut);
+            if (executionId) {
+                await broadcast({
+                    type: "STOP_EXECUTION",
+                    id: mappedScriptId,
+                    executionId,
+                });
+            }
         }
     };
 

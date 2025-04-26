@@ -59,6 +59,7 @@ import {
     usePlayerStorage,
 } from "../state/usePlayerStorage";
 import { DownloadScriptButton } from "./DownloadScriptButton";
+import { broadcast } from "./handleBroadcast";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
 import { UploadScriptButton } from "./UploadScriptButton";
@@ -93,8 +94,6 @@ function ExecutionItem({
     script: StoredScript;
     execution: Execution;
 }) {
-    const stopExecution = usePlayerStorage((store) => store.stopExecution);
-
     return (
         <Stack direction="row" alignItems="center" spacing={2}>
             <Box
@@ -108,7 +107,11 @@ function ExecutionItem({
                     size="small"
                     color="error"
                     onClick={() =>
-                        stopExecution(script.id, execution.executionId)
+                        broadcast({
+                            type: "STOP_EXECUTION",
+                            id: script.id,
+                            executionId: execution.executionId,
+                        })
                     }
                     sx={{
                         position: "absolute",
@@ -132,8 +135,13 @@ function ExecutionItem({
 function OverflowMenu({ script }: { script: StoredScript }) {
     const playerName = usePlayerStorage((store) => store.playerName);
     const addScript = usePlayerStorage((store) => store.addScript);
-    const removeScript = usePlayerStorage((store) => store.removeScript);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleDelete = (scriptId: string) =>
+        broadcast({
+            type: "REMOVE_SCRIPT",
+            id: scriptId,
+        });
 
     return (
         <>
@@ -147,7 +155,7 @@ function OverflowMenu({ script }: { script: StoredScript }) {
                 open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
             >
-                <MenuItem onClick={() => removeScript(script.id)}>
+                <MenuItem onClick={() => handleDelete(script.id)}>
                     <ListItemIcon>
                         <Delete />
                     </ListItemIcon>
