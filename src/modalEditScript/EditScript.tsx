@@ -168,8 +168,9 @@ export function EditScript({ scriptId }: EditScriptProps) {
                             <Stack
                                 key={idx}
                                 direction="row"
-                                spacing={1}
+                                gap={1}
                                 alignItems="center"
+                                flexWrap={"wrap"}
                                 sx={{ mb: 1 }}
                             >
                                 <TextField
@@ -198,7 +199,7 @@ export function EditScript({ scriptId }: EditScriptProps) {
                                             e.target.value,
                                         )
                                     }
-                                    sx={{ flex: 1 }}
+                                    sx={{ flex: 1, minWidth: 120 }}
                                 />
                                 <TextField
                                     label="Type"
