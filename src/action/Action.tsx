@@ -491,20 +491,15 @@ export function Action() {
                             },
                         },
                     }}
+                    action={
+                        <Tooltip title="Settings">
+                            <IconButton onClick={openSettingsPopover}>
+                                <Settings />
+                            </IconButton>
+                        </Tooltip>
+                    }
                     sx={{ flex: 1 }}
                 />
-                <Tooltip title="Settings">
-                    <IconButton onClick={openSettingsPopover}>
-                        <Settings />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Create new script">
-                    <IconButton onClick={() => openEditModal()}>
-                        <Add />
-                    </IconButton>
-                </Tooltip>
-                <ImportButton addScript={addScript} />
-                <UploadScriptButton onReceiveScript={addScript} />
             </Stack>
             {/* Search and filter row */}
             <Stack direction="row" alignItems="center" spacing={1} px={2}>
@@ -685,6 +680,16 @@ export function Action() {
                     import one from a file or URL.
                 </Typography>
             )}
+            <Divider />
+            <Stack direction={"row"} justifyContent={"center"}>
+                <Tooltip title="Create new script">
+                    <IconButton onClick={() => openEditModal()}>
+                        <Add />
+                    </IconButton>
+                </Tooltip>
+                <ImportButton addScript={addScript} />
+                <UploadScriptButton onReceiveScript={addScript} />
+            </Stack>
         </Box>
     );
 }

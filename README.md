@@ -125,11 +125,10 @@ To make a production build run:
 -   Script icons
 -   Add simple bar for scrolls
 -   More parameter types
-    -   Location?
+    -   Location? Picker opens custom tool.
     -   Item list?
     -   Asset
 -   Add API for setting parameters
--   Move create buttons to the bottom of the script list
 -   Set tool metadata on load
 -   Ctrl/Cmd + S shortcut for editor
 -   Utility methods for codeo object
