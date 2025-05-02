@@ -138,6 +138,7 @@ To make a production build run:
 -   Remove F as a shortcut (fog)
 -   When running script, catch `{error: {message: "..."}}`
 -   `            "@typescript-eslint/consistent-type-imports": "error",`
+-   `            ...tseslint.configs.stylisticTypeChecked,`
 
 ## License
 
