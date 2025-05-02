@@ -139,6 +139,7 @@ To make a production build run:
 -   When running script, catch `{error: {message: "..."}}`
 -   `            "@typescript-eslint/consistent-type-imports": "error",`
 -   `            ...tseslint.configs.stylisticTypeChecked,`
+-   syntax lints from template
 
 ## License
 
