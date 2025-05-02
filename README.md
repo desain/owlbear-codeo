@@ -137,6 +137,7 @@ To make a production build run:
 -   Move parameters to the card dropdown
 -   Remove F as a shortcut (fog)
 -   When running script, catch `{error: {message: "..."}}`
+-   `            "@typescript-eslint/consistent-type-imports": "error",`
 
 ## License
 
