@@ -137,6 +137,7 @@ To make a production build run:
 -   Move parameters to the card dropdown
 -   Remove F as a shortcut (fog)
 -   Remove globals dependency
+-   Add version display at the bottom
 
 ## License
 
