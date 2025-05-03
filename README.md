@@ -136,6 +136,7 @@ To make a production build run:
     -   Vector compare
 -   Move parameters to the card dropdown
 -   Remove F as a shortcut (fog)
+-   Remove globals dependency
 
 ## License
 
