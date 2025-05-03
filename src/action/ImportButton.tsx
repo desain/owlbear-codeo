@@ -1,7 +1,7 @@
 import { AddLink } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import { importScript } from "../importScript";
-import { PlayerStorage } from "../state/usePlayerStorage";
+import type { PlayerStorage } from "../state/usePlayerStorage";
 
 export function ImportButton({
     addScript,

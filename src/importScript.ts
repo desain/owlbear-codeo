@@ -1,6 +1,6 @@
 import { request } from "@octokit/request";
 import OBR from "@owlbear-rodeo/sdk";
-import { CodeoScript } from "./CodeoScript";
+import type { CodeoScript } from "./CodeoScript";
 import { parseJsonOrCode } from "./utils/parseScript";
 
 export async function importScript(url: string): Promise<null | CodeoScript> {
@@ -9,9 +9,7 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
         let author;
         let text;
 
-        const gistMatch = url.match(
-            /^https?:\/\/gist\.github\.com\/([^/]+)\/(\w+)\/?$/,
-        );
+        const gistMatch = /^https?:\/\/gist\.github\.com\/([^/]+)\/(\w+)\/?$/.exec(url);
         if (gistMatch) {
             const [, , gistId] = gistMatch;
             const response = await request("GET /gists/{gist_id}", {

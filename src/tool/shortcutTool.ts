@@ -28,8 +28,8 @@ import x from "../../assets/x.svg";
 import xStop from "../../assets/xStop.svg";
 
 import { broadcast } from "../action/handleBroadcast";
+import type { Shortcut } from "../constants";
 import {
-    Shortcut,
     SHORTCUT_OPTIONS,
     SHORTCUT_TOOL_ACTION_ID_PREFIX,
     SHORTCUT_TOOL_ID,
@@ -228,15 +228,13 @@ async function installTool() {
     ]);
 
     // Set up tool metadata
-    const enabledKeys: [string, boolean][] = SHORTCUT_OPTIONS.map(
-        (shortcut) => [
+    const enabledKeys: [shortcut: string, enabled: boolean][] =
+        SHORTCUT_OPTIONS.map((shortcut) => [
             enabledKey(shortcut),
             usePlayerStorage.getState().toolMappings[shortcut] !== undefined,
-        ],
-    );
-    const executionKeys: [string, string | undefined][] = SHORTCUT_OPTIONS.map(
-        (shortcut) => [executionKey(shortcut), undefined],
-    );
+        ]);
+    const executionKeys: [shortcut: string, executionId: string | undefined][] =
+        SHORTCUT_OPTIONS.map((shortcut) => [executionKey(shortcut), undefined]);
     await OBR.tool.setMetadata(
         SHORTCUT_TOOL_ID,
         Object.fromEntries<unknown>([...enabledKeys, ...executionKeys]),

@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getId, isObject } from "owlbear-utils";
-import { CodeoScript } from "../CodeoScript";
+import type { CodeoScript } from "../CodeoScript";
 import {
     isShortcut,
     MESSAGE_CHANNEL,
@@ -9,7 +9,8 @@ import {
 } from "../constants";
 import { runScript } from "../runScript";
 import { BACKGROUND_OFF, isScriptButton } from "../ScriptButton";
-import { StoredScript, usePlayerStorage } from "../state/usePlayerStorage";
+import type { StoredScript} from "../state/usePlayerStorage";
+import { usePlayerStorage } from "../state/usePlayerStorage";
 import { clearExecutionsFromTool } from "../tool/shortcutTool";
 
 type ScriptSelector = { name: string } | { id: string };

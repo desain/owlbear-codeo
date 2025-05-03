@@ -22,11 +22,12 @@ import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
+import type {
     CodeoScript,
+    ScriptParameter} from "../CodeoScript";
+import {
     isParameterType,
-    PARAMETER_TYPES,
-    ScriptParameter,
+    PARAMETER_TYPES
 } from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";

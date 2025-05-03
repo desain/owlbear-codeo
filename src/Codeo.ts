@@ -1,8 +1,8 @@
 import { broadcast } from "./action/handleBroadcast";
-import { NewExecution } from "./Execution";
+import type { NewExecution } from "./Execution";
 
 export class Codeo {
-    private executionId: string | null = null;
+    #executionId: string | null = null;
 
     constructor(private readonly scriptId: string) {}
 
@@ -11,22 +11,22 @@ export class Codeo {
      * the execution.
      */
     stopSelf = () => {
-        if (this.executionId === null) {
+        if (this.#executionId === null) {
             throw new Error("stopSelf() called before execution created");
         } else {
             void broadcast({
                 type: "STOP_EXECUTION",
                 id: this.scriptId,
-                executionId: this.executionId,
+                executionId: this.#executionId,
             });
         }
     };
 
     saveExecution = (executionId: string) => {
-        if (this.executionId !== null) {
+        if (this.#executionId !== null) {
             throw new Error("Execution already set");
         }
-        this.executionId = executionId;
+        this.#executionId = executionId;
     };
 
     continueExecution = (name: string, stop: VoidFunction): NewExecution => ({

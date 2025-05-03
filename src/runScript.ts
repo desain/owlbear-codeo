@@ -31,13 +31,14 @@ import OBR, {
     MathM,
 } from "@owlbear-rodeo/sdk";
 import { Codeo } from "./Codeo";
-import { ScriptParameter } from "./CodeoScript";
-import { Execution, isNewExecution } from "./Execution";
-import {
+import type { ScriptParameter } from "./CodeoScript";
+import type { Execution } from "./Execution";
+import { isNewExecution } from "./Execution";
+import type {
     ParameterWithValue,
     StoredScript,
-    usePlayerStorage,
 } from "./state/usePlayerStorage";
+import { usePlayerStorage } from "./state/usePlayerStorage";
 
 function getExecution(response: unknown): Execution | null {
     if (isNewExecution(response)) {
@@ -58,7 +59,9 @@ function getExecution(response: unknown): Execution | null {
 }
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
-const AsyncFunction = async function () {}.constructor;
+const AsyncFunction = async function () {
+    // no content since we're just getting the constructor
+}.constructor;
 const TIMEOUT_MS = 1000;
 
 type ScriptFunction = (

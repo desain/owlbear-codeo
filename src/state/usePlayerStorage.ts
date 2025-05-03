@@ -1,12 +1,13 @@
-import { Item } from "@owlbear-rodeo/sdk";
+import type { Item } from "@owlbear-rodeo/sdk";
 import { enableMapSet } from "immer";
 import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { CodeoScript } from "../CodeoScript";
-import { LOCAL_STORAGE_STORE_NAME, Shortcut } from "../constants";
-import { Execution } from "../Execution";
+import type { CodeoScript } from "../CodeoScript";
+import type { Shortcut } from "../constants";
+import { LOCAL_STORAGE_STORE_NAME } from "../constants";
+import type { Execution } from "../Execution";
 import { setShortcutEnabledUi } from "../tool/shortcutTool";
 
 enableMapSet();

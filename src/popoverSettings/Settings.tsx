@@ -4,10 +4,12 @@ import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import { useMemo } from "react";
 import { broadcast } from "../action/handleBroadcast";
-import { Shortcut, SHORTCUT_OPTIONS } from "../constants";
+import type { Shortcut} from "../constants";
+import { SHORTCUT_OPTIONS } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { getExecution } from "../tool/shortcutTool";
-import { ScriptPicker, ScriptPickerOption } from "../ui/ScriptPicker";
+import type { ScriptPickerOption } from "../ui/ScriptPicker";
+import { ScriptPicker } from "../ui/ScriptPicker";
 
 function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
     const setToolShortcut = usePlayerStorage((state) => state.setToolShortcut);
