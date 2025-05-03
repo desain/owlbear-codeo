@@ -40,6 +40,6 @@ export const SHORTCUT_OPTIONS = [
 ] as const;
 export type Shortcut = (typeof SHORTCUT_OPTIONS)[number];
 export function isShortcut(shortcut: string): shortcut is Shortcut {
-    const shortcutOptions2: ReadonlyArray<string> = SHORTCUT_OPTIONS;
+    const shortcutOptions2: readonly string[] = SHORTCUT_OPTIONS;
     return shortcutOptions2.includes(shortcut);
 }

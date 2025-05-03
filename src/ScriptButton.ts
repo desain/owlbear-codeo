@@ -1,13 +1,7 @@
-import {
-    buildLabel,
-    buildShape,
-    isLabel,
-    Item,
-    Label,
-    Shape,
-    Vector2,
-} from "@owlbear-rodeo/sdk";
-import { assertItem, HasParameterizedMetadata } from "owlbear-utils";
+import type { Item, Label, Shape, Vector2 } from "@owlbear-rodeo/sdk";
+import { buildLabel, buildShape, isLabel } from "@owlbear-rodeo/sdk";
+import type { HasParameterizedMetadata } from "owlbear-utils";
+import { assertItem } from "owlbear-utils";
 import { METADATA_EXECUTION_ID_KEY, METADATA_SCRIPT_ID_KEY } from "./constants";
 
 export const BACKGROUND_OFF = "#3020B0";
@@ -34,7 +28,7 @@ export function buildScriptButton(
     color: string,
     text: string,
     scriptId: string,
-): [Shape, ScriptButton] {
+): [handle: Shape, button: ScriptButton] {
     const handle = buildShape()
         .shapeType("CIRCLE")
         .position(position)

@@ -40,22 +40,23 @@ import {
     Typography,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import { HighlightRanges } from "@nozbe/microfuzz";
+import type { HighlightRanges } from "@nozbe/microfuzz";
 import { Highlight, useFuzzySearchList } from "@nozbe/microfuzz/react";
 import OBR, { isImage } from "@owlbear-rodeo/sdk";
 import { getName, useActionResizer, useRehydrate } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScriptParameter } from "../CodeoScript";
+import type { ScriptParameter } from "../CodeoScript";
 import {
     MODAL_EDIT_SCRIPT_ID,
     POPOVER_SETTINGS_ID,
     SCRIPT_ID_PARAM,
 } from "../constants";
-import { Execution } from "../Execution";
+import type { Execution } from "../Execution";
 import { runScript } from "../runScript";
-import {
+import type {
     ParameterWithValue,
-    StoredScript,
+    StoredScript} from "../state/usePlayerStorage";
+import {
     usePlayerStorage,
 } from "../state/usePlayerStorage";
 import { DownloadScriptButton } from "./DownloadScriptButton";

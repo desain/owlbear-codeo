@@ -12,7 +12,9 @@ import { Action } from "./Action";
 import { installBroadcastListener } from "./handleBroadcast";
 import { startWatchingButtons } from "./watchButtonClicks";
 
-let uninstall: VoidFunction = () => {};
+let uninstall: VoidFunction = () => {
+    //nothing to uninstall
+};
 
 async function installExtension(): Promise<VoidFunction> {
     console.log(`Owlbear Codeo version ${version}`);
@@ -62,7 +64,9 @@ OBR.onReady(async () => {
             uninstall = await installExtension();
         } else {
             uninstall();
-            uninstall = () => {};
+            uninstall = () => {
+                // nothing to uninstall anymore
+            };
         }
     });
 });

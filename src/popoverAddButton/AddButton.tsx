@@ -3,12 +3,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import OBR, { Math2, Vector2 } from "@owlbear-rodeo/sdk";
+import type { Vector2 } from "@owlbear-rodeo/sdk";
+import OBR, { Math2 } from "@owlbear-rodeo/sdk";
 import { useCallback, useState } from "react";
 import { POPOVER_ADD_BUTTON_ID } from "../constants";
 import { buildScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
-import { ScriptPicker, ScriptPickerOption } from "../ui/ScriptPicker";
+import type { ScriptPickerOption } from "../ui/ScriptPicker";
+import { ScriptPicker } from "../ui/ScriptPicker";
 
 export function AddButton({ position }: { position: Vector2 }) {
     const scripts = usePlayerStorage((store) => store.scripts);

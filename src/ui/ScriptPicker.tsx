@@ -1,6 +1,6 @@
 import { Autocomplete, TextField } from "@mui/material";
-import { FC } from "react";
-import { StoredScript } from "../state/usePlayerStorage";
+import type { FC } from "react";
+import type { StoredScript } from "../state/usePlayerStorage";
 
 export type ScriptPickerOption = Readonly<{
     label: string;

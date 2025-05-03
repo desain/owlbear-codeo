@@ -1,6 +1,6 @@
 import { Download } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import { CodeoScript } from "../CodeoScript";
+import type { CodeoScript } from "../CodeoScript";
 import { toJsScript } from "../utils/parseScript";
 
 function handleDownload(script: CodeoScript) {

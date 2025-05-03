@@ -2,7 +2,7 @@ import { Upload } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import { useRef } from "react";
-import { CodeoScript } from "../CodeoScript";
+import type { CodeoScript } from "../CodeoScript";
 import { parseJsonOrCode } from "../utils/parseScript";
 
 const handleFileUpload = (

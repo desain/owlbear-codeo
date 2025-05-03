@@ -1,6 +1,6 @@
 import { filterIterator, withIndices } from "owlbear-utils";
+import type { CodeoScript } from "../CodeoScript";
 import {
-    CodeoScript,
     isCodeoScript,
     isParameterType,
     PARAMETER_TYPES,
@@ -34,7 +34,7 @@ function parseCode(
     // Remove empty lines for parsing
     const lines = code.split(/\r?\n/);
 
-    let codeStartIdx: number = 0;
+    let codeStartIdx = 0;
     const nonemptyLines = filterIterator(
         withIndices(lines),
         ([line]) => line.trim() !== "",
@@ -57,8 +57,8 @@ function parseCode(
             const line = v.value[0];
 
             // Try matching simple header attr
-            const headerAttrMatch = line.match(HEADER_ATTR_REGEX);
-            if (headerAttrMatch && headerAttrMatch[1] && headerAttrMatch[2]) {
+            const headerAttrMatch = HEADER_ATTR_REGEX.exec(line);
+            if (headerAttrMatch?.[1] && headerAttrMatch[2]) {
                 // Key must be header attr since regex is defined as only matching header attrs
                 const key = headerAttrMatch[1] as HeaderAttr;
                 partial[key] = headerAttrMatch[2];
@@ -66,13 +66,8 @@ function parseCode(
             }
 
             // Try matching parameter
-            const parameterMatch = line.match(parameterRegex);
-            if (
-                parameterMatch &&
-                parameterMatch[1] &&
-                parameterMatch[2] &&
-                parameterMatch[3]
-            ) {
+            const parameterMatch = parameterRegex.exec(line);
+            if (parameterMatch?.[1] && parameterMatch[2] && parameterMatch[3]) {
                 const name = parameterMatch[1];
                 const type = parameterMatch[2];
                 const description = parameterMatch[3];
@@ -108,7 +103,7 @@ function parseCode(
 }
 
 export function toJsScript(script: CodeoScript): string {
-    let result: string = `// @CodeoScript\n// @name ${script.name}\n`;
+    let result = `// @CodeoScript\n// @name ${script.name}\n`;
     const removeLineBreaks = (s: string) => s.replace(/\r?\n/g, "");
     if (script.author) {
         result += `// @author ${removeLineBreaks(script.author)}\n`;
