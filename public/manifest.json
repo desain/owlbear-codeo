@@ -4,11 +4,11 @@
   "version": "0.1.1",
   "manifest_version": 1,
   "author": "desain",
-  "icon": "/logo.svg",
+  "icon": "/logo-bg.svg",
   "homepage_url": "https://github.com/desain/owlbear-codeo",
   "action": {
     "title": "Owlbear Codeo",
-    "icon": "/assets/logo.svg",
+    "icon": "/logo.svg",
     "popover": "/src/action/action.html",
     "height": 300,
     "width": 300

@@ -4,6 +4,12 @@ _The root of all `eval`™_
 
 This extension allows you to manage custom user scripts for the Owlbear Rodeo VTT.
 
+## Installing
+
+The extension can be installed from https://owlbear-codeo.pages.dev/manifest.json.
+
+(Eventually on a [store page](https://extensions.owlbear.rodeo/owlbear-codeo) maybe, though not yet)
+
 ## Features
 
 -   Create and edit custom scripts directly from the extension
