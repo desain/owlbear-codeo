@@ -7,31 +7,33 @@ This extension allows you to manage custom user scripts for the Owlbear Rodeo VT
 ## Features
 
 -   Create and edit custom scripts directly from the extension
+-   GMs can share scripts with the whole room
 -   Import scripts from external sources and update them if those sources change
 -   Download and upload scripts
 -   Track actively running scripts
 
 ## How to use
 
-TODO
-
 ### Installing scripts
 
-TODO
+You can add new scripts by writing them (via the + button), uploading script files previously downloaded from the extension, or via importing a script from a URL. Currently Github Gist is supported for URL imports.
 
 Some scripts to get you started:
 
 -   [Inversionify](https://gist.github.com/desain/38977393433dfc6242eab280abe416fa) - turns a shape into an X-ray viewer
 -   [Live Line](https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44) - select two tokens and a line, and the line will move to connect the tokens even if you move them.
 -   [Shake it Off](https://gist.github.com/desain/5315c2c18ba469cd85534e8c29f8abbc) - shake the screen when selected tokens move.
+-   [Portal Display](https://gist.github.com/desain/e8f8f769cd32608c4d99415ad3ee9f25) - turns two shapes into portals to each other
 
 ### Writing scripts
 
-TODO
+Scripts are written in Javascript, and execute in an async function context, so you can use 'await' at the top level.
 
-Script parameters are all optional - be sure to handle `undefined` valuees.
+Scripts can have parameters of various types, which you can configure in the script editor. Script parameters are all optional - be sure to handle `undefined` valuees.
 
 Scripts have access to the `OBR` object from the Owlbear Rodeo SDK, as well as the type-check functions (e.g `isImage`), and the builders (e.g `buildImage`).
+
+If a script returns a function, the script will be marked as 'executing', and that execution will be given an ID. The script will display in the UI as running. When the user stops the script, the returned function will be called.
 
 Scripts also have access to this object:
 
@@ -42,8 +44,24 @@ interface Codeo {
      * the execution.
      */
     stopSelf(): void;
+    /**
+     * If the script returns the result of this API, it will be marked as executing, just as if
+     * you had returned a function.
+     * @param stop Used as the function to call when the execution stops.
+     * @param name Used to label the execution, to differentiate multiple copies of the script
+     *             running at the same time.
+     */
+    continueExecution(name: string, stop: VoidFunction): NewExecution;
 }
 ```
+
+### Buttons
+
+In Settings, you can enable the map context menu. This lets you create a button item that, when double-clicked, runs the selected script.
+
+### Shortcut tool
+
+This extension provides an optional tool that can help to run scripts more quickly with keyboard shortcuts. In Settings, enable the tool, and map some shortcuts to scripts. Then activate the tool by clicking or with the ';' shortcut, and use your script shortcuts along the top bar.
 
 ### Calling this extension from other extensions
 
