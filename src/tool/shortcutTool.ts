@@ -8,12 +8,8 @@ import c from "../../assets/c.svg";
 import cStop from "../../assets/cStop.svg";
 import e from "../../assets/e.svg";
 import eStop from "../../assets/eStop.svg";
-import f from "../../assets/f.svg";
-import fStop from "../../assets/fStop.svg";
 import g from "../../assets/g.svg";
 import gStop from "../../assets/gStop.svg";
-import l from "../../assets/l.svg";
-import lStop from "../../assets/lStop.svg";
 import n from "../../assets/n.svg";
 import nStop from "../../assets/nStop.svg";
 import o from "../../assets/o.svg";
@@ -41,9 +37,7 @@ const ICONS: Record<Shortcut, string> = {
     b,
     c,
     e,
-    f,
     g,
-    l,
     n,
     o,
     p,
@@ -56,9 +50,7 @@ const STOP_ICONS: Record<Shortcut, string> = {
     b: bStop,
     c: cStop,
     e: eStop,
-    f: fStop,
     g: gStop,
-    l: lStop,
     n: nStop,
     o: oStop,
     p: pStop,
