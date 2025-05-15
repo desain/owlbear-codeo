@@ -133,7 +133,6 @@ To make a production build run:
 -   Remove F as a shortcut (fog)
 -   Remove L as a shortcut (lock)
 -   Remove globals dependency
--   Add version display at the bottom
 -   Unhook buttons when room metadata deletes a script
 
 ## License

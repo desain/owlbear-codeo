@@ -2,6 +2,7 @@ import { Box, FormGroup, FormHelperText, Typography } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
+import { version } from "../../package.json";
 import { broadcast } from "../broadcast/handleBroadcast";
 import type { Shortcut } from "../constants";
 import { SHORTCUT_OPTIONS } from "../constants";
@@ -130,6 +131,13 @@ export function Settings() {
                     </Stack>
                 </>
             )}
+            <Typography
+                color="textSecondary"
+                variant="subtitle1"
+                sx={{ mt: 2, px: 2 }}
+            >
+                Owlbear Codeo version {version}
+            </Typography>
         </Box>
     );
 }
