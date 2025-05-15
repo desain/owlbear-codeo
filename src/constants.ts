@@ -26,18 +26,29 @@ export const CREATE_BUTTON_CONTEXTMENU_ID = `${PLUGIN_ID}/createButton`;
 export const SHORTCUT_TOOL_ID = `${PLUGIN_ID}/shortcutTool`;
 export const SHORTCUT_TOOL_ACTION_ID_PREFIX = `${SHORTCUT_TOOL_ID}/action/`;
 export const SHORTCUT_OPTIONS = [
+    // "a", // may collide with other extensions
     "b",
     "c",
+    // d used for drawing
     "e",
-    "f",
+    // f used for fog
     "g",
-    "l",
+    // h used for hide when item selected
+    // l used for lock when item selected
+    // m used for measure
     "n",
     "o",
     "p",
+    // q used for pointer
     "r",
+    // s used for select
+    // t used for text
+    // "u", // may collide with other extensions
     "v",
+    // w used for hand
     "x",
+    // "y", // may collide with other extensions
+    // "z", // may collide with other extensions (segmentable ruler)
 ] as const;
 export type Shortcut = (typeof SHORTCUT_OPTIONS)[number];
 export function isShortcut(shortcut: string): shortcut is Shortcut {

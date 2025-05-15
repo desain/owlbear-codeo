@@ -36,7 +36,6 @@
     "@octokit/request": "^9.2.3",
     "@owlbear-rodeo/sdk": "^3.1.0",
     "@uiw/react-textarea-code-editor": "^3.1.1",
-    "globals": "^16.1.0",
     "immer": "^10.1.1",
     "owlbear-utils": "git+https://github.com/desain/owlbear-utils.git",
     "react": "^19.1.0",

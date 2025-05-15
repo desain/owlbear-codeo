@@ -130,10 +130,6 @@ To make a production build run:
     -   Get item ids
     -   Vector compare
 -   Move parameters to the card dropdown
--   Remove F as a shortcut (fog)
--   Remove L as a shortcut (lock)
--   Remove globals dependency
--   Unhook buttons when room metadata deletes a script
 
 ## License
 
