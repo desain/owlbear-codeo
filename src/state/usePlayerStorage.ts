@@ -5,14 +5,15 @@ import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { CodeoScript } from "../CodeoScript";
 import type { Shortcut } from "../constants";
 import {
     LOCAL_STORAGE_STORE_NAME,
     METADATA_KEY_ROOM_METADATA,
 } from "../constants";
 import type { Execution } from "../Execution";
+import type { CodeoScript } from "../script/CodeoScript";
 import { setShortcutEnabledUi } from "../tool/shortcutTool";
+import { addScript, updateScript } from "./HasScripts";
 import { isRoomMetadata, type RoomMetadata } from "./RoomMetadata";
 import type { ParameterWithValue, StoredScript } from "./StoredScript";
 
@@ -70,13 +71,21 @@ export interface PlayerStorage {
         scriptId: string,
     ) => void;
     readonly removeToolShortcut: (this: void, shortcut: Shortcut) => void;
-    readonly addScript: (this: void, script: CodeoScript) => void;
-    readonly removeScript: (this: void, id: string) => void;
-    readonly updateScript: (
+    readonly addLocalScript: (this: void, script: CodeoScript) => void;
+    readonly removeLocalScript: (this: void, id: string) => void;
+    readonly updateLocalScript: (
         this: void,
         id: string,
         updates: Partial<CodeoScript>,
     ) => void;
+    readonly getScriptByName: (
+        this: void,
+        name: string,
+    ) => StoredScript | undefined;
+    readonly getScriptById: (
+        this: void,
+        id: string,
+    ) => StoredScript | undefined;
     readonly setParameterValue: (
         this: void,
         scriptId: string,
@@ -128,7 +137,7 @@ export interface PlayerStorage {
 export const usePlayerStorage = create<PlayerStorage>()(
     subscribeWithSelector(
         persist(
-            immer((set) => ({
+            immer((set, get) => ({
                 hasSensibleValues: false,
                 scripts: [],
                 toolEnabled: false,
@@ -152,18 +161,11 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     });
                     void setShortcutEnabledUi(shortcut, false);
                 },
-                addScript: (scriptData) =>
+                addLocalScript: (scriptData) =>
                     set((state) => {
-                        const now = Date.now();
-                        state.scripts.push({
-                            ...scriptData,
-                            id: crypto.randomUUID(),
-                            createdAt: now,
-                            updatedAt: now,
-                            runAt: 0,
-                        });
+                        addScript(state, scriptData);
                     }),
-                removeScript: (id) => {
+                removeLocalScript: (id) => {
                     set((state) => {
                         state.executions.delete(id);
                         state.scripts = state.scripts.filter(
@@ -171,20 +173,28 @@ export const usePlayerStorage = create<PlayerStorage>()(
                         );
                     });
                 },
-                updateScript: (id, updates) =>
+                updateLocalScript: (id, updates) =>
                     set((state) => {
-                        state.scripts = state.scripts.map((script) =>
-                            script.id === id
-                                ? {
-                                      ...script,
-                                      ...updates,
-                                      id,
-                                      createdAt: script.createdAt,
-                                      updatedAt: Date.now(),
-                                  }
-                                : script,
-                        );
+                        updateScript(state, id, updates);
                     }),
+                getScriptByName: (name) => {
+                    const state = get();
+                    return (
+                        state.scripts.find((script) => script.name === name) ??
+                        state.roomMetadata.scripts.find(
+                            (script) => script.name === name,
+                        )
+                    );
+                },
+                getScriptById: (id) => {
+                    const state = get();
+                    return (
+                        state.scripts.find((script) => script.id === id) ??
+                        state.roomMetadata.scripts.find(
+                            (script) => script.id === id,
+                        )
+                    );
+                },
                 addExecution: (scriptId, execution) =>
                     set((state) => {
                         getOrInsert(state.executions, scriptId, () => []).push(

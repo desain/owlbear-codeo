@@ -1,13 +1,12 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getId, isObject } from "owlbear-utils";
-import type { CodeoScript } from "../CodeoScript";
 import {
     isShortcut,
     MESSAGE_CHANNEL,
     METADATA_EXECUTION_ID_KEY,
     METADATA_SCRIPT_ID_KEY,
 } from "../constants";
-import { runScript } from "../runScript";
+import { runScript } from "../script/runScript";
 import { BACKGROUND_OFF, isScriptButton } from "../ScriptButton";
 import type { StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
@@ -72,11 +71,11 @@ type RunScriptMessageResponse = Readonly<{
 }>;
 
 function getScriptOrWarn(selector: ScriptSelector): StoredScript | null {
-    const finder =
+    const state = usePlayerStorage.getState();
+    const script =
         "id" in selector
-            ? (s: StoredScript) => s.id === selector.id
-            : (s: CodeoScript) => s.name === selector.name;
-    const script = usePlayerStorage.getState().scripts.find(finder);
+            ? state.getScriptById(selector.id)
+            : state.getScriptByName(selector.name);
     if (!script) {
         void OBR.notification.show(
             `[Codeo] Script not found, ignoring`,
@@ -173,7 +172,7 @@ async function handleBroadcast(data: unknown) {
         ]);
 
         // Remove the script from state
-        state.removeScript(script.id);
+        state.removeLocalScript(script.id);
     } else {
         void OBR.notification.show(
             "[Codeo] Ignoring invalid message",

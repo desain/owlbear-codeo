@@ -46,14 +46,14 @@ import OBR, { isImage } from "@owlbear-rodeo/sdk";
 import { getName, useActionResizer, useRehydrate } from "owlbear-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { broadcast } from "../broadcast/handleBroadcast";
-import type { ScriptParameter } from "../CodeoScript";
 import {
     MODAL_EDIT_SCRIPT_ID,
     POPOVER_SETTINGS_ID,
     SCRIPT_ID_PARAM,
 } from "../constants";
 import type { Execution } from "../Execution";
-import { runScript } from "../runScript";
+import type { ScriptParameter } from "../script/CodeoScript";
+import { runScript } from "../script/runScript";
 import type { ParameterWithValue, StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { DownloadScriptButton } from "./DownloadScriptButton";
@@ -131,7 +131,7 @@ function ExecutionItem({
 
 function OverflowMenu({ script }: { script: StoredScript }) {
     const playerName = usePlayerStorage((store) => store.playerName);
-    const addScript = usePlayerStorage((store) => store.addScript);
+    const addLocalScript = usePlayerStorage((store) => store.addLocalScript);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleDelete = (scriptId: string) =>
@@ -160,7 +160,7 @@ function OverflowMenu({ script }: { script: StoredScript }) {
                 </MenuItem>
                 <MenuItem
                     onClick={() => {
-                        addScript({
+                        addLocalScript({
                             name: script.name + " (copy)",
                             author: playerName,
                             description: script.description,
@@ -433,8 +433,9 @@ function getComparator(
 
 export function Action() {
     const box: React.RefObject<HTMLElement | null> = useRef(null);
-    const scripts = usePlayerStorage((store) => store.scripts);
-    const addScript = usePlayerStorage((store) => store.addScript);
+    const localScripts = usePlayerStorage((store) => store.scripts);
+    const roomScripts = usePlayerStorage((store) => store.roomMetadata.scripts);
+    const addLocalScript = usePlayerStorage((store) => store.addLocalScript);
 
     useRehydrate(usePlayerStorage);
     useActionResizer(BASE_HEIGHT, MAX_HEIGHT, box);
@@ -451,7 +452,7 @@ export function Action() {
 
     // Fuzzy search on name, description, and code
     const filteredScripts = useFuzzySearchList({
-        list: scripts,
+        list: [...localScripts, ...roomScripts],
         queryText: search,
         getText: (item) => [
             item.name,
@@ -724,8 +725,8 @@ export function Action() {
                         <Add />
                     </IconButton>
                 </Tooltip>
-                <ImportButton addScript={addScript} />
-                <UploadScriptButton onReceiveScript={addScript} />
+                <ImportButton addScript={addLocalScript} />
+                <UploadScriptButton onReceiveScript={addLocalScript} />
             </Stack>
         </Box>
     );

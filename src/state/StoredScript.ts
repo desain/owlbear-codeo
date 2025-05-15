@@ -1,5 +1,5 @@
 import type { Item } from "@owlbear-rodeo/sdk";
-import { isCodeoScript, type CodeoScript } from "../CodeoScript";
+import { isCodeoScript, type CodeoScript } from "../script/CodeoScript";
 
 /*
 Values here must be readonly to avoid a Typescript issue

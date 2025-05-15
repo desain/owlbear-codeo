@@ -30,12 +30,12 @@ import OBR, {
     Math2,
     MathM,
 } from "@owlbear-rodeo/sdk";
-import { Codeo } from "./Codeo";
+import { Codeo } from "../Codeo";
+import type { Execution } from "../Execution";
+import { isNewExecution } from "../Execution";
+import type { ParameterWithValue, StoredScript } from "../state/StoredScript";
+import { usePlayerStorage } from "../state/usePlayerStorage";
 import type { ScriptParameter } from "./CodeoScript";
-import type { Execution } from "./Execution";
-import { isNewExecution } from "./Execution";
-import type { ParameterWithValue, StoredScript } from "./state/StoredScript";
-import { usePlayerStorage } from "./state/usePlayerStorage";
 
 function getExecution(response: unknown): Execution | null {
     if (isNewExecution(response)) {

@@ -4,7 +4,7 @@ import {
     METADATA_EXECUTION_ID_KEY,
     METADATA_SCRIPT_ID_KEY,
 } from "../constants";
-import { runScript } from "../runScript";
+import { runScript } from "../script/runScript";
 import { BACKGROUND_ON, isScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
@@ -28,9 +28,7 @@ export function startWatchingButtons() {
                 executionId,
             });
         } else {
-            const script = usePlayerStorage
-                .getState()
-                .scripts.find((script) => script.id === scriptId);
+            const script = usePlayerStorage.getState().getScriptById(scriptId);
             if (script === undefined) {
                 void OBR.notification.show(
                     `Script for button '${item.text.plainText}' not found`,

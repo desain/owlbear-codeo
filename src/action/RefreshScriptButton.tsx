@@ -1,12 +1,12 @@
 import { Update } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
-import { importScript } from "../importScript";
+import { importScript } from "../script/importScript";
 import type { StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 export function RefreshScriptButton({ script }: { script: StoredScript }) {
-    const updateScript = usePlayerStorage((store) => store.updateScript);
+    const updateScript = usePlayerStorage((store) => store.updateLocalScript);
 
     return (
         <Tooltip title="Fetch latest script">

@@ -2,8 +2,8 @@ import { Upload } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import { useRef } from "react";
-import type { CodeoScript } from "../CodeoScript";
-import { parseJsonOrCode } from "../utils/parseScript";
+import type { CodeoScript } from "../script/CodeoScript";
+import { parseJsonOrCode } from "../script/parseScript";
 
 const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,

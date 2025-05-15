@@ -34,7 +34,7 @@ import {
     SHORTCUT_TOOL_ACTION_ID_PREFIX,
     SHORTCUT_TOOL_ID,
 } from "../constants";
-import { runScript } from "../runScript";
+import { runScript } from "../script/runScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 const ICONS: Record<Shortcut, string> = {

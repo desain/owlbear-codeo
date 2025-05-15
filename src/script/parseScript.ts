@@ -1,10 +1,10 @@
 import { filterIterator, withIndices } from "owlbear-utils";
-import type { CodeoScript } from "../CodeoScript";
+import type { CodeoScript } from "../script/CodeoScript";
 import {
     isCodeoScript,
     isParameterType,
     PARAMETER_TYPES,
-} from "../CodeoScript";
+} from "../script/CodeoScript";
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 

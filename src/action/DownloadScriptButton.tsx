@@ -1,7 +1,7 @@
 import { Download } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import type { CodeoScript } from "../CodeoScript";
-import { toJsScript } from "../utils/parseScript";
+import type { CodeoScript } from "../script/CodeoScript";
+import { toJsScript } from "../script/parseScript";
 
 function handleDownload(script: CodeoScript) {
     const scriptText = toJsScript(script);

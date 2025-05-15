@@ -1,12 +1,12 @@
 import { AddLink } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import { importScript } from "../importScript";
+import { importScript } from "../script/importScript";
 import type { PlayerStorage } from "../state/usePlayerStorage";
 
 export function ImportButton({
     addScript,
 }: {
-    addScript: PlayerStorage["addScript"];
+    addScript: PlayerStorage["addLocalScript"];
 }) {
     return (
         <Tooltip title="Import script from URL">

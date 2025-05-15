@@ -22,14 +22,9 @@ import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type {
-    CodeoScript,
-    ScriptParameter} from "../CodeoScript";
-import {
-    isParameterType,
-    PARAMETER_TYPES
-} from "../CodeoScript";
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
+import type { CodeoScript, ScriptParameter } from "../script/CodeoScript";
+import { isParameterType, PARAMETER_TYPES } from "../script/CodeoScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 type EditScriptProps = Readonly<{
@@ -42,8 +37,8 @@ type EditScriptProps = Readonly<{
 export function EditScript({ scriptId }: EditScriptProps) {
     const scripts = usePlayerStorage((store) => store.scripts);
     const playerName = usePlayerStorage((store) => store.playerName);
-    const updateScript = usePlayerStorage((store) => store.updateScript);
-    const addScript = usePlayerStorage((store) => store.addScript);
+    const updateScript = usePlayerStorage((store) => store.updateLocalScript);
+    const addScript = usePlayerStorage((store) => store.addLocalScript);
     const script = useMemo(
         () => scripts.find((script) => script.id === scriptId),
         [scripts, scriptId],
