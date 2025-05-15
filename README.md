@@ -130,6 +130,8 @@ To make a production build run:
     -   Get item ids
     -   Vector compare
 -   Move parameters to the card dropdown
+-   reduce flicker when unsharing
+-   figure out what to do with room metadata collisions when a player marks a room script as run
 
 ## License
 
