@@ -32,8 +32,16 @@ export default defineConfig({
         },
     },
     test: {
+        environment: "jsdom",
         includeSource: ["src/**/*.{js,ts}"],
         setupFiles: ["./test/vitest.setup.ts"],
+        // For some reason, this package breaks with Vitest unless
+        // it's inlined. I've spent too long trying to fix it and run
+        // into dependency and configuration hell, so even though this
+        // is probably the wrong solution, it works, so it stays :/
+        deps: {
+            inline: ["owlbear-utils"],
+        },
     },
     define: {
         "import.meta.vitest": "undefined",

@@ -3,6 +3,9 @@ import OBR from "@owlbear-rodeo/sdk";
 import type { CodeoScript } from "./CodeoScript";
 import { parseJsonOrCode } from "./parseScript";
 
+/**
+ * @throws error if request fails
+ */
 export async function importScript(url: string): Promise<null | CodeoScript> {
     try {
         let name = "Imported Script";
@@ -13,6 +16,9 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
             /^https?:\/\/gist\.github\.com\/([^/]+)\/(\w+)\/?$/.exec(url);
         if (gistMatch) {
             const [, , gistId] = gistMatch;
+            if (!gistId) {
+                throw Error("Failed to parse gist URL");
+            }
             const response = await request("GET /gists/{gist_id}", {
                 gist_id: gistId,
             });
@@ -37,7 +43,7 @@ export async function importScript(url: string): Promise<null | CodeoScript> {
         } else {
             const response = await fetch(url);
             if (!response.ok) {
-                throw new Error(response.statusText);
+                throw Error(response.statusText);
             }
             text = await response.text();
         }

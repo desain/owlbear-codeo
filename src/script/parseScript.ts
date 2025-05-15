@@ -131,11 +131,12 @@ export function toJsScript(script: CodeoScript): string {
  * @throws Error if the code is not valid as JSON or code with headers.
  */
 export function parseJsonOrCode(jsonOrCode: string): Omit<CodeoScript, "name"> {
-    let json: unknown = null;
+    let json: unknown;
     try {
         json = JSON.parse(jsonOrCode);
     } catch {
-        console.log("Not json, trying to parse as code");
+        // console.log("Not json, trying to parse as code");
+        json = null;
     }
 
     if (json) {

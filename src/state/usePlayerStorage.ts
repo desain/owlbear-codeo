@@ -1,4 +1,5 @@
 import type { Metadata, Player } from "@owlbear-rodeo/sdk";
+import type { WritableDraft } from "immer";
 import { enableMapSet } from "immer";
 import type { Role } from "owlbear-utils";
 import { getOrInsert } from "owlbear-utils";
@@ -12,57 +13,21 @@ import {
 } from "../constants";
 import type { Execution } from "../Execution";
 import type { CodeoScript } from "../script/CodeoScript";
+import { removeReferencesToScripts } from "../script/deleteScript";
 import { setShortcutEnabledUi } from "../tool/shortcutTool";
-import { addScript, updateScript } from "./HasScripts";
 import { isRoomMetadata, type RoomMetadata } from "./RoomMetadata";
-import type { ParameterWithValue, StoredScript } from "./StoredScript";
+import type { ScriptContainer } from "./ScriptContainerUtils";
+import { ScriptContainerUtils } from "./ScriptContainerUtils";
+import type { StoredScript } from "./StoredScript";
 
 enableMapSet();
 
-const SET_SENSIBLE = Symbol("SetSensible");
-
-function withValue<T extends ParameterWithValue>(
-    parameter: T,
-    value: T["value"],
-): T {
-    if (value === undefined) {
-        return { ...parameter, value };
-    }
-
-    switch (parameter.type) {
-        case "boolean":
-            return { ...parameter, value: Boolean(value) };
-        case "number":
-            return { ...parameter, value: Number(value) };
-        case "string":
-            if (typeof value !== "string") {
-                throw new Error(
-                    `Value for Item parameter must be a string, got ${typeof value}`,
-                );
-            }
-            return { ...parameter, value };
-        case "Item":
-            if (
-                typeof value === "string" ||
-                typeof value === "boolean" ||
-                typeof value === "number"
-            ) {
-                throw new Error(
-                    `Value for Item parameter must be an Item, got ${typeof value}`,
-                );
-            }
-            return { ...parameter, value };
-    }
-}
-
 export interface PlayerStorage {
     // Persistent values
-    readonly hasSensibleValues: boolean;
     readonly scripts: StoredScript[];
     readonly toolEnabled: boolean;
     readonly contextMenuEnabled: boolean;
     readonly toolMappings: Partial<Record<Shortcut, string>>;
-    readonly [SET_SENSIBLE]: (this: void) => void;
     readonly setToolEnabled: (this: void, enabled: boolean) => void;
     readonly setContextMenuEnabled: (this: void, enabled: boolean) => void;
     readonly setToolShortcut: (
@@ -71,27 +36,24 @@ export interface PlayerStorage {
         scriptId: string,
     ) => void;
     readonly removeToolShortcut: (this: void, shortcut: Shortcut) => void;
-    readonly addLocalScript: (this: void, script: CodeoScript) => void;
-    readonly removeLocalScript: (this: void, id: string) => void;
-    readonly updateLocalScript: (
+    readonly updateLocalStateContainer: (
         this: void,
-        id: string,
-        updates: Partial<CodeoScript>,
+        updater: (draft: WritableDraft<ScriptContainer>) => void,
     ) => void;
+    readonly addLocalScript: (this: void, script: CodeoScript) => void;
+    readonly getAllScripts: (this: void) => StoredScript[];
     readonly getScriptByName: (
         this: void,
         name: string,
     ) => StoredScript | undefined;
+    /**
+     * Get script by ID. Don't call directly from React component, use useShallow
+     * or useSelectedScript wrapper instead.
+     */
     readonly getScriptById: (
         this: void,
-        id: string,
-    ) => StoredScript | undefined;
-    readonly setParameterValue: (
-        this: void,
-        scriptId: string,
-        paramIndex: number,
-        value: ParameterWithValue["value"],
-    ) => void;
+        id: string | undefined,
+    ) => [script: StoredScript, local: boolean] | undefined;
     /**
      * Update the script's runtime to now.
      */
@@ -138,14 +100,12 @@ export const usePlayerStorage = create<PlayerStorage>()(
     subscribeWithSelector(
         persist(
             immer((set, get) => ({
-                hasSensibleValues: false,
                 scripts: [],
                 toolEnabled: false,
                 contextMenuEnabled: true,
                 toolMappings: {},
                 executions: new Map(),
 
-                [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
                 setContextMenuEnabled: (contextMenuEnabled) =>
                     set({ contextMenuEnabled }),
@@ -161,22 +121,18 @@ export const usePlayerStorage = create<PlayerStorage>()(
                     });
                     void setShortcutEnabledUi(shortcut, false);
                 },
+                updateLocalStateContainer: (updater) =>
+                    set((state) => {
+                        updater(state);
+                    }),
                 addLocalScript: (scriptData) =>
                     set((state) => {
-                        addScript(state, scriptData);
+                        ScriptContainerUtils.add(state, scriptData);
                     }),
-                removeLocalScript: (id) => {
-                    set((state) => {
-                        state.executions.delete(id);
-                        state.scripts = state.scripts.filter(
-                            (script) => script.id !== id,
-                        );
-                    });
+                getAllScripts: () => {
+                    const state = get();
+                    return [...state.scripts, ...state.roomMetadata.scripts];
                 },
-                updateLocalScript: (id, updates) =>
-                    set((state) => {
-                        updateScript(state, id, updates);
-                    }),
                 getScriptByName: (name) => {
                     const state = get();
                     return (
@@ -188,12 +144,19 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 },
                 getScriptById: (id) => {
                     const state = get();
-                    return (
-                        state.scripts.find((script) => script.id === id) ??
-                        state.roomMetadata.scripts.find(
-                            (script) => script.id === id,
-                        )
+                    const localScript = state.scripts.find(
+                        (script) => script.id === id,
                     );
+                    if (localScript) {
+                        return [localScript, true];
+                    }
+                    const roomScript = state.roomMetadata.scripts.find(
+                        (script) => script.id === id,
+                    );
+                    if (roomScript) {
+                        return [roomScript, false];
+                    }
+                    return undefined;
                 },
                 addExecution: (scriptId, execution) =>
                     set((state) => {
@@ -211,45 +174,9 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             ),
                         );
                     }),
-                setParameterValue: (scriptId, paramIndex, value) =>
-                    set((state) => {
-                        const scriptIdx = state.scripts.findIndex(
-                            (script) => script.id === scriptId,
-                        );
-                        if (scriptIdx === -1) {
-                            console.warn(
-                                `Script with ID ${scriptId} not found`,
-                            );
-                            return;
-                        }
-                        if (
-                            paramIndex < 0 ||
-                            paramIndex >=
-                                state.scripts[scriptIdx].parameters.length
-                        ) {
-                            console.warn(
-                                `Parameter index ${paramIndex} out of bounds for script with ID ${scriptId}`,
-                            );
-                            return;
-                        }
-                        state.scripts[scriptIdx].parameters[paramIndex] =
-                            withValue(
-                                state.scripts[scriptIdx].parameters[paramIndex],
-                                value,
-                            );
-                    }),
                 markScriptRun: (scriptId) =>
                     set((state) => {
-                        const scriptIdx = state.scripts.findIndex(
-                            (script) => script.id === scriptId,
-                        );
-                        if (scriptIdx === -1) {
-                            console.warn(
-                                `Script with ID ${scriptId} not found`,
-                            );
-                            return;
-                        }
-                        state.scripts[scriptIdx].runAt = Date.now();
+                        ScriptContainerUtils.markRun(state, scriptId);
                     }),
 
                 sceneReady: false,
@@ -268,9 +195,24 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             ? { lastNonemptySelection: player.selection }
                             : null),
                     }),
-                handleRoomMetadataUpdate: (metadata) => {
+                handleRoomMetadataUpdate: async (metadata) => {
                     const roomMetadata = metadata[METADATA_KEY_ROOM_METADATA];
                     if (isRoomMetadata(roomMetadata)) {
+                        // Delete all current scripts that aren't kept in the new room metadata
+                        const toDelete = new Set(
+                            get().roomMetadata.scripts.map(
+                                (script) => script.id,
+                            ),
+                        );
+                        const toKeep = new Set(
+                            roomMetadata.scripts.map((script) => script.id),
+                        );
+                        toKeep.forEach((id) => toDelete.delete(id));
+                        await removeReferencesToScripts([...toDelete]);
+                        // Remove local copies of scripts the room has
+                        get().updateLocalStateContainer((container) => {
+                            ScriptContainerUtils.removeAll(container, toKeep);
+                        });
                         set({ roomMetadata });
                     }
                 },
@@ -279,13 +221,11 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 name: LOCAL_STORAGE_STORE_NAME,
                 partialize: ({
                     scripts,
-                    hasSensibleValues,
                     contextMenuEnabled,
                     toolEnabled,
                     toolMappings,
                 }) => ({
                     scripts,
-                    hasSensibleValues,
                     contextMenuEnabled,
                     toolEnabled,
                     toolMappings,

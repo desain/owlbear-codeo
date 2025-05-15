@@ -196,11 +196,9 @@ async function installTool() {
                             executionId,
                         });
                     } else {
-                        const script = state.scripts.find(
-                            (script) => script.id === scriptId,
-                        );
+                        const script = state.getScriptById(scriptId);
 
-                        if (script === undefined) {
+                        if (!script) {
                             void OBR.notification.show(
                                 `Script for shortcut ${letter} not found`,
                                 "ERROR",
@@ -215,7 +213,7 @@ async function installTool() {
                             true,
                         );
 
-                        const newExecutionId = await runScript(script);
+                        const newExecutionId = await runScript(script[0]);
                         if (newExecutionId) {
                             await OBR.tool.setMetadata(SHORTCUT_TOOL_ID, {
                                 [executionKey(letter)]: newExecutionId,

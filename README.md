@@ -113,12 +113,7 @@ To make a production build run:
 ## To do
 
 -   Figure out a better way to pass the OBR APIs than as AsyncFunction args. https://www.totaltypescript.com/tips/turn-a-module-into-a-type?
--   Figure out a way to share scripts with others in the room, or with yourself on different devices
-    -   Player metadata: goes away when you leave
-    -   Local storage: Doesn't sync between devices
-    -   Room metadata: 16KB limit shared between extensions, not good for large text like scripts
-        -   Store urls in metadata and load all on extension load?
-    -   Tool metadata is in local storage, so no advantage over zustand persist
+-   Figure out a way to share scripts with yourself on different devices
     -   Firestore? (nosql)
     -   Suprabase? (postgres)
 -   Favorites system
@@ -136,8 +131,10 @@ To make a production build run:
     -   Vector compare
 -   Move parameters to the card dropdown
 -   Remove F as a shortcut (fog)
+-   Remove L as a shortcut (lock)
 -   Remove globals dependency
 -   Add version display at the bottom
+-   Unhook buttons when room metadata deletes a script
 
 ## License
 

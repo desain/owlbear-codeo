@@ -21,33 +21,32 @@ import {
 import OBR from "@owlbear-rodeo/sdk";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { produce } from "immer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MODAL_EDIT_SCRIPT_ID } from "../constants";
 import type { CodeoScript, ScriptParameter } from "../script/CodeoScript";
 import { isParameterType, PARAMETER_TYPES } from "../script/CodeoScript";
+import {
+    ScriptContainerUtils,
+    withLocalAndRemoteContainers,
+} from "../state/ScriptContainerUtils";
 import { usePlayerStorage } from "../state/usePlayerStorage";
+import { useSelectedScript } from "../useSelectedScript";
+import { canEditScript } from "../utils/utils";
 
 type EditScriptProps = Readonly<{
     /**
      * Script to edit. If null, this is a new script.
      */
-    scriptId: string | null;
+    scriptId: string | undefined;
 }>;
 
 export function EditScript({ scriptId }: EditScriptProps) {
-    const scripts = usePlayerStorage((store) => store.scripts);
+    const role = usePlayerStorage((store) => store.role);
     const playerName = usePlayerStorage((store) => store.playerName);
-    const updateScript = usePlayerStorage((store) => store.updateLocalScript);
-    const addScript = usePlayerStorage((store) => store.addLocalScript);
-    const script = useMemo(
-        () => scripts.find((script) => script.id === scriptId),
-        [scripts, scriptId],
-    );
-    // Don't allow editing imported scripts
-    const editingDisabled = script?.url !== undefined;
-
+    const addLocalScript = usePlayerStorage((store) => store.addLocalScript);
+    const script = useSelectedScript(scriptId);
     const [formData, setFormData] = useState<CodeoScript>(
-        script ?? {
+        script?.[0] ?? {
             name: "My New Script",
             description: "Describe your script here.",
             code: "OBR.notification.show('Hello world!')",
@@ -59,14 +58,22 @@ export function EditScript({ scriptId }: EditScriptProps) {
         void OBR.modal.close(MODAL_EDIT_SCRIPT_ID);
     }, []);
 
-    const handleSave = useCallback(() => {
+    const handleSave = useCallback(async () => {
         if (scriptId) {
-            updateScript(scriptId, formData);
+            await withLocalAndRemoteContainers((container) => {
+                ScriptContainerUtils.update(container, scriptId, formData);
+            });
         } else {
-            addScript({ author: playerName, ...formData });
+            addLocalScript({ author: playerName, ...formData });
         }
         handleClose();
-    }, [scriptId, handleClose, updateScript, formData, addScript, playerName]);
+    }, [scriptId, handleClose, formData, addLocalScript, playerName]);
+
+    // Don't allow editing imported scripts
+    const isImported = !!script?.[0].url;
+    // Treat new scripts as local
+    const isLocal = script?.[1] ?? true;
+    const editingDisabled = isImported || !canEditScript(role, isLocal);
 
     // Save on Ctrl+S or Cmd+S
     useEffect(() => {
@@ -76,7 +83,7 @@ export function EditScript({ scriptId }: EditScriptProps) {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
                 e.preventDefault();
-                handleSave();
+                void handleSave();
             }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -90,7 +97,10 @@ export function EditScript({ scriptId }: EditScriptProps) {
     ) => {
         setFormData(
             produce((draft) => {
-                draft.parameters[idx][field] = value;
+                const param = draft.parameters[idx];
+                if (param) {
+                    param[field] = value;
+                }
             }),
         );
     };
@@ -118,13 +128,19 @@ export function EditScript({ scriptId }: EditScriptProps) {
         setFormData(
             produce((draft) => {
                 const newIdx = idx + direction;
-                if (newIdx < 0 || newIdx >= draft.parameters.length) {
+                const [p1, p2] = [
+                    draft.parameters[idx],
+                    draft.parameters[newIdx],
+                ];
+                if (p1 && p2) {
+                    [draft.parameters[idx], draft.parameters[newIdx]] = [
+                        p2,
+                        p1,
+                    ];
+                } else {
+                    // invalid indices
                     return;
                 }
-                [draft.parameters[idx], draft.parameters[newIdx]] = [
-                    draft.parameters[newIdx],
-                    draft.parameters[idx],
-                ];
             }),
         );
     };
@@ -303,9 +319,9 @@ export function EditScript({ scriptId }: EditScriptProps) {
                 </Stack>
             </DialogContent>
             <DialogActions>
-                {script?.url && (
+                {script?.[0].url && (
                     <Button
-                        href={script.url}
+                        href={script?.[0].url}
                         target="_blank"
                         startIcon={<Public />}
                     >

@@ -2,29 +2,24 @@ import { Box, FormGroup, FormHelperText, Typography } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
-import { useMemo } from "react";
 import { broadcast } from "../broadcast/handleBroadcast";
-import type { Shortcut} from "../constants";
+import type { Shortcut } from "../constants";
 import { SHORTCUT_OPTIONS } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { getExecution } from "../tool/shortcutTool";
 import type { ScriptPickerOption } from "../ui/ScriptPicker";
 import { ScriptPicker } from "../ui/ScriptPicker";
+import { useSelectedScript } from "../useSelectedScript";
 
 function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
     const setToolShortcut = usePlayerStorage((state) => state.setToolShortcut);
     const removeToolShortcut = usePlayerStorage(
         (state) => state.removeToolShortcut,
     );
-    const scripts = usePlayerStorage((state) => state.scripts);
     const mappedScriptId = usePlayerStorage(
         (store) => store.toolMappings[shortcut],
     );
-
-    const mappedScript = useMemo(
-        () => scripts.find((s) => s.id === mappedScriptId),
-        [scripts, mappedScriptId],
-    );
+    const mappedScript = useSelectedScript(mappedScriptId);
 
     const handleScriptChange = async (
         shortcut: Shortcut,
@@ -51,7 +46,7 @@ function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
     };
 
     const value = mappedScript
-        ? { label: mappedScript.name, id: mappedScript.id }
+        ? { label: mappedScript[0].name, id: mappedScript[0].id }
         : null;
 
     return (
@@ -68,7 +63,6 @@ function ShortcutSetting({ shortcut }: { shortcut: Shortcut }) {
             </Box>
             <Box sx={{ flexGrow: 1 }}>
                 <ScriptPicker
-                    scripts={scripts}
                     value={value}
                     onChange={(option) => handleScriptChange(shortcut, option)}
                 />

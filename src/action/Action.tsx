@@ -11,6 +11,7 @@ import {
     PlayCircleOutlineTwoTone,
     Search,
     Settings,
+    Share,
     Sort,
     SortByAlpha,
     Stop,
@@ -29,6 +30,7 @@ import {
     Divider,
     IconButton,
     InputAdornment,
+    Link,
     List,
     ListItem,
     ListItemIcon,
@@ -53,9 +55,16 @@ import {
 } from "../constants";
 import type { Execution } from "../Execution";
 import type { ScriptParameter } from "../script/CodeoScript";
+import { deleteScript } from "../script/deleteScript";
 import { runScript } from "../script/runScript";
+import { updateRoomMetadata } from "../state/RoomMetadata";
+import {
+    ScriptContainerUtils,
+    withLocalAndRemoteContainers,
+} from "../state/ScriptContainerUtils";
 import type { ParameterWithValue, StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
+import { canEditScript } from "../utils/utils";
 import { DownloadScriptButton } from "./DownloadScriptButton";
 import { ImportButton } from "./ImportButton";
 import { RefreshScriptButton } from "./RefreshScriptButton";
@@ -129,16 +138,43 @@ function ExecutionItem({
     );
 }
 
-function OverflowMenu({ script }: { script: StoredScript }) {
+function OverflowMenu({
+    local,
+    script,
+}: {
+    local: boolean;
+    script: StoredScript;
+}) {
+    const isGm = usePlayerStorage((store) => store.role) === "GM";
     const playerName = usePlayerStorage((store) => store.playerName);
     const addLocalScript = usePlayerStorage((store) => store.addLocalScript);
+    const getScriptById = usePlayerStorage((store) => store.getScriptById);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const handleDelete = (scriptId: string) =>
-        broadcast({
-            type: "REMOVE_SCRIPT",
-            id: scriptId,
+    const handleShare = async (scriptId: string) => {
+        const script = getScriptById(scriptId);
+        if (!script?.[1]) {
+            console.warn("Attempt to share nonexistent local script");
+            return;
+        }
+        // Add it to the room
+        // The update logic will take care of deleting the local copy
+        await updateRoomMetadata((roomMetadata) => {
+            ScriptContainerUtils.addStored(roomMetadata, script[0]);
         });
+    };
+
+    const handleUnshare = async (scriptId: string) => {
+        const script = getScriptById(scriptId);
+        if (!script || script[1]) {
+            console.warn("Attempt to unshare nonexistent room script");
+            return;
+        }
+        // Remove from the room
+        await deleteScript(scriptId);
+        // Add locally
+        addLocalScript(script[0]);
+    };
 
     return (
         <>
@@ -152,12 +188,6 @@ function OverflowMenu({ script }: { script: StoredScript }) {
                 open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
             >
-                <MenuItem onClick={() => handleDelete(script.id)}>
-                    <ListItemIcon>
-                        <Delete />
-                    </ListItemIcon>
-                    Delete
-                </MenuItem>
                 <MenuItem
                     onClick={() => {
                         addLocalScript({
@@ -175,23 +205,55 @@ function OverflowMenu({ script }: { script: StoredScript }) {
                     </ListItemIcon>
                     Copy to New
                 </MenuItem>
+                {(local || isGm) && (
+                    <MenuItem onClick={() => deleteScript(script.id)}>
+                        <ListItemIcon>
+                            <Delete />
+                        </ListItemIcon>
+                        Delete
+                    </MenuItem>
+                )}
+                {isGm && local && (
+                    <MenuItem onClick={() => handleShare(script.id)}>
+                        <ListItemIcon>
+                            <Share />
+                        </ListItemIcon>
+                        Share with Room
+                    </MenuItem>
+                )}
+                {isGm && !local && (
+                    <MenuItem onClick={() => handleUnshare(script.id)}>
+                        <ListItemIcon>
+                            <Share color="primary" />
+                        </ListItemIcon>
+                        Stop Sharing
+                    </MenuItem>
+                )}
             </Menu>
         </>
     );
 }
 
 function Parameter({
+    editingDisabled,
     script,
     param,
     idx,
 }: {
+    editingDisabled: boolean;
     script: StoredScript;
     param: ScriptParameter & ParameterWithValue;
     idx: number;
 }) {
-    const setParameterValue = usePlayerStorage(
-        (store) => store.setParameterValue,
-    );
+    const handleSetParameterValue = (value: ParameterWithValue["value"]) =>
+        withLocalAndRemoteContainers((container) => {
+            ScriptContainerUtils.setParameterValue(
+                container,
+                script.id,
+                idx,
+                value,
+            );
+        });
 
     return (
         <Stack direction="row" alignItems="center" spacing={2}>
@@ -204,13 +266,13 @@ function Parameter({
             </Typography>
             {param.type === "boolean" ? (
                 <Checkbox
+                    disabled={editingDisabled}
                     checked={!!param.value}
-                    onChange={(_, checked) =>
-                        setParameterValue(script.id, idx, checked)
-                    }
+                    onChange={(_, checked) => handleSetParameterValue(checked)}
                 />
             ) : param.type === "Item" ? (
                 <Chip
+                    disabled={editingDisabled}
                     avatar={
                         param.value && isImage(param.value) ? (
                             <Avatar src={param.value.image.url} />
@@ -236,17 +298,18 @@ function Parameter({
                                 selected,
                             ]);
                             if (item) {
-                                setParameterValue(script.id, idx, item);
+                                await handleSetParameterValue(item);
                             }
                         }
                     }}
                     onDelete={
                         param.value &&
-                        (() => setParameterValue(script.id, idx, undefined))
+                        (() => handleSetParameterValue(undefined))
                     }
                 />
             ) : (
                 <TextField
+                    disabled={editingDisabled}
                     type={param.type === "number" ? "number" : "text"}
                     size="small"
                     value={param.value ?? ""}
@@ -255,7 +318,7 @@ function Parameter({
                             param.type === "number"
                                 ? Number(e.target.value)
                                 : e.target.value;
-                        setParameterValue(script.id, idx, val);
+                        return handleSetParameterValue(val);
                     }}
                     // sx={{ minWidth: 120 }}
                 />
@@ -265,11 +328,13 @@ function Parameter({
 }
 
 function ScriptCard({
+    local,
     script,
     nameRanges,
     descriptionRanges,
     authorRanges,
 }: {
+    local: boolean;
     script: StoredScript;
     nameRanges: HighlightRanges | null;
     descriptionRanges: HighlightRanges | null;
@@ -277,14 +342,17 @@ function ScriptCard({
 }) {
     const executions =
         usePlayerStorage((store) => store.executions.get(script.id)) ?? [];
+    const role = usePlayerStorage((store) => store.role);
 
-    const isImported = script.url !== undefined;
+    const hasUrl = script.url !== undefined;
+    const editingDisabled = !canEditScript(role, local);
 
     return (
         <Card sx={{ width: "100%" }}>
             <CardHeader
                 title={
                     <Stack direction="row" alignItems="center" gap={1}>
+                        {!local && <Share color="disabled" />}
                         <Box>
                             <Highlight text={script.name} ranges={nameRanges} />
                         </Box>
@@ -308,7 +376,7 @@ function ScriptCard({
                         variant: "h6",
                     },
                 }}
-                action={<OverflowMenu script={script} />}
+                action={<OverflowMenu local={local} script={script} />}
             />
             <CardContent>
                 {script.description && (
@@ -330,6 +398,7 @@ function ScriptCard({
                         </Typography>
                         {script.parameters.map((param, idx) => (
                             <Parameter
+                                editingDisabled={editingDisabled}
                                 key={idx}
                                 script={script}
                                 param={param}
@@ -359,14 +428,23 @@ function ScriptCard({
                     <IconButton onClick={() => runScript(script)}>
                         <PlayCircleOutlineTwoTone />
                     </IconButton>
-                </Tooltip>{" "}
-                <Tooltip title={isImported ? "View" : "Edit script"}>
+                </Tooltip>
+                <Tooltip title={hasUrl ? "View" : "Edit script"}>
                     <IconButton onClick={() => void openEditModal(script.id)}>
-                        {isImported ? <Visibility /> : <Edit />}
+                        {!hasUrl && !editingDisabled ? (
+                            <Edit />
+                        ) : (
+                            <Visibility />
+                        )}
                     </IconButton>
                 </Tooltip>
                 <DownloadScriptButton script={script} />
-                {script.url && <RefreshScriptButton script={script} />}
+                {script.url && (
+                    <RefreshScriptButton
+                        disabled={editingDisabled}
+                        script={script}
+                    />
+                )}
             </CardActions>
         </Card>
     );
@@ -452,21 +530,25 @@ export function Action() {
 
     // Fuzzy search on name, description, and code
     const filteredScripts = useFuzzySearchList({
-        list: [...localScripts, ...roomScripts],
+        list: [
+            ...localScripts.map((script) => [script, true] as const),
+            ...roomScripts.map((script) => [script, false] as const),
+        ],
         queryText: search,
         getText: (item) => [
-            item.name,
-            item.description ?? "",
-            item.author ?? "",
+            item[0].name,
+            item[0].description ?? "",
+            item[0].author ?? "",
         ],
         mapResultItem: ({
-            item,
+            item: [script, local],
             matches: [nameRanges, descriptionRanges, authorRanges],
         }) => ({
-            script: item,
-            nameRanges,
-            descriptionRanges,
-            authorRanges,
+            script,
+            local,
+            nameRanges: nameRanges ?? null, // map undefined -> null
+            descriptionRanges: descriptionRanges ?? null, // map undefined -> null
+            authorRanges: authorRanges ?? null, // map undefined -> null
         }),
     });
 
@@ -710,13 +792,50 @@ export function Action() {
                     ))}
                 </List>
             ) : (
-                <Typography
-                    color="textSecondary"
-                    sx={{ p: 2, fontStyle: "italic" }}
-                >
-                    No scripts found. Click 'Add' to create a new script, or
+                <Box sx={{ px: 2 }} fontStyle={"italic"} color={"lightgray"}>
+                    No scripts found. Click '+' to create a new script, or
                     import one from a file or URL.
-                </Typography>
+                    <br></br>
+                    Want some ideas? Try importing from these links:
+                    <ul>
+                        <li>
+                            <Link
+                                href="https://gist.github.com/desain/cbfdce2b7329fcae2919a479ff1d3e44"
+                                target="_blank"
+                            >
+                                Living Lines
+                            </Link>
+                            &nbsp;(maintain a line between tokens)
+                        </li>
+                        <li>
+                            <Link
+                                href="https://gist.github.com/desain/5315c2c18ba469cd85534e8c29f8abbc"
+                                target="_blank"
+                            >
+                                Shake It Off
+                            </Link>
+                            &nbsp;(shake the screen when a token moves)
+                        </li>
+                        <li>
+                            <Link
+                                href="https://gist.github.com/desain/e8f8f769cd32608c4d99415ad3ee9f25"
+                                target="_blank"
+                            >
+                                Portals
+                            </Link>
+                            &nbsp;(make two shapes portals to each other)
+                        </li>
+                        <li>
+                            <Link
+                                href="https://gist.github.com/desain/38977393433dfc6242eab280abe416fa"
+                                target="_blank"
+                            >
+                                Inversionify
+                            </Link>
+                            &nbsp;(make a shape invert the colors underneath it)
+                        </li>
+                    </ul>
+                </Box>
             )}
             <Divider />
             <Stack direction={"row"} justifyContent={"center"}>

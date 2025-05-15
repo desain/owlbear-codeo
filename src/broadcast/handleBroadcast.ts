@@ -1,11 +1,7 @@
 import OBR from "@owlbear-rodeo/sdk";
-import { getId, isObject } from "owlbear-utils";
-import {
-    isShortcut,
-    MESSAGE_CHANNEL,
-    METADATA_EXECUTION_ID_KEY,
-    METADATA_SCRIPT_ID_KEY,
-} from "../constants";
+import { isObject } from "owlbear-utils";
+import { MESSAGE_CHANNEL, METADATA_EXECUTION_ID_KEY } from "../constants";
+import { deleteScript } from "../script/deleteScript";
 import { runScript } from "../script/runScript";
 import { BACKGROUND_OFF, isScriptButton } from "../ScriptButton";
 import type { StoredScript } from "../state/StoredScript";
@@ -74,7 +70,7 @@ function getScriptOrWarn(selector: ScriptSelector): StoredScript | null {
     const state = usePlayerStorage.getState();
     const script =
         "id" in selector
-            ? state.getScriptById(selector.id)
+            ? state.getScriptById(selector.id)?.[0]
             : state.getScriptByName(selector.name);
     if (!script) {
         void OBR.notification.show(
@@ -140,39 +136,10 @@ async function handleBroadcast(data: unknown) {
         state.removeExecution(script.id, data.executionId);
     } else if (isRemoveScriptMessage(data)) {
         const script = getScriptOrWarn(data);
-        if (script === null) {
+        if (!script) {
             return;
         }
-        const state = usePlayerStorage.getState();
-
-        // Stop all executions for the script
-        const scriptExecutions = state.executions.get(script.id) ?? [];
-        for (const execution of scriptExecutions) {
-            execution.stop();
-        }
-
-        // remove mappings to the script
-        for (const [shortcut, scriptId] of Object.entries(state.toolMappings)) {
-            if (scriptId === script.id && isShortcut(shortcut)) {
-                state.removeToolShortcut(shortcut);
-            }
-        }
-
-        // Remove any buttons for the script
-        const buttons = await OBR.scene.items.getItems(
-            (button) =>
-                isScriptButton(button) &&
-                button.metadata[METADATA_SCRIPT_ID_KEY] === script.id,
-        );
-        await OBR.scene.items.deleteItems([
-            ...buttons.map(getId),
-            ...buttons
-                .map((button) => button.attachedTo)
-                .filter((id) => id !== undefined),
-        ]);
-
-        // Remove the script from state
-        state.removeLocalScript(script.id);
+        await deleteScript(script.id);
     } else {
         void OBR.notification.show(
             "[Codeo] Ignoring invalid message",

@@ -10,11 +10,11 @@ import { usePlayerStorage } from "../state/usePlayerStorage";
 
 export function startWatchingButtons() {
     return OBR.player.onChange(async (player) => {
-        if (player.selection?.length !== 1) {
+        if (!player.selection?.[0] || player.selection.length !== 1) {
             return;
         }
         const [item] = await OBR.scene.items.getItems([player.selection[0]]);
-        if (!isScriptButton(item)) {
+        if (!item || !isScriptButton(item)) {
             return;
         }
         void OBR.player.deselect();
@@ -29,19 +29,22 @@ export function startWatchingButtons() {
             });
         } else {
             const script = usePlayerStorage.getState().getScriptById(scriptId);
-            if (script === undefined) {
+            if (!script) {
                 void OBR.notification.show(
                     `Script for button '${item.text.plainText}' not found`,
                     "ERROR",
                 );
                 return;
             }
-            const newExecutionId = await runScript(script);
+            const newExecutionId = await runScript(script[0]);
             if (newExecutionId) {
-                await OBR.scene.items.updateItems([item], ([item]) => {
-                    item.style.backgroundColor = BACKGROUND_ON;
-                    item.metadata[METADATA_EXECUTION_ID_KEY] = newExecutionId;
-                });
+                await OBR.scene.items.updateItems([item], (items) =>
+                    items.forEach((item) => {
+                        item.style.backgroundColor = BACKGROUND_ON;
+                        item.metadata[METADATA_EXECUTION_ID_KEY] =
+                            newExecutionId;
+                    }),
+                );
             }
         }
     });

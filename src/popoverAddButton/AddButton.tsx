@@ -13,7 +13,6 @@ import type { ScriptPickerOption } from "../ui/ScriptPicker";
 import { ScriptPicker } from "../ui/ScriptPicker";
 
 export function AddButton({ position }: { position: Vector2 }) {
-    const scripts = usePlayerStorage((store) => store.scripts);
     const handleClose = useCallback(() => {
         void OBR.popover.close(POPOVER_ADD_BUTTON_ID);
     }, []);
@@ -43,11 +42,7 @@ export function AddButton({ position }: { position: Vector2 }) {
     return (
         <Stack sx={{ p: 2 }} gap={2}>
             <Typography variant="h6">New Script Button</Typography>
-            <ScriptPicker
-                scripts={scripts}
-                value={selectedScript}
-                onChange={setSelectedScript}
-            />
+            <ScriptPicker value={selectedScript} onChange={setSelectedScript} />
             <Stack direction={"row"} gap={1} justifyContent={"end"}>
                 <Button onClick={handleClose} startIcon={<CloseIcon />}>
                     Cancel

@@ -3,8 +3,11 @@ import type { NewExecution } from "./Execution";
 
 export class Codeo {
     #executionId: string | null = null;
+    readonly #scriptId: string;
 
-    constructor(private readonly scriptId: string) {}
+    constructor(scriptId: string) {
+        this.#scriptId = scriptId;
+    }
 
     /**
      * If the script has an active execution, calls the execution's stop() function and removes
@@ -16,7 +19,7 @@ export class Codeo {
         } else {
             void broadcast({
                 type: "STOP_EXECUTION",
-                id: this.scriptId,
+                id: this.#scriptId,
                 executionId: this.#executionId,
             });
         }
