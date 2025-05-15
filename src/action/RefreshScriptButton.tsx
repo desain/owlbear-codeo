@@ -2,7 +2,7 @@ import { Update } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import OBR from "@owlbear-rodeo/sdk";
 import { importScript } from "../importScript";
-import type { StoredScript} from "../state/usePlayerStorage";
+import type { StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 
 export function RefreshScriptButton({ script }: { script: StoredScript }) {

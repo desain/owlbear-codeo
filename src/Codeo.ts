@@ -1,4 +1,4 @@
-import { broadcast } from "./action/handleBroadcast";
+import { broadcast } from "./broadcast/handleBroadcast";
 import type { NewExecution } from "./Execution";
 
 export class Codeo {

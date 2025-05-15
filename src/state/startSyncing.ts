@@ -12,31 +12,39 @@ export function startSyncing(): [
     unsubscribe: VoidFunction,
 ] {
     // console.log("startSyncing");
-    const store = usePlayerStorage.getState();
+    const { setSceneReady, handlePlayerUpdate, handleRoomMetadataUpdate } =
+        usePlayerStorage.getState();
 
-    const sceneReadyInitialized = OBR.scene.isReady().then(store.setSceneReady);
-    const unsubscribeSceneReady = OBR.scene.onReadyChange((ready) => {
-        store.setSceneReady(ready);
-    });
+    const sceneReadyInitialized = OBR.scene.isReady().then(setSceneReady);
+    const unsubscribeSceneReady = OBR.scene.onReadyChange(setSceneReady);
 
-    const playerColorInitialized = OBR.player
-        .getColor()
-        .then(store.setPlayerColor);
-    const playerNameInitialized = OBR.player
-        .getName()
-        .then(store.setPlayerName);
-    const unsubscribePlayer = OBR.player.onChange((player) => {
-        store.setPlayerColor(player.color);
-        store.setPlayerName(player.name);
-        store.setSelection(player.selection);
-    });
+    const playerInitialized = Promise.all([
+        OBR.player.getColor(),
+        OBR.player.getName(),
+        OBR.player.getRole(),
+        OBR.player.getSelection(),
+    ]).then(([color, name, role, selection]) =>
+        handlePlayerUpdate({ color, name, role, selection }),
+    );
+    const unsubscribePlayer = OBR.player.onChange(handlePlayerUpdate);
+
+    const roomMetadataInitialized = OBR.room
+        .getMetadata()
+        .then(handleRoomMetadataUpdate);
+    const unsubscribeRoomMetadata = OBR.room.onMetadataChange(
+        handleRoomMetadataUpdate,
+    );
 
     return [
         Promise.all([
             sceneReadyInitialized,
-            playerColorInitialized,
-            playerNameInitialized,
+            playerInitialized,
+            roomMetadataInitialized,
         ]).then(() => void 0),
-        deferCallAll(unsubscribeSceneReady, unsubscribePlayer),
+        deferCallAll(
+            unsubscribeSceneReady,
+            unsubscribePlayer,
+            unsubscribeRoomMetadata,
+        ),
     ];
 }

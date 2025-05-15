@@ -9,7 +9,7 @@ import {
 } from "../constants";
 import { runScript } from "../runScript";
 import { BACKGROUND_OFF, isScriptButton } from "../ScriptButton";
-import type { StoredScript} from "../state/usePlayerStorage";
+import type { StoredScript } from "../state/StoredScript";
 import { usePlayerStorage } from "../state/usePlayerStorage";
 import { clearExecutionsFromTool } from "../tool/shortcutTool";
 

@@ -3,6 +3,7 @@ const PLUGIN_ID = "com.desain.codeo";
 // Metadata
 export const METADATA_SCRIPT_ID_KEY = `${PLUGIN_ID}/scriptId`;
 export const METADATA_EXECUTION_ID_KEY = `${PLUGIN_ID}/executionId`;
+export const METADATA_KEY_ROOM_METADATA = `${PLUGIN_ID}/roomMetadata`;
 
 // Modals and popovers
 export const MODAL_EDIT_SCRIPT_ID = `${PLUGIN_ID}/modalEditScript`;

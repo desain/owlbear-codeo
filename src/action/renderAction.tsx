@@ -9,7 +9,7 @@ import { startWatchingContextMenuEnabled } from "../contextmenu/contextmenu";
 import { startSyncing } from "../state/startSyncing";
 import { startWatchingToolEnabled } from "../tool/shortcutTool";
 import { Action } from "./Action";
-import { installBroadcastListener } from "./handleBroadcast";
+import { installBroadcastListener } from "../broadcast/handleBroadcast";
 import { startWatchingButtons } from "./watchButtonClicks";
 
 let uninstall: VoidFunction = () => {

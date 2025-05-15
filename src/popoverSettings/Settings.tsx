@@ -3,7 +3,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import { useMemo } from "react";
-import { broadcast } from "../action/handleBroadcast";
+import { broadcast } from "../broadcast/handleBroadcast";
 import type { Shortcut} from "../constants";
 import { SHORTCUT_OPTIONS } from "../constants";
 import { usePlayerStorage } from "../state/usePlayerStorage";

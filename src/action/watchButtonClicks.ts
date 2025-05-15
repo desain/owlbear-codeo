@@ -1,4 +1,5 @@
 import OBR from "@owlbear-rodeo/sdk";
+import { broadcast } from "../broadcast/handleBroadcast";
 import {
     METADATA_EXECUTION_ID_KEY,
     METADATA_SCRIPT_ID_KEY,
@@ -6,7 +7,6 @@ import {
 import { runScript } from "../runScript";
 import { BACKGROUND_ON, isScriptButton } from "../ScriptButton";
 import { usePlayerStorage } from "../state/usePlayerStorage";
-import { broadcast } from "./handleBroadcast";
 
 export function startWatchingButtons() {
     return OBR.player.onChange(async (player) => {

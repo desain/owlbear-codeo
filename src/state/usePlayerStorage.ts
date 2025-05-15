@@ -1,64 +1,24 @@
-import type { Item } from "@owlbear-rodeo/sdk";
+import type { Metadata, Player } from "@owlbear-rodeo/sdk";
 import { enableMapSet } from "immer";
+import type { Role } from "owlbear-utils";
 import { getOrInsert } from "owlbear-utils";
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { CodeoScript } from "../CodeoScript";
 import type { Shortcut } from "../constants";
-import { LOCAL_STORAGE_STORE_NAME } from "../constants";
+import {
+    LOCAL_STORAGE_STORE_NAME,
+    METADATA_KEY_ROOM_METADATA,
+} from "../constants";
 import type { Execution } from "../Execution";
 import { setShortcutEnabledUi } from "../tool/shortcutTool";
+import { isRoomMetadata, type RoomMetadata } from "./RoomMetadata";
+import type { ParameterWithValue, StoredScript } from "./StoredScript";
 
 enableMapSet();
 
 const SET_SENSIBLE = Symbol("SetSensible");
-
-/*
-Values here must be readonly to avoid a Typescript issue
-If values can be written, then this compiles:
-
-const x: ParameterWithValue =
-    Math.random() > 0.5
-        ? { type: "string", value: "x" }
-        : { type: "number", value: 0 };
-
-x.value = 100;
-
-But it might result in a runtime state where x = {
-    type: "string",
-    value: 100,
-}
-
-This is apparently not considered a typescript bug, but
-I think it should be.
-
-Making the values readonly avoids this.
-*/
-
-type BooleanParameter = Readonly<{
-    type: "boolean";
-    value?: boolean;
-}>;
-type NumberParameter = Readonly<{
-    type: "number";
-    value?: number;
-}>;
-type StringParameter = Readonly<{
-    type: "string";
-    value?: string;
-}>;
-
-type ItemParameter = Readonly<{
-    type: "Item";
-    value?: Item;
-}>;
-
-export type ParameterWithValue =
-    | BooleanParameter
-    | NumberParameter
-    | StringParameter
-    | ItemParameter;
 
 function withValue<T extends ParameterWithValue>(
     parameter: T,
@@ -94,58 +54,76 @@ function withValue<T extends ParameterWithValue>(
     }
 }
 
-export type StoredScript = CodeoScript & {
-    id: string;
-    createdAt: number;
-    updatedAt: number;
-    runAt: number;
-    parameters: ParameterWithValue[];
-};
-
-export type PlayerStorage = Readonly<{
+export interface PlayerStorage {
     // Persistent values
-    hasSensibleValues: boolean;
-    scripts: StoredScript[];
-    toolEnabled: boolean;
-    contextMenuEnabled: boolean;
-    toolMappings: Partial<Record<Shortcut, string>>;
-    [SET_SENSIBLE](this: void): void;
-    setToolEnabled(this: void, enabled: boolean): void;
-    setContextMenuEnabled(this: void, enabled: boolean): void;
-    setToolShortcut(this: void, shortcut: Shortcut, scriptId: string): void;
-    removeToolShortcut(this: void, shortcut: Shortcut): void;
-    addScript(this: void, script: CodeoScript): void;
-    removeScript(this: void, id: string): void;
-    updateScript(this: void, id: string, updates: Partial<CodeoScript>): void;
-    setParameterValue(
+    readonly hasSensibleValues: boolean;
+    readonly scripts: StoredScript[];
+    readonly toolEnabled: boolean;
+    readonly contextMenuEnabled: boolean;
+    readonly toolMappings: Partial<Record<Shortcut, string>>;
+    readonly [SET_SENSIBLE]: (this: void) => void;
+    readonly setToolEnabled: (this: void, enabled: boolean) => void;
+    readonly setContextMenuEnabled: (this: void, enabled: boolean) => void;
+    readonly setToolShortcut: (
+        this: void,
+        shortcut: Shortcut,
+        scriptId: string,
+    ) => void;
+    readonly removeToolShortcut: (this: void, shortcut: Shortcut) => void;
+    readonly addScript: (this: void, script: CodeoScript) => void;
+    readonly removeScript: (this: void, id: string) => void;
+    readonly updateScript: (
+        this: void,
+        id: string,
+        updates: Partial<CodeoScript>,
+    ) => void;
+    readonly setParameterValue: (
         this: void,
         scriptId: string,
         paramIndex: number,
         value: ParameterWithValue["value"],
-    ): void;
-    markScriptRun(this: void, id: string): void;
+    ) => void;
+    /**
+     * Update the script's runtime to now.
+     */
+    readonly markScriptRun: (this: void, id: string) => void;
 
     // Temporary values
     /**
      * Map of script ID to list of its executions.
      */
-    executions: Map<string, Execution[]>;
-    addExecution(this: void, scriptId: string, execution: Execution): void;
+    readonly executions: Map<string, Execution[]>;
+    readonly addExecution: (
+        this: void,
+        scriptId: string,
+        execution: Execution,
+    ) => void;
     /**
      * Removes an execution, but doesn't stop it.
      */
-    removeExecution(this: void, scriptId: string, executionId: string): void;
+    readonly removeExecution: (
+        this: void,
+        scriptId: string,
+        executionId: string,
+    ) => void;
 
     // Tracking OBR
-    sceneReady: boolean;
-    playerColor: string;
-    playerName: string;
-    lastNonemptySelection: string[];
-    setSceneReady(this: void, sceneReady: boolean): void;
-    setPlayerColor(this: void, playerColor: string): void;
-    setPlayerName(this: void, playerName: string): void;
-    setSelection(this: void, selection: string[] | undefined): void;
-}>;
+    readonly sceneReady: boolean;
+    readonly role: Role;
+    readonly playerColor: string;
+    readonly playerName: string;
+    readonly lastNonemptySelection: string[];
+    readonly roomMetadata: RoomMetadata;
+    readonly setSceneReady: (this: void, sceneReady: boolean) => void;
+    readonly handlePlayerUpdate: (
+        this: void,
+        player: Pick<Player, "role" | "color" | "name" | "selection">,
+    ) => void;
+    readonly handleRoomMetadataUpdate: (
+        this: void,
+        roomMetadata: Metadata,
+    ) => void;
+}
 
 export const usePlayerStorage = create<PlayerStorage>()(
     subscribeWithSelector(
@@ -157,10 +135,7 @@ export const usePlayerStorage = create<PlayerStorage>()(
                 contextMenuEnabled: true,
                 toolMappings: {},
                 executions: new Map(),
-                sceneReady: false,
-                playerColor: "#FFFFFF",
-                playerName: "Placeholder",
-                lastNonemptySelection: [],
+
                 [SET_SENSIBLE]: () => set({ hasSensibleValues: true }),
                 setToolEnabled: (toolEnabled) => set({ toolEnabled }),
                 setContextMenuEnabled: (contextMenuEnabled) =>
@@ -226,14 +201,6 @@ export const usePlayerStorage = create<PlayerStorage>()(
                             ),
                         );
                     }),
-                setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
-                setPlayerColor: (playerColor) => set({ playerColor }),
-                setPlayerName: (playerName) => set({ playerName }),
-                setSelection: (selection) => {
-                    if (selection?.length) {
-                        set({ lastNonemptySelection: selection });
-                    }
-                },
                 setParameterValue: (scriptId, paramIndex, value) =>
                     set((state) => {
                         const scriptIdx = state.scripts.findIndex(
@@ -274,6 +241,29 @@ export const usePlayerStorage = create<PlayerStorage>()(
                         }
                         state.scripts[scriptIdx].runAt = Date.now();
                     }),
+
+                sceneReady: false,
+                playerColor: "#FFFFFF",
+                playerName: "Placeholder",
+                lastNonemptySelection: [],
+                role: "PLAYER",
+                roomMetadata: { scripts: [] },
+                setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
+                handlePlayerUpdate: (player) =>
+                    set({
+                        role: player.role,
+                        playerName: player.name,
+                        playerColor: player.color,
+                        ...(player.selection?.length
+                            ? { lastNonemptySelection: player.selection }
+                            : null),
+                    }),
+                handleRoomMetadataUpdate: (metadata) => {
+                    const roomMetadata = metadata[METADATA_KEY_ROOM_METADATA];
+                    if (isRoomMetadata(roomMetadata)) {
+                        set({ roomMetadata });
+                    }
+                },
             })),
             {
                 name: LOCAL_STORAGE_STORE_NAME,

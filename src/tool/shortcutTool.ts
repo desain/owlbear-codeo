@@ -27,7 +27,7 @@ import vStop from "../../assets/vStop.svg";
 import x from "../../assets/x.svg";
 import xStop from "../../assets/xStop.svg";
 
-import { broadcast } from "../action/handleBroadcast";
+import { broadcast } from "../broadcast/handleBroadcast";
 import type { Shortcut } from "../constants";
 import {
     SHORTCUT_OPTIONS,
