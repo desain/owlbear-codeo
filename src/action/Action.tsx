@@ -307,6 +307,40 @@ function Parameter({
                         (() => handleSetParameterValue(undefined))
                     }
                 />
+            ) : param.type === "ItemList" ? (
+                <Chip
+                    disabled={editingDisabled}
+                    label={
+                        param.value && Array.isArray(param.value) && param.value.length > 0
+                            ? `${param.value.length} item(s) selected`
+                            : "Set Multi-Selection"
+                    }
+                    onClick={async () => {
+                        const selectedIds = await OBR.player.getSelection();
+                        if (!selectedIds || selectedIds.length === 0) {
+                            OBR.notification.show("No items selected", "INFO");
+                            // Optionally, if you want to clear the value if nothing is selected:
+                            // await handleSetParameterValue(undefined); 
+                            return;
+                        }
+                        const items = await OBR.scene.items.getItems(selectedIds);
+                        if (items.length > 0) {
+                            await handleSetParameterValue(items);
+                        } else {
+                            // This case might happen if selected IDs are no longer valid
+                            OBR.notification.show(
+                                "Could not retrieve selected items.",
+                                "WARNING"
+                            );
+                            await handleSetParameterValue(undefined);
+                        }
+                    }}
+                    onDelete={
+                        param.value && Array.isArray(param.value) && param.value.length > 0
+                            ? () => handleSetParameterValue(undefined)
+                            : undefined
+                    }
+                />
             ) : (
                 <TextField
                     disabled={editingDisabled}
