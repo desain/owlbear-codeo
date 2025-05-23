@@ -234,7 +234,7 @@ function OverflowMenu({
     );
 }
 
-function Parameter({
+export function Parameter({
     editingDisabled,
     script,
     param,
@@ -283,12 +283,12 @@ function Parameter({
                     }
                     onClick={async () => {
                         if (param.value) {
-                            void OBR.player.select([param.value.id]);
+                            void OBR.player.select([param.value.id]); // Added void
                         } else {
                             const [selected] =
                                 (await OBR.player.getSelection()) ?? [];
                             if (!selected) {
-                                void OBR.notification.show(
+                                void OBR.notification.show( // Added void
                                     "No items selected",
                                     "ERROR",
                                 );
@@ -318,7 +318,7 @@ function Parameter({
                     onClick={async () => {
                         const selectedIds = await OBR.player.getSelection();
                         if (!selectedIds || selectedIds.length === 0) {
-                            OBR.notification.show("No items selected", "INFO");
+                            void OBR.notification.show("No items selected", "INFO"); // Added void
                             // Optionally, if you want to clear the value if nothing is selected:
                             // await handleSetParameterValue(undefined); 
                             return;
@@ -328,7 +328,7 @@ function Parameter({
                             await handleSetParameterValue(items);
                         } else {
                             // This case might happen if selected IDs are no longer valid
-                            OBR.notification.show(
+                            void OBR.notification.show( // Added void
                                 "Could not retrieve selected items.",
                                 "WARNING"
                             );
