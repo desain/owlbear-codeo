@@ -137,6 +137,7 @@ To make a production build run:
 ## To do
 
 -   Figure out a better way to pass the OBR APIs than as AsyncFunction args. https://www.totaltypescript.com/tips/turn-a-module-into-a-type?
+-   https://github.com/NeilFraser/JS-Interpreter?tab=readme-ov-file?
 -   Figure out a way to share scripts with yourself on different devices
     -   Firestore? (nosql)
     -   Suprabase? (postgres)
