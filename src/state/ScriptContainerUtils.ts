@@ -44,6 +44,19 @@ function withValue<T extends ParameterWithValue>(
                 );
             }
             return { ...parameter, value };
+        case "ItemList": // Added ItemList case
+            if (!Array.isArray(value) && value !== undefined) { // value can be undefined to clear it
+                throw new Error(
+                    `Value for ItemList parameter must be an array or undefined, got ${typeof value}`,
+                );
+            }
+            // Ensure all elements are items if the array is not undefined
+            if (Array.isArray(value) && !value.every(item => typeof item === 'object' && item !== null && 'id'in item)) {
+                 throw new Error(
+                    `All elements in ItemList parameter must be Item objects`,
+                );
+            }
+            return { ...parameter, value };
     }
 }
 
