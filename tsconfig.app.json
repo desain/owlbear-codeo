@@ -21,7 +21,7 @@
         "noImplicitReturns": true,
         "noUncheckedIndexedAccess": true,
         "erasableSyntaxOnly": true,
-        "types": ["vitest/importMeta"]
+        "types": ["vitest/importMeta", "vitest/globals", "@testing-library/jest-dom"]
     },
     "include": ["src", "test"]
 }
