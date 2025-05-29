@@ -159,6 +159,7 @@ To make a production build run:
 -   figure out what to do with room metadata collisions when a player marks a room script as run
 -   Use utils ObrAsyncFunction, withTimeout
 -           "noImplicitOverride": true,
+- mkcert like template
 
 ## License
 
