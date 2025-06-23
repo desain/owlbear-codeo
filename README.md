@@ -12,11 +12,11 @@ The extension can be installed from https://owlbear-codeo.pages.dev/manifest.jso
 
 ## Features
 
--   Create and edit custom scripts directly from the extension
--   GMs can share scripts with the whole room
--   Import scripts from external sources and update them if those sources change
--   Download and upload scripts
--   Track actively running scripts
+-   ✏️ Create and edit custom scripts directly from the extension
+-   🏠 GMs can share scripts with the whole room
+-   ⬇️ Import scripts from external sources and update them if those sources change
+-   ⬆️ Download and upload scripts
+-   🏃 Track actively running scripts
 
 ## How to use
 
