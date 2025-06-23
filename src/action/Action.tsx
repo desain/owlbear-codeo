@@ -234,7 +234,7 @@ function OverflowMenu({
     );
 }
 
-function Parameter({
+export function Parameter({
     editingDisabled,
     script,
     param,
@@ -283,12 +283,12 @@ function Parameter({
                     }
                     onClick={async () => {
                         if (param.value) {
-                            void OBR.player.select([param.value.id]);
+                            void OBR.player.select([param.value.id]); // Added void
                         } else {
                             const [selected] =
                                 (await OBR.player.getSelection()) ?? [];
                             if (!selected) {
-                                void OBR.notification.show(
+                                void OBR.notification.show( // Added void
                                     "No items selected",
                                     "ERROR",
                                 );
@@ -305,6 +305,40 @@ function Parameter({
                     onDelete={
                         param.value &&
                         (() => handleSetParameterValue(undefined))
+                    }
+                />
+            ) : param.type === "ItemList" ? (
+                <Chip
+                    disabled={editingDisabled}
+                    label={
+                        param.value && Array.isArray(param.value) && param.value.length > 0
+                            ? `${param.value.length} item(s) selected`
+                            : "Set Multi-Selection"
+                    }
+                    onClick={async () => {
+                        const selectedIds = await OBR.player.getSelection();
+                        if (!selectedIds || selectedIds.length === 0) {
+                            void OBR.notification.show("No items selected", "INFO"); // Added void
+                            // Optionally, if you want to clear the value if nothing is selected:
+                            // await handleSetParameterValue(undefined); 
+                            return;
+                        }
+                        const items = await OBR.scene.items.getItems(selectedIds);
+                        if (items.length > 0) {
+                            await handleSetParameterValue(items);
+                        } else {
+                            // This case might happen if selected IDs are no longer valid
+                            void OBR.notification.show( // Added void
+                                "Could not retrieve selected items.",
+                                "WARNING"
+                            );
+                            await handleSetParameterValue(undefined);
+                        }
+                    }}
+                    onDelete={
+                        param.value && Array.isArray(param.value) && param.value.length > 0
+                            ? () => handleSetParameterValue(undefined)
+                            : undefined
                     }
                 />
             ) : (

@@ -39,11 +39,17 @@ interface ItemParameter {
     readonly value?: Item;
 }
 
+interface ItemListParameter {
+    readonly type: "ItemList";
+    readonly value?: Item[];
+}
+
 export type ParameterWithValue =
     | BooleanParameter
     | NumberParameter
     | StringParameter
-    | ItemParameter;
+    | ItemParameter
+    | ItemListParameter;
 
 export type StoredScript = CodeoScript & {
     id: string;
